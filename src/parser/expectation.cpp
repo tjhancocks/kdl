@@ -25,7 +25,6 @@
 
 kdl::sema::expectation::expectation(enum lexeme::type Ty)
     : m_Ty(Ty), m_Tx("")
-
 {
 
 }
@@ -44,7 +43,7 @@ kdl::sema::expectation::expectation(enum kdl::lexeme::type Ty, const std::string
 
 // MARK: - Conditions
 
-auto kdl::sema::expectation::to_be(const bool r) const -> std::function<auto(kdl::lexeme) -> bool>
+auto kdl::sema::expectation::to_be(const bool r) const -> function
 {
     auto& Tx = m_Tx;
     auto& Ty = m_Ty;
@@ -64,12 +63,12 @@ auto kdl::sema::expectation::to_be(const bool r) const -> std::function<auto(kdl
     };
 }
 
-auto kdl::sema::expectation::be_true() const -> std::function<auto(kdl::lexeme) -> bool>
+auto kdl::sema::expectation::be_true() const -> function
 {
     return to_be(true);
 }
 
-auto kdl::sema::expectation::be_false() const -> std::function<auto(kdl::lexeme) -> bool>
+auto kdl::sema::expectation::be_false() const -> function
 {
     return to_be(false);
 }

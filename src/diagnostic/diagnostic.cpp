@@ -18,35 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_EXPECTATION_HPP)
-#define KDL_EXPECTATION_HPP
+#include <iostream>
+#include "diagnostic/fatal.hpp"
 
-#include <functional>
-#include <string>
-#include "parser/lexeme.hpp"
-
-namespace kdl { namespace sema {
-
-    struct expectation
-    {
-    public:
-        typedef std::function<auto(lexeme) -> bool> function;
-
-    private:
-        enum lexeme::type m_Ty;
-        std::string m_Tx;
-
-    public:
-        expectation(enum lexeme::type Ty);
-        expectation(const std::string Tx);
-        expectation(enum lexeme::type Ty, const std::string Tx);
-
-        auto to_be(const bool r) const -> function;
-
-        auto be_true() const -> function;
-        auto be_false() const -> function;
-    };
-
-}};
-
-#endif //KDL_CONDITION_HPP
+auto kdl::log::fatal_error(const kdl::lexeme& lx, const int code, const std::string message) -> void
+{
+    std::cerr << lx.location() << " - " << message << std::endl;
+    exit(code);
+}
