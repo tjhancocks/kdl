@@ -18,11 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_SEMA_HPP)
-#define KDL_SEMA_HPP
+#if !defined(KDL_PARSER_HPP)
+#define KDL_PARSER_HPP
 
 #include <memory>
 #include <vector>
+#include <parser/sema/parser_component.hpp>
+
 #include "parser/lexeme.hpp"
 #include "target/target.hpp"
 #include "parser/expectation.hpp"
@@ -113,9 +115,8 @@ namespace kdl { namespace sema {
          */
         auto parse() -> void;
 
-
     };
 
 }};
 
-#endif //KDL_SEMA_HPP
+#endif //KDL_PARSER_COMPONENT_HPP
