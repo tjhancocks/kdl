@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+
+# Build Artefacts
+cmake-build-debug
+bin/
+build/
+*.o
+*.bin
