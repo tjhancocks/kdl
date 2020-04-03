@@ -19,7 +19,8 @@
 // SOFTWARE.
 
 #include "diagnostic/fatal.hpp"
-#include "parser/sema_parser.hpp"
+#include "parser/parser.hpp"
+#include "parser/sema/asm_directive.hpp"
 
 // MARK: - Constructor
 
@@ -36,6 +37,14 @@ auto kdl::sema::parser::parse() -> void
     m_ptr = 0;
 
     while (!finished()) {
+
+        if (asm_directive::test(*this)) {
+            asm_directive::parse(*this);
+        }
+        else {
+            auto lx = peek();
+            log::fatal_error(lx, 1, "Unexpected lexeme '" + lx.text() + "' encountered.");
+        }
 
     }
 }

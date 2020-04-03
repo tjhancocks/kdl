@@ -23,8 +23,6 @@
 
 #include <memory>
 #include <vector>
-#include <parser/sema/parser_component.hpp>
-
 #include "parser/lexeme.hpp"
 #include "target/target.hpp"
 #include "parser/expectation.hpp"
@@ -41,6 +39,19 @@ namespace kdl { namespace sema {
         std::weak_ptr<target> m_target;
         std::size_t m_ptr { 0 };
         const std::vector<lexeme> m_lexemes;
+
+    public:
+        /**
+         * Construct a new parser for the specified target and with the provided lexeme stream.
+         * @param target The destination target of the parser.
+         * @param lexemes The lexemes to be parsed.
+         */
+        parser(std::weak_ptr<target> target, std::vector<lexeme> lexemes);
+
+        /**
+         * Parse the lexeme stream into/against the target.
+         */
+        auto parse() -> void;
 
         /**
          * Check if the parser has reached the end of the token stream.
@@ -100,20 +111,6 @@ namespace kdl { namespace sema {
          * @param lexemes The list of lexemes to be inserted.
          */
         auto insert(std::vector<lexeme> lexemes) -> void;
-
-
-    public:
-        /**
-         * Construct a new parser for the specified target and with the provided lexeme stream.
-         * @param target The destination target of the parser.
-         * @param lexemes The lexemes to be parsed.
-         */
-        parser(std::weak_ptr<target> target, std::vector<lexeme> lexemes);
-
-        /**
-         * Parse the lexeme stream into/against the target.
-         */
-        auto parse() -> void;
 
     };
 

@@ -40,10 +40,10 @@ namespace kdl
     {
     private:
         std::shared_ptr<file> m_source;
-        std::size_t m_line;
-        std::size_t m_offset;
-        std::size_t m_pos;
-        std::string m_slice;
+        std::size_t m_line { 1 };
+        std::size_t m_offset { 0 };
+        std::size_t m_pos { 0 };
+        std::string m_slice { "" };
         std::vector<lexeme> m_lexemes;
 
         /**
