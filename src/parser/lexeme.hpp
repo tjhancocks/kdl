@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <string>
+#include <type_traits>
 #include "parser/file.hpp"
 
 namespace kdl
@@ -157,6 +158,23 @@ namespace kdl
         auto text() const -> std::string
         {
             return m_text;
+        }
+
+        /**
+         * The numeric value of the lexeme. If the lexeme is not a numeric type then the value returned will
+         * be 0.
+         */
+        template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
+        auto value() const -> T
+        {
+           if (m_text.find_first_not_of("0123456789ABCDEFabcdef") == std::string::npos) {
+               // Hex
+               return static_cast<T>(std::stoull(m_text, nullptr, 16));
+           }
+           else {
+               // Decimal
+               return static_cast<T>(std::stoull(m_text, nullptr, 10));
+           }
         }
 
     };
