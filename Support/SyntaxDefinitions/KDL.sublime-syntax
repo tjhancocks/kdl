@@ -34,6 +34,11 @@ contexts:
 
   main:
     - include: directive
+    - include: resource-declaration
+    - include: string-literal
+    - include: number-literal
+    - include: resource-literal
+    - include: percentage-literal
 
 # COMMENTS #####################################################################
 
@@ -59,7 +64,7 @@ contexts:
     - match: '((@)(type))[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]*\:[ \t]*(".{4}")'
       captures:
         1: keyword.kdl
-        4: entity.name.kdl
+        4: entity.name.type.kdl
         5: entity.other.inherited-class.kdl
       set:
         - match: '\{'
@@ -131,6 +136,51 @@ contexts:
               scope: punctuation.definition.field.end.kdl
               pop: true
 
+# RESOURCE DECLARATION #########################################################
+
+  resource-declaration:
+    - match: '(declare)[ \t]+([A-Za-z0-9_]+)'
+      scope: meta.impl.kdl
+      captures:
+        1: keyword.declaration.impl.kdl
+        2: entity.name.type.kdl
+      set:
+        - match: '\{'
+          scope: punctuation.definition.begin.kdl
+          set:
+            - match: '\};'
+              scope: punctuation.definition.type.end.kdl
+              pop: true
+            - include: resource-instance
+
+  resource-instance:
+    - match: '(new|override)[ \t]*(\([ \t]*((#)[0-9]+)[ \t]*(,[ \t]*("[^"]*")[ \t]*)?\))'
+      captures:
+        1: keyword.other.kdl
+        3: constant.numeric.integer.decimal.kdl
+        5: string.quoted.kdl
+      push:
+        - match: '\{'
+          scope: punctuation.definition.begin.kdl
+          set:
+            - match: '\};'
+              scope: punctuation.definition.type.end.kdl
+              pop: true
+            - include: resource-field
+
+  resource-field:
+    - match: '([A-Za-z0-9_]+)[ \t]*=[ \t]*'
+      captures:
+        1: variable.parameter.kdl
+      push:
+        - match: ';'
+          pop: true
+        - include: resource-literal
+        - include: identifier-literal
+        - include: number-literal
+        - include: string-literal
+        - include: percentage-literal
+
 
 # LITERALS #####################################################################
 
@@ -152,7 +202,7 @@ contexts:
           pop: true
 
   number-literal:
-    - match: '(-)?[0-9]+'
+    - match: '((0x|0X)[0-9a-fA-F]+)|((-)?[0-9]+)'
       scope: constant.numeric.integer.decimal.kdl
 
   percentage-literal:
@@ -160,5 +210,5 @@ contexts:
       scope: constant.numeric.integer.percentage.kdl
 
   resource-literal:
-    - match: '(\#)(-)?[0-9]+'
+    - match: '([A-Za-z0-9_]+\.)?(\#)(-)?[0-9]+'
       scope: constant.numeric.integer.decimal.kdl

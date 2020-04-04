@@ -236,4 +236,122 @@ HBYT	HWRD	HLNG	HQAD
 ` This type of field is simply defined by having a type of `File`.
 
 ` §4 RESOURCE DECLARATIONS -----------------------------------------------------
+` The primary concern of KDL is to be able to declare resources. In declaring a
+` resource, the user provides information and data to the assembler to use as
+` data in the binary data of the resource once it is assembled.
+`
+` Resource declarations are contained with in a declaration block. A declaration
+` block is defined like so:
 
+	declare ResourceType { ... };
+
+` The _ResourceType_ is the name of a previously defined resource. For instance:
+
+	@type MyType : "code" { ... };
+
+	declare MyType { ... };
+
+` §4.1 - RESOURCE INSTANCE -----------------------------------------------------
+` There are several ways to create a new or override an existing resource 
+` instance. Resource instances are denoted within the declaration block by 
+` either the _new_ or _override_ keywords.
+
+	declare MyType {
+		new (#128) {
+
+		};
+
+		new (#129, "Resource Name") {
+
+		};
+
+		override (#130) {
+
+		};
+
+		override (#131, "Resource Name") {
+
+		};
+	};
+
+` Resource instances then contain a list of fields along with associated values.
+` What fields are accepted and what values they can take, is defined through the
+` type definition.
+
+	declare MyType {
+		new (#128) {
+			example_field = 42;
+		};
+	};
+
+` Fields can accept a number of value types. The following example illustrates 
+` the relationship of types to values.
+
+	@type IntegerType : "typ1" {
+		template {
+			DWRD value;
+		};
+
+		field("field") {
+			value;
+		};
+	};
+
+	declare IntegerType {
+		new (#128) {
+			field = 42;
+		};
+	};
+
+
+	@type StringType : "typ2" {
+		template {
+			PSTR value;
+		};
+
+		field("field") {
+			value;
+		};
+	};
+
+	declare StringType {
+		new (#128) {
+			field = "Hello, World!";
+		};
+	};
+
+
+	@type ResourceType : "typ3" {
+		template {
+			DWRD value;
+		};
+
+		field("field") as & {
+			value;
+		};
+	};
+
+	declare ResourceType {
+		new (#128) {
+			field = #128;
+		};
+	};
+
+
+	@type DualType : "typ4" {
+		template {
+			DWRD value;
+			DWRD second_value;
+		};
+
+		field("field") {
+			value;
+			second_value;
+		};
+	};
+
+	declare DualType {
+		new (#128) {
+			field = 10 20;
+		};
+	};

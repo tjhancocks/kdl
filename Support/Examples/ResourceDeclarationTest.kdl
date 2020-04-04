@@ -1,0 +1,53 @@
+@type Color : "colr" {
+	template {
+		PSTR name;
+		HLNG rgb;
+	};
+
+	field("name") {
+		name;
+	};
+
+	field("rgb") {
+		rgb = 0x000000;
+	};
+};
+
+@type Fruit : "früt" {
+	template {
+		DWRD color;
+		PSTR name;
+	};
+
+	field("color") as Color& {
+		color;
+	};
+
+	field("name") {
+		name;
+	};
+};
+
+declare Color {
+	new (#128) {
+		name = "Red";
+		rgb = 0xFF0000;
+	};
+
+	new (#129) {
+		name = "Green";
+		rgb = 0x00FF00;
+	};
+
+	new (#130) {
+		name = "Orange";
+		rgb = 0xFF8800;
+	};
+};
+
+declare Fruit {
+	new (#128, "Apple") {
+		name = "Apple";
+		color = #128;
+	};
+};
