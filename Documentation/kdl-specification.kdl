@@ -86,7 +86,7 @@ HBYT	HWRD	HLNG	HQAD
 ` defined at runtime, bypassing the need to bake in type definitions.
 ` A type definition can be started using the following syntax.
 
-@type TypeName : 'code' { ... };
+@type TypeName : "code" { ... };
 
 ` The _TypeName_ here is the name that will be used by KDL to reference the type
 ` It is not particularly important, beyond how the type will be referenced.
@@ -96,7 +96,7 @@ HBYT	HWRD	HLNG	HQAD
 `
 ` An example type definition for the 'VERS' resource.
 
-@type Version : 'VERS' { ... };
+@type Version : "VERS" { ... };
 
 ` The contents of the '{' braces '}' is used by the assembler to determine what
 ` the type is and what is used to represent it.
@@ -108,7 +108,7 @@ HBYT	HWRD	HLNG	HQAD
 `
 ` A template is started as such:
 
-@type SpriteAnimation : 'spïn' {
+@type SpriteAnimation : "spïn" {
 	template {
 		DWRD spritesID;
 		DWRD masksID;
@@ -146,7 +146,7 @@ HBYT	HWRD	HLNG	HQAD
 ` to tell KDL how a resource might be declared, what default values it should
 ` use, and symbol definitions to represent obscure or cryptic values.
 
-@type SpriteAnimation : 'spïn' {
+@type SpriteAnimation : "spïn" {
 	` A field with a single required value
 	field("sprites") as & {
 		spritesID;
@@ -223,7 +223,7 @@ HBYT	HWRD	HLNG	HQAD
 ` of a file and writes them to the value of that field. Let's take a look at an
 ` example resource type:
 
-	@type Picture : 'PICT' {
+	@type Picture : "PICT" {
 		template {
 			HEXD data;
 		};

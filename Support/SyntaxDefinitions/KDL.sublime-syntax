@@ -1,0 +1,164 @@
+%YAML 1.2
+
+#
+# Copyright (c) 2019-2020 Tom Hancocks
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+
+---
+name: KDL 2 (Kestrel Development Kit)
+file_extensions:
+  - kdl
+scope: source.kdl
+
+contexts:
+  prototype:
+    - include: single-line-comment
+
+  main:
+    - include: directive
+
+# COMMENTS #####################################################################
+
+  single-line-comment:
+    - match: '`'
+      scope: punctuation.definition.comment.begin.kdl
+      push:
+        - meta_scope: comment.line.kdl
+        - match: $
+          pop: true
+
+# DIRECTIVES ###################################################################
+
+  directive:
+    - match: '((@)(out|import))'
+      scope: meta.preprocessor.directive.kdl
+      captures:
+        1: keyword.kdl
+      push:
+        - include: string-literal
+        - match: ';'
+          pop: true
+    - match: '((@)(type))[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]*\:[ \t]*(".{4}")'
+      captures:
+        1: keyword.kdl
+        4: entity.name.kdl
+        5: entity.other.inherited-class.kdl
+      set:
+        - match: '\{'
+          scope: punctuation.definition.type.begin.kdl
+          set:
+            - match: '\};'
+              scope: punctuation.definition.type.end.kdl
+              pop: true
+            - include: template-definition
+            - include: field-definition
+
+# TYPE DEFINITION ##############################################################
+
+  template-definition:
+    - match: '(template)'
+      scope: meta.interface.kdl
+      captures:
+        1: keyword.declaration.interface.kdl
+      push:
+        - match: '\{'
+          scope: punctuation.definition.tmpl.begin.kdl
+          set:
+            - match: '\};'
+              scope: punctuation.definition.tmpl.end.kdl
+              pop: true
+            - match: '(((D|H)(BYT|WRD|LNG|QAD))|RECT|(P|C)STR|C[0-9a-fA-F]{3}|HEXD)[ \t]+([A-Za-z0-9_]+)[ \t]*;'
+              captures:
+                1: entity.name.type.kdl
+                6: entity.other.attribute-name.kdl
+
+  field-definition:
+    - match: '(field)[ \t]*\(("[A-Za-z0-9_]+")\)([ \t]*(as)[ \t]*([A-Za-z0-9_]*&?))?'
+      scope: meta.impl.kdl
+      captures:
+        1: keyword.declaration.impl.kdl
+        2: string.quoted.double.kdl
+        4: keyword.declaration.trait.kdl
+        5: entity.name.type.kdl
+      push:
+        - match: '\{'
+          scope: punctuation.definition.field.begin.kdl
+          set:
+            - match: '([A-Za-z0-9_]+)'
+              captures:
+                1: entity.other.attribute-name.kdl
+              push:
+                - include: string-literal
+                - include: identifier-literal
+                - include: number-literal
+                - include: resource-literal
+                - include: percentage-literal
+                - match: '\['
+                  push:
+                    - match: '([A-Za-z0-9_]+)[ \t]*=[ \t]*'
+                      captures:
+                        1: variable.other.constant.kdl
+                      push:
+                        - include: string-literal
+                        - include: number-literal
+                        - include: resource-literal
+                        - include: percentage-literal
+                        - match: '(?=\])|,'
+                          pop: true
+                    - match: '\]'
+                      pop: true
+                - match: ';'
+                  pop: true
+            - match: '\};'
+              scope: punctuation.definition.field.end.kdl
+              pop: true
+
+
+# LITERALS #####################################################################
+
+  identifier-literal:
+    - match: '[A-Za-z0-9_-]+'
+      scope: constant.other.kdl
+
+  variable-literal:
+    - match: '\$[A-Za-z0-9_-]+'
+      scope: variable.kdl
+
+  string-literal:
+    - match: '"'
+      scope: punctuation.definition.string.begin.kdl
+      push:
+        - meta_scope: string.quoted.double.kdl
+        - match: '"|(\n)'
+          scope: punctuation.definition.string.end.kdl
+          pop: true
+
+  number-literal:
+    - match: '(-)?[0-9]+'
+      scope: constant.numeric.integer.decimal.kdl
+
+  percentage-literal:
+    - match: '(-)?[0-9]+(\%)'
+      scope: constant.numeric.integer.percentage.kdl
+
+  resource-literal:
+    - match: '(\#)(-)?[0-9]+'
+      scope: constant.numeric.integer.decimal.kdl
