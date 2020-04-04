@@ -173,6 +173,9 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
         else if (test_if(match<'^'>::yes)) {
             m_lexemes.emplace_back(kdl::lexeme(read(), lexeme::carat, m_pos, m_offset, m_line, m_source));
         }
+        else if (test_if(match<':'>::yes)) {
+            m_lexemes.emplace_back(kdl::lexeme(read(), lexeme::colon, m_pos, m_offset, m_line, m_source));
+        }
 
         // Unrecognised character encountered
         else {
