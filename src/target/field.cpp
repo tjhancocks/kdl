@@ -23,7 +23,13 @@
 // MARK: - Constructor
 
 kdl::field::field(const kdl::lexeme name, const std::string type, const bool is_reference)
-    : m_name(name), m_type(type, is_reference)
+    : m_name(name), m_type(std::make_tuple(type, is_reference))
+{
+
+}
+
+kdl::field::field(const kdl::lexeme name)
+    : m_name(name), m_type({})
 {
 
 }
@@ -40,10 +46,16 @@ auto kdl::field::name_lexeme() const -> kdl::lexeme
     return m_name;
 }
 
-auto kdl::field::type() const -> std::tuple<std::string, bool>
+auto kdl::field::type() const -> std::optional<std::tuple<std::string, bool>>
 {
     return m_type;
 }
+
+auto kdl::field::set_type(const std::string type, const bool is_reference) -> void
+{
+    m_type = std::make_tuple(type, is_reference);
+}
+
 
 // MARK: - Value Management
 

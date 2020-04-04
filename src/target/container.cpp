@@ -23,7 +23,7 @@
 
 // MARK: - Constructor
 
-kdl::container::container(const lexeme name, const lexeme code)
+kdl::container::container(const lexeme name, const std::string code)
     : m_name(name), m_code(code)
 {
 
@@ -38,7 +38,7 @@ auto kdl::container::name() const -> std::string
 
 auto kdl::container::code() const -> std::string
 {
-    return m_code.text();
+    return m_code;
 }
 
 // MARK: - Template Management

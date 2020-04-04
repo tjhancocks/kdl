@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 #include <tuple>
+#include <optional>
 #include "parser/lexeme.hpp"
 #include "target/template_reference.hpp"
 
@@ -34,15 +35,18 @@ namespace kdl
     {
     private:
         lexeme m_name;
-        std::tuple<std::string, bool> m_type;
+        std::optional<std::tuple<std::string, bool>> m_type;
         std::vector<template_reference> m_values;
 
     public:
+        field(const lexeme name);
         field(const lexeme name, const std::string type, const bool is_reference);
 
         auto name() const -> std::string;
         auto name_lexeme() const -> lexeme;
-        auto type() const -> std::tuple<std::string, bool>;
+        auto type() const -> std::optional<std::tuple<std::string, bool>>;
+
+        auto set_type(const std::string type, const bool is_reference) -> void;
 
         auto add_value(const template_reference value) -> void;
         auto value_count() const -> std::size_t;

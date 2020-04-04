@@ -22,28 +22,30 @@
 #define KDL_TYPES_HPP
 
 #include <cstdint>
+#include <string>
 
 namespace kdl
 {
 
     enum type : uint16_t
     {
-        DBYT = 0x0000,
-        DWRD = 0x1000,
-        DLNG = 0x2000,
-        DQAD = 0x3000,
-        HBYT = 0x4000,
-        HWRD = 0x5000,
-        HLNG = 0x6000,
-        HQAD = 0x7000,
-        RECT = 0x8000,
-        PSTR = 0x9000,
-        CSTR = 0xA000,
-        Cxxx = 0xB000,
-        HEXD = 0xC000
+        NONE = 0x0000,
+        DBYT = 0x1000,
+        DWRD = 0x2000,
+        DLNG = 0x3000,
+        DQAD = 0x4000,
+        HBYT = 0x5000,
+        HWRD = 0x6000,
+        HLNG = 0x7000,
+        HQAD = 0x8000,
+        RECT = 0x9000,
+        PSTR = 0xA000,
+        CSTR = 0xB000,
+        Cxxx = 0xC000,
+        HEXD = 0xD000
     };
 
-    auto type_size(enum type type) -> std::size_t
+    static auto type_size(enum type type) -> std::size_t
     {
         switch (type & 0xF000) {
             case DBYT:
@@ -72,6 +74,53 @@ namespace kdl
 
             case Cxxx:
                 return (type & 0x0FFF);
+        }
+    }
+
+    static auto type_for_name(const std::string name) -> kdl::type
+    {
+        if (name == "DBYT") {
+            return DBYT;
+        }
+        else if (name == "DWRD") {
+            return DWRD;
+        }
+        else if (name == "DLNG") {
+            return DLNG;
+        }
+        else if (name == "DQAD") {
+            return DQAD;
+        }
+        else if (name == "HBYT") {
+            return HBYT;
+        }
+        else if (name == "HWRD") {
+            return HWRD;
+        }
+        else if (name == "HLNG") {
+            return HLNG;
+        }
+        else if (name == "HQAD") {
+            return HQAD;
+        }
+        else if (name == "RECT") {
+            return RECT;
+        }
+        else if (name == "HEXD") {
+            return HEXD;
+        }
+        else if (name == "PSTR") {
+            return PSTR;
+        }
+        else if (name == "CSTR") {
+            return CSTR;
+        }
+        else if (name[0] == 'C') {
+            auto width = static_cast<uint16_t>(std::stoul(name.substr(1), nullptr, 16));
+            return static_cast<kdl::type>(static_cast<uint16_t>(Cxxx) | width);
+        }
+        else {
+            return NONE;
         }
     }
 

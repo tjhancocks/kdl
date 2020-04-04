@@ -35,12 +35,12 @@ namespace kdl
     {
     private:
         lexeme m_name;
-        lexeme m_code;
+        std::string m_code;
         std::vector<std::tuple<lexeme, type>> m_template;
         std::vector<field> m_fields;
 
     public:
-        container(const lexeme name, const lexeme code);
+        container(const lexeme name, const std::string code);
 
         auto name() const -> std::string;
         auto code() const -> std::string;
