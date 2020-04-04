@@ -32,6 +32,7 @@ namespace kdl { namespace log {
      * @param code The exit code to be raised.
      * @param message A message to show to the user about why the error occured.
      */
+     __attribute__((noreturn))
     auto fatal_error(const kdl::lexeme& lx, const int code, const std::string message) -> void;
 
 }};
