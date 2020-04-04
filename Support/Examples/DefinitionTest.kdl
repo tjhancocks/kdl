@@ -1,0 +1,16 @@
+@type Alpha : "älph" {
+
+	template {
+		DWRD count;
+		CSTR message;
+	};
+
+	field("message") {
+		message;
+		count = single [
+			single = 1,
+			double = 2
+		];
+	};
+	
+};
