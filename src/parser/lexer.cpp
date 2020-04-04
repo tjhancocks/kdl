@@ -88,6 +88,12 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
             consume_while(identifier_set::contains);
             m_lexemes.emplace_back(kdl::lexeme(m_slice, lexeme::var, m_pos, m_offset, m_line, m_source));
         }
+        else if (test_if(match<'0'>::yes) && test_if(set<'x', 'X'>::contains, 1)) {
+            // We're looking at a hexadecimal number
+            advance(2);
+            consume_while(hexadecimal_set::contains);
+            m_lexemes.emplace_back(kdl::lexeme(m_slice, lexeme::integer, m_pos, m_offset, m_line, m_source));
+        }
         else if (test_if(decimal_set::contains) || (test_if(match<'-'>::yes) && test_if(decimal_set::contains, 1))) {
             // We're looking at a number
             auto negative = test_if(match<'-'>::yes);
@@ -306,6 +312,17 @@ auto kdl::decimal_set::contains(const std::string __Chk) -> bool
 {
     for (auto __ch : __Chk) {
         auto condition = (__ch >= '0' && __ch <= '9');
+        if (!condition) {
+            return false;
+        }
+    }
+    return true;
+}
+
+auto kdl::hexadecimal_set::contains(const std::string __Chk) -> bool
+{
+    for (auto __ch : __Chk) {
+        auto condition = (__ch >= 'A' && __ch <= 'F') || (__ch >= 'a' && __ch <= 'f') || (__ch >= '0' && __ch <= '9');
         if (!condition) {
             return false;
         }
