@@ -24,6 +24,7 @@
 #include <string>
 #include <iostream>
 #include "parser/sema/asm_directive.hpp"
+#include "parser/sema/type_definition.hpp"
 #include "parser/parser.hpp"
 #include "parser/expectation.hpp"
 #include "diagnostic/fatal.hpp"
@@ -64,6 +65,14 @@ auto kdl::sema::asm_directive::parse(parser &parser) -> void
     // Get the directive names and all of the arguments associated with it (all lexemes before the next semi-colon).
     auto directive = parser.read();
     auto directive_name = directive.text();
+
+    // Before proceeding with reading the directive, check for the @type directive. This needs to go through a separate
+    // distinct parser.
+    if (directive_name == "type") {
+        type_definition::parse(parser);
+        return;
+    }
+
     auto directives_args = parser.consume(expectation(lexeme::semi).be_false());
     parser.ensure({ expectation(lexeme::semi).be_true() });
 

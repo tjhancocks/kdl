@@ -18,20 +18,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_ASM_DIRECTIVE_HPP)
-#define KDL_ASM_DIRECTIVE_HPP
+#if !defined(KDL_TYPE_DEFINITION_HPP)
+#define KDL_TYPE_DEFINITION_HPP
 
 #include "parser/parser.hpp"
 
 namespace kdl { namespace sema {
 
-    struct asm_directive
+    struct type_definition
     {
     public:
-        static auto test(parser& parser) -> bool;
         static auto parse(parser& parser) -> void;
     };
 
 }};
 
-#endif //KDL_ASM_DIRECTIVE_HPP
+#endif //KDL_TYPE_DEFINITION_HPP
