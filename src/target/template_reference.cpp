@@ -41,6 +41,11 @@ auto kdl::template_reference::default_value() const -> std::optional<lexeme>
     return m_default;
 }
 
+auto kdl::template_reference::set_default_value(std::optional<lexeme> default_value) -> void
+{
+    m_default = default_value;
+}
+
 // MARK: - Symbol Management
 
 auto kdl::template_reference::add_symbol(const kdl::lexeme symbol, const kdl::lexeme value) -> void

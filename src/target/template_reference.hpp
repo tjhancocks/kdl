@@ -41,6 +41,7 @@ namespace kdl
 
         auto name() const -> std::string;
         auto default_value() const -> std::optional<lexeme>;
+        auto set_default_value(std::optional<lexeme> default_value) -> void;
 
         auto add_symbol(const lexeme symbol, const lexeme value) -> void;
         auto value_for(const lexeme symbol) const -> lexeme;
