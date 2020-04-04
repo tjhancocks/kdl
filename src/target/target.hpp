@@ -22,6 +22,8 @@
 #define KDL_TARGET_HPP
 
 #include <string>
+#include <vector>
+#include "target/container.hpp"
 
 namespace kdl
 {
@@ -35,11 +37,16 @@ namespace kdl
     {
     private:
         std::string m_path;
+        std::vector<container> m_containers;
 
     public:
         target();
         target(const std::string path);
 
+        auto add_container(const container container) -> void;
+        auto container_count() const -> std::size_t;
+        auto container_at(const int i) const -> container;
+        auto container_named(const lexeme name) const -> container;
     };
 
 };

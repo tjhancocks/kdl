@@ -28,7 +28,7 @@ namespace kdl { namespace sema {
     struct type_definition
     {
     public:
-        static auto parse(parser& parser) -> void;
+        static auto parse(parser& parser, std::weak_ptr<kdl::target> target) -> void;
     };
 
 }};

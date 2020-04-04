@@ -24,7 +24,7 @@
 #include "parser/sema/type_field.hpp"
 #include "target/container.hpp"
 
-auto kdl::sema::type_definition::parse(kdl::sema::parser& parser) -> void
+auto kdl::sema::type_definition::parse(kdl::sema::parser& parser, std::weak_ptr<kdl::target> target) -> void
 {
     // We can safely assume that the '@type' lexeme has been consumed at this point.
     // The next sequence of lexemes are:
@@ -75,4 +75,9 @@ auto kdl::sema::type_definition::parse(kdl::sema::parser& parser) -> void
         expectation(lexeme::r_brace).be_true(),
         expectation(lexeme::semi).be_true()
     });
+
+    // Register the type with the target.
+    if (auto t = target.lock()) {
+        t->add_container(type_container);
+    }
 }

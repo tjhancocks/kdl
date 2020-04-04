@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "target/target.hpp"
+#include "diagnostic/fatal.hpp"
 
 // MARK: - Constructors
 
@@ -32,3 +33,31 @@ kdl::target::target(const std::string path)
 {
 
 }
+
+// MARK: - Container Management
+
+auto kdl::target::add_container(const kdl::container container) -> void
+{
+    m_containers.emplace_back(container);
+}
+
+auto kdl::target::container_count() const -> std::size_t
+{
+    return m_containers.size();
+}
+
+auto kdl::target::container_at(const int i) const -> kdl::container
+{
+    return m_containers[i];
+}
+
+auto kdl::target::container_named(const kdl::lexeme name) const -> kdl::container
+{
+    for (auto c : m_containers) {
+        if (c.name() == name.text()) {
+            return c;
+        }
+    }
+    log::fatal_error(name, 1, "Missing definition for type '" + name.text() + "'");
+}
+

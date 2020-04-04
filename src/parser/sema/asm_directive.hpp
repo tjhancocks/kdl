@@ -29,7 +29,7 @@ namespace kdl { namespace sema {
     {
     public:
         static auto test(parser& parser) -> bool;
-        static auto parse(parser& parser) -> void;
+        static auto parse(parser& parser, std::weak_ptr<kdl::target> target) -> void;
     };
 
 }};

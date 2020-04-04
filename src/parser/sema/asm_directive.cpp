@@ -55,7 +55,7 @@ auto kdl::sema::asm_directive::test(parser& parser) -> bool
     });
 }
 
-auto kdl::sema::asm_directive::parse(parser &parser) -> void
+auto kdl::sema::asm_directive::parse(parser &parser, std::weak_ptr<kdl::target> target) -> void
 {
     if (parser.expect({ expectation(lexeme::directive).be_true()}) == false) {
         auto lx = parser.peek();
@@ -69,7 +69,7 @@ auto kdl::sema::asm_directive::parse(parser &parser) -> void
     // Before proceeding with reading the directive, check for the @type directive. This needs to go through a separate
     // distinct parser.
     if (directive_name == "type") {
-        type_definition::parse(parser);
+        type_definition::parse(parser, target);
         return;
     }
 
