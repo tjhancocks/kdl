@@ -40,5 +40,5 @@ include_directories(
 file(GLOB_RECURSE kdl_sources
 	src/*.cpp
 ) 
-add_executable(kdl ${kdl_sources} src/parser/sema/declaration_block.cpp src/parser/sema/declaration_block.hpp src/parser/sema/new_resource.cpp src/parser/sema/new_resource.hpp)
+add_executable(kdl ${kdl_sources})
 target_link_libraries(kdl Graphite)

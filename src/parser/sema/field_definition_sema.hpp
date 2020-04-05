@@ -18,15 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TYPE_TEMPLATE_HPP)
-#define KDL_TYPE_TEMPLATE_HPP
+#if !defined(KDL_FIELD_DEFINITION_SEMA_HPP)
+#define KDL_FIELD_DEFINITION_SEMA_HPP
 
 #include "parser/parser.hpp"
 #include "target/container.hpp"
 
 namespace kdl { namespace sema {
 
-    struct type_template
+    struct field_definition_sema
     {
     public:
         static auto parse(parser& parser, container& type_container) -> void;
@@ -34,4 +34,4 @@ namespace kdl { namespace sema {
 
 }};
 
-#endif //KDL_TYPE_TEMPLATE_HPP
+#endif //KDL_FIELD_DEFINITION_SEMA_HPP

@@ -18,20 +18,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TYPE_FIELD_HPP)
-#define KDL_TYPE_FIELD_HPP
+
+#if !defined(KDL_RESOURCE_INSTANCE_SEMA_HPP)
+#define KDL_RESOURCE_INSTANCE_SEMA_HPP
 
 #include "parser/parser.hpp"
-#include "target/container.hpp"
+#include "target/target.hpp"
 
 namespace kdl { namespace sema {
 
-    struct type_field
+    struct resource_instance_sema
     {
     public:
-        static auto parse(parser& parser, container& type_container) -> void;
+        static auto test(parser& parser) -> bool;
+        static auto parse(parser& parser, container& type_container, std::weak_ptr<kdl::target> target) -> void;
     };
 
 }};
 
-#endif //KDL_TYPE_FIELD_HPP
+#endif //KDL_RESOURCE_INSTANCE_SEMA_HPP

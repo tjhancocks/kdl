@@ -18,14 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TYPE_DEFINITION_HPP)
-#define KDL_TYPE_DEFINITION_HPP
+#if !defined(KDL_TYPE_DEFINITION_SEMA_HPP)
+#define KDL_TYPE_DEFINITION_SEMA_HPP
 
 #include "parser/parser.hpp"
 
 namespace kdl { namespace sema {
 
-    struct type_definition
+    struct type_definition_sema
     {
     public:
         static auto parse(parser& parser, std::weak_ptr<kdl::target> target) -> void;
@@ -33,4 +33,4 @@ namespace kdl { namespace sema {
 
 }};
 
-#endif //KDL_TYPE_DEFINITION_HPP
+#endif //KDL_TYPE_DEFINITION_SEMA_HPP

@@ -19,12 +19,12 @@
 // SOFTWARE.
 
 #include "diagnostic/fatal.hpp"
-#include "parser/sema/type_definition.hpp"
-#include "parser/sema/type_template.hpp"
-#include "parser/sema/type_field.hpp"
+#include "parser/sema/type_definition_sema.hpp"
+#include "parser/sema/template_sema.hpp"
+#include "parser/sema/field_definition_sema.hpp"
 #include "target/container.hpp"
 
-auto kdl::sema::type_definition::parse(kdl::sema::parser& parser, std::weak_ptr<kdl::target> target) -> void
+auto kdl::sema::type_definition_sema::parse(kdl::sema::parser& parser, std::weak_ptr<kdl::target> target) -> void
 {
     // We can safely assume that the '@type' lexeme has been consumed at this point.
     // The next sequence of lexemes are:
@@ -57,10 +57,10 @@ auto kdl::sema::type_definition::parse(kdl::sema::parser& parser, std::weak_ptr<
     while (parser.expect({ expectation(lexeme::r_brace).be_false() })) {
         auto lx = parser.read();
         if (lx.text() == "template") {
-            type_template::parse(parser, type_container);
+            template_sema::parse(parser, type_container);
         }
         else if (lx.text() == "field") {
-            type_field::parse(parser, type_container);
+            field_definition_sema::parse(parser, type_container);
         }
         else {
             log::fatal_error(lx, 1, "Unknown lexeme '" + lx.text() + "' encountered in type definition");

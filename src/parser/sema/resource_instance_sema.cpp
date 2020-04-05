@@ -19,19 +19,19 @@
 // SOFTWARE.
 
 #include "diagnostic/fatal.hpp"
-#include "parser/sema/new_resource.hpp"
+#include "parser/sema/resource_instance_sema.hpp"
 #include "parser/sema/field_sema.hpp"
 #include "parser/file.hpp"
 #include "target/resource.hpp"
 
-auto kdl::sema::new_resource::test(kdl::sema::parser &parser) -> bool
+auto kdl::sema::resource_instance_sema::test(kdl::sema::parser &parser) -> bool
 {
     return parser.expect({
         expectation(lexeme::identifier, "new").be_true()
     });
 }
 
-auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &type_container, std::weak_ptr<kdl::target> target) -> void
+auto kdl::sema::resource_instance_sema::parse(kdl::sema::parser &parser, kdl::container &type_container, std::weak_ptr<kdl::target> target) -> void
 {
     if (target.expired()) {
         throw std::logic_error("KDL Target is expired, and thus can not continue.");

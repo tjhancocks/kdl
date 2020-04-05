@@ -19,9 +19,9 @@
 // SOFTWARE.
 
 #include "diagnostic/fatal.hpp"
-#include "parser/sema/type_template.hpp"
+#include "parser/sema/template_sema.hpp"
 
-auto kdl::sema::type_template::parse(kdl::sema::parser &parser, kdl::container &type_container) -> void
+auto kdl::sema::template_sema::parse(kdl::sema::parser &parser, kdl::container &type_container) -> void
 {
     // We can safely assume that the 'template' keyword was already consumed.
     parser.ensure({ expectation(lexeme::l_brace).be_true() });

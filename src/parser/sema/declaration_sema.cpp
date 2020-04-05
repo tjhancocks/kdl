@@ -19,10 +19,10 @@
 // SOFTWARE.
 
 #include "diagnostic/fatal.hpp"
-#include "parser/sema/declaration_block.hpp"
-#include "parser/sema/new_resource.hpp"
+#include "parser/sema/declaration_sema.hpp"
+#include "parser/sema/resource_instance_sema.hpp"
 
-auto kdl::sema::declaration_block::test(kdl::sema::parser& parser) -> bool
+auto kdl::sema::declaration_sema::test(kdl::sema::parser& parser) -> bool
 {
     return parser.expect({
         expectation(lexeme::identifier, "declare").be_true(),
@@ -30,7 +30,7 @@ auto kdl::sema::declaration_block::test(kdl::sema::parser& parser) -> bool
     });
 }
 
-auto kdl::sema::declaration_block::parse(kdl::sema::parser& parser, std::weak_ptr<kdl::target> target) -> void
+auto kdl::sema::declaration_sema::parse(kdl::sema::parser& parser, std::weak_ptr<kdl::target> target) -> void
 {
     if (target.expired()) {
         throw std::logic_error("KDL Target is expired, and thus can not continue.");
@@ -50,8 +50,8 @@ auto kdl::sema::declaration_block::parse(kdl::sema::parser& parser, std::weak_pt
     parser.ensure({ expectation(lexeme::l_brace).be_true() });
 
     while (parser.expect({ expectation(lexeme::r_brace).be_false() })) {
-        if (new_resource::test(parser)) {
-            new_resource::parse(parser, type_container, target);
+        if (resource_instance_sema::test(parser)) {
+            resource_instance_sema::parse(parser, type_container, target);
         }
         else {
             log::fatal_error(parser.peek(), 1, "Expected either an 'override' or a 'new' keyword.");

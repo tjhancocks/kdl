@@ -19,9 +19,9 @@
 // SOFTWARE.
 
 #include "diagnostic/fatal.hpp"
-#include "parser/sema/type_field.hpp"
+#include "parser/sema/field_definition_sema.hpp"
 
-auto kdl::sema::type_field::parse(kdl::sema::parser &parser, kdl::container &type_container) -> void
+auto kdl::sema::field_definition_sema::parse(kdl::sema::parser &parser, kdl::container &type_container) -> void
 {
     // We can safely assume that the 'field' keyword has been consumed.
 

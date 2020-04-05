@@ -23,8 +23,8 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "parser/sema/asm_directive.hpp"
-#include "parser/sema/type_definition.hpp"
+#include "parser/sema/asm_directive_sema.hpp"
+#include "parser/sema/type_definition_sema.hpp"
 #include "parser/parser.hpp"
 #include "parser/expectation.hpp"
 #include "diagnostic/fatal.hpp"
@@ -48,14 +48,14 @@ static inline auto directives() -> std::map<directive_symbol, directive_function
 
 // MARK: - Parser
 
-auto kdl::sema::asm_directive::test(parser& parser) -> bool
+auto kdl::sema::asm_directive_sema::test(parser& parser) -> bool
 {
     return parser.expect({
         expectation(lexeme::directive).be_true()
     });
 }
 
-auto kdl::sema::asm_directive::parse(parser &parser, std::weak_ptr<kdl::target> target) -> void
+auto kdl::sema::asm_directive_sema::parse(parser &parser, std::weak_ptr<kdl::target> target) -> void
 {
     if (parser.expect({ expectation(lexeme::directive).be_true()}) == false) {
         auto lx = parser.peek();
@@ -69,7 +69,7 @@ auto kdl::sema::asm_directive::parse(parser &parser, std::weak_ptr<kdl::target> 
     // Before proceeding with reading the directive, check for the @type directive. This needs to go through a separate
     // distinct parser.
     if (directive_name == "type") {
-        type_definition::parse(parser, target);
+        type_definition_sema::parse(parser, target);
         return;
     }
 

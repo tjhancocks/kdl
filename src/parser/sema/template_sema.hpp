@@ -18,21 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_DECLARATION_BLOCK_HPP)
-#define KDL_DECLARATION_BLOCK_HPP
+#if !defined(KDL_TEMPLATE_SEMA_HPP)
+#define KDL_TEMPLATE_SEMA_HPP
 
 #include "parser/parser.hpp"
-#include "target/target.hpp"
+#include "target/container.hpp"
 
 namespace kdl { namespace sema {
 
-    struct declaration_block
+    struct template_sema
     {
     public:
-        static auto test(parser& parser) -> bool;
-        static auto parse(parser& parser, std::weak_ptr<kdl::target> target) -> void;
+        static auto parse(parser& parser, container& type_container) -> void;
     };
 
 }};
 
-#endif //KDL_DECLARATION_BLOCK_HPP
+#endif //KDL_TEMPLATE_SEMA_HPP

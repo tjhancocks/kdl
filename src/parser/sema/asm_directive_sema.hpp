@@ -18,22 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
-#if !defined(KDL_NEW_RESOURCE_HPP)
-#define KDL_NEW_RESOURCE_HPP
+#if !defined(KDL_ASM_DIRECTIVE_SEMA_HPP)
+#define KDL_ASM_DIRECTIVE_SEMA_HPP
 
 #include "parser/parser.hpp"
-#include "target/target.hpp"
 
 namespace kdl { namespace sema {
 
-    struct new_resource
+    struct asm_directive_sema
     {
     public:
         static auto test(parser& parser) -> bool;
-        static auto parse(parser& parser, container& type_container, std::weak_ptr<kdl::target> target) -> void;
+        static auto parse(parser& parser, std::weak_ptr<kdl::target> target) -> void;
     };
 
 }};
 
-#endif //KDL_NEW_RESOURCE_HPP
+#endif //KDL_ASM_DIRECTIVE_SEMA_HPP
