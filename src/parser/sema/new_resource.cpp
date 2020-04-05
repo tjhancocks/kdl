@@ -268,6 +268,16 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                 auto value = field.value_at(i);
                 auto symbol = type_container.template_field_named(value.name_lexeme());
 
+                // Check if we've run out of values... if so we need to try and use default values (if they exist)
+                if (parser.expect({ expectation(lexeme::semi).be_true() })) {
+                    // Does the value have a default? If it does not then throw an error.
+                    if (!value.default_value().has_value()) {
+                        log::fatal_error(field_name, 1, "Value #" + std::to_string(i) + " is not defined and has no default value.");
+                    }
+                    parser.push(value.default_value().value());
+                }
+
+                // Read the next value and write it to the resource.
                 switch (std::get<1>(symbol)) {
                     case kdl::DBYT: {
                         if (!parser.expect({ expectation(lexeme::integer).be_true() })) {

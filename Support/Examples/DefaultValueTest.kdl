@@ -1,0 +1,21 @@
+@type DefaultValueTest : "DFLT" {
+	template {
+		DWRD alpha;
+		DWRD beta;
+	};
+
+	field("value") {
+		alpha;
+		beta = 0xCAFE;
+	};
+};
+
+declare DefaultValueTest {
+	new (#128) {
+		value = 0x1122;
+	};
+
+	new (#129) {
+		value = 0x1122 0x3344;
+	}
+};

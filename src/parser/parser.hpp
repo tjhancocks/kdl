@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <vector>
+#include <optional>
 #include "parser/lexeme.hpp"
 #include "target/target.hpp"
 #include "parser/expectation.hpp"
@@ -39,6 +40,7 @@ namespace kdl { namespace sema {
         std::weak_ptr<target> m_target;
         std::size_t m_ptr { 0 };
         const std::vector<lexeme> m_lexemes;
+        std::optional<lexeme> m_tmp_lexeme;
 
     public:
         /**
@@ -73,6 +75,13 @@ namespace kdl { namespace sema {
          * @param delta The number of lexemes to advance by.
          */
         auto advance(const long delta = 1) -> void;
+
+        /**
+         * Temporarily push a lexeme to the parser to be read via a peek(0) or read(0). This lexeme
+         * will be cleared upon advancement of the parser.
+         * @param lexeme The lexeme to be pushed.
+         */
+        auto push(const lexeme lexeme) -> void;
 
         /**
          * Peek a lexeme from the lexeme stream without advancing the current position.

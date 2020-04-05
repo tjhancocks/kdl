@@ -75,10 +75,19 @@ auto kdl::sema::parser::consume(kdl::sema::expectation::function expect) -> std:
 auto kdl::sema::parser::advance(const long delta) -> void
 {
     m_ptr += delta;
+    m_tmp_lexeme = {};
+}
+
+auto kdl::sema::parser::push(const lexeme lexeme) -> void
+{
+    m_tmp_lexeme = lexeme;
 }
 
 auto kdl::sema::parser::peek(const long offset) const -> kdl::lexeme
 {
+    if (m_tmp_lexeme.has_value() && offset == 0) {
+        return m_tmp_lexeme.value();
+    }
     if (finished(offset, 1)) {
         throw std::logic_error("[kdl::sema::parser] Attempted to access lexeme beyond end of stream.");
     }
@@ -88,7 +97,12 @@ auto kdl::sema::parser::peek(const long offset) const -> kdl::lexeme
 auto kdl::sema::parser::read(const long offset) -> kdl::lexeme
 {
     auto Tk = peek(offset);
-    m_ptr += offset + 1;
+    if (!m_tmp_lexeme.has_value()) {
+        advance(offset + 1);
+    }
+    else {
+        m_tmp_lexeme = {};
+    }
     return Tk;
 }
 
