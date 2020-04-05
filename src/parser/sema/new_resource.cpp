@@ -18,10 +18,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "libGraphite/data/writer.hpp"
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/new_resource.hpp"
 #include "parser/file.hpp"
+#include "target/resource.hpp"
 
 auto kdl::sema::new_resource::test(kdl::sema::parser &parser) -> bool
 {
@@ -69,9 +69,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
     parser.ensure({ expectation(lexeme::r_paren).be_true() });
 
     // Begin the resource declaration block.
-    auto data = std::make_shared<graphite::data::data>();
-    graphite::data::writer resource_data(data);
-
+    auto resource_data = type_container.instantiate_resource();
     parser.ensure({ expectation(lexeme::l_brace).be_true() });
 
     while (parser.expect({ expectation(lexeme::r_brace).be_false() })) {
@@ -106,11 +104,11 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
 
                 switch (value_type) {
                     case kdl::DWRD: {
-                        resource_data.write_signed_short(id.value<int16_t>());
+                        resource_data.write_signed_short(value, id.value<int16_t>());
                         break;
                     }
                     case kdl::DQAD: {
-                        resource_data.write_signed_short(id.value<int64_t>());
+                        resource_data.write_signed_quad(value, id.value<int64_t>());
                         break;
                     }
                     default: {
@@ -141,21 +139,21 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                 // Get the value type for the field
                 auto value = field.value_at(0);
                 auto value_type = std::get<1>(type_container.template_field_named(value.name_lexeme()));
-                switch (value_type) {
+                switch (value_type & 0xF000) {
                     case kdl::PSTR: {
                         if (string_value.size() > 255) {
                             log::fatal_error(field_name, 1, "String too large for value type.");
                         }
-                        resource_data.write_pstr(string_value);
+                        resource_data.write_pstr(value, string_value);
                         break;
                     }
                     case kdl::CSTR: {
-                        resource_data.write_cstr(string_value);
+                        resource_data.write_cstr(value, string_value);
                         break;
                     }
                     case kdl::HEXD: {
                         // Use a cstr write function with a set size to exclude the terminating NUL byte.
-                        resource_data.write_cstr(string_value, string_value.size());
+                        resource_data.write_data(value, string_value);
                         break;
                     }
                     case kdl::Cxxx: {
@@ -163,7 +161,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                         if (string_value.size() > size) {
                             log::fatal_error(field_name, 1, "String too large for value type.");
                         }
-                        resource_data.write_cstr(string_value, size);
+                        resource_data.write_cstr(value, string_value, size);
                         break;
                     }
                     default: {
@@ -240,19 +238,19 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
 
                 switch (value_type) {
                     case kdl::HBYT: {
-                        resource_data.write_byte(static_cast<uint8_t>(mask & 0xFF));
+                        resource_data.write_byte(value, static_cast<uint8_t>(mask & 0xFF));
                         break;
                     }
                     case kdl::HWRD: {
-                        resource_data.write_short(static_cast<uint16_t>(mask & 0xFFFF));
+                        resource_data.write_short(value, static_cast<uint16_t>(mask & 0xFFFF));
                         break;
                     }
                     case kdl::HLNG: {
-                        resource_data.write_long(static_cast<uint32_t>(mask & 0xFFFFFFFF));
+                        resource_data.write_long(value, static_cast<uint32_t>(mask & 0xFFFFFFFF));
                         break;
                     }
                     case kdl::HQAD: {
-                        resource_data.write_quad(mask);
+                        resource_data.write_quad(value, mask);
                         break;
                     }
                     default: {
@@ -276,7 +274,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                             auto lx = parser.peek();
                             log::fatal_error(lx, 1, "Expected an integer literal for field '" + field_name.text() + "'.");
                         }
-                        resource_data.write_signed_byte(parser.read().value<int8_t>());
+                        resource_data.write_signed_byte(value, parser.read().value<int8_t>());
                         break;
                     }
                     case kdl::DWRD: {
@@ -284,7 +282,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                             auto lx = parser.peek();
                             log::fatal_error(lx, 1, "Expected an integer literal for field '" + field_name.text() + "'.");
                         }
-                        resource_data.write_signed_short(parser.read().value<int16_t>());
+                        resource_data.write_signed_short(value, parser.read().value<int16_t>());
                         break;
                     }
                     case kdl::DLNG: {
@@ -292,7 +290,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                             auto lx = parser.peek();
                             log::fatal_error(lx, 1, "Expected an integer literal for field '" + field_name.text() + "'.");
                         }
-                        resource_data.write_signed_long(parser.read().value<int32_t>());
+                        resource_data.write_signed_long(value, parser.read().value<int32_t>());
                         break;
                     }
                     case kdl::DQAD: {
@@ -300,7 +298,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                             auto lx = parser.peek();
                             log::fatal_error(lx, 1, "Expected an integer literal for field '" + field_name.text() + "'.");
                         }
-                        resource_data.write_signed_quad(parser.read().value<int64_t>());
+                        resource_data.write_signed_quad(value, parser.read().value<int64_t>());
                         break;
                     }
                     case kdl::HBYT: {
@@ -308,7 +306,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                             auto lx = parser.peek();
                             log::fatal_error(lx, 1, "Expected an integer literal for field '" + field_name.text() + "'.");
                         }
-                        resource_data.write_byte(parser.read().value<uint8_t>());
+                        resource_data.write_byte(value, parser.read().value<uint8_t>());
                         break;
                     }
                     case kdl::HWRD: {
@@ -316,7 +314,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                             auto lx = parser.peek();
                             log::fatal_error(lx, 1, "Expected an integer literal for field '" + field_name.text() + "'.");
                         }
-                        resource_data.write_short(parser.read().value<uint16_t>());
+                        resource_data.write_short(value, parser.read().value<uint16_t>());
                         break;
                     }
                     case kdl::HLNG: {
@@ -324,7 +322,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                             auto lx = parser.peek();
                             log::fatal_error(lx, 1, "Expected an integer literal for field '" + field_name.text() + "'.");
                         }
-                        resource_data.write_long(parser.read().value<uint32_t>());
+                        resource_data.write_long(value, parser.read().value<uint32_t>());
                         break;
                     }
                     case kdl::HQAD: {
@@ -332,7 +330,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                             auto lx = parser.peek();
                             log::fatal_error(lx, 1, "Expected an integer literal for field '" + field_name.text() + "'.");
                         }
-                        resource_data.write_quad(parser.read().value<uint64_t>());
+                        resource_data.write_quad(value, parser.read().value<uint64_t>());
                         break;
                     }
 
@@ -341,7 +339,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                             auto lx = parser.peek();
                             log::fatal_error(lx, 1, "Expected an string literal for field '" + field_name.text() + "'.");
                         }
-                        resource_data.write_pstr(parser.read().text());
+                        resource_data.write_pstr(value, parser.read().text());
                         break;
                     }
                     case kdl::CSTR: {
@@ -349,7 +347,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                             auto lx = parser.peek();
                             log::fatal_error(lx, 1, "Expected an string literal for field '" + field_name.text() + "'.");
                         }
-                        resource_data.write_cstr(parser.read().text());
+                        resource_data.write_cstr(value, parser.read().text());
                         break;
                     }
 
@@ -358,7 +356,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                             auto lx = parser.peek();
                             log::fatal_error(lx, 1, "Expected an string literal for field '" + field_name.text() + "'.");
                         }
-                        resource_data.write_cstr(parser.read().text(), type_size(std::get<1>(symbol)));
+                        resource_data.write_cstr(value, parser.read().text(), type_size(std::get<1>(symbol)));
                         break;
                     }
 
@@ -372,10 +370,11 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                             auto lx = parser.peek();
                             log::fatal_error(lx, 1, "Expected 4 integer literals for field '" + field_name.text() + "'.");
                         }
-                        resource_data.write_signed_short(parser.read().value<int16_t>());
-                        resource_data.write_signed_short(parser.read().value<int16_t>());
-                        resource_data.write_signed_short(parser.read().value<int16_t>());
-                        resource_data.write_signed_short(parser.read().value<int16_t>());
+                        resource_data.write_rect(value,
+                                                 parser.read().value<int16_t>(),
+                                                 parser.read().value<int16_t>(),
+                                                 parser.read().value<int16_t>(),
+                                                 parser.read().value<int16_t>());
                         break;
                     }
 
@@ -394,4 +393,6 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
     }
 
     parser.ensure({ expectation(lexeme::r_brace).be_true() });
+
+    auto data = resource_data.assemble();
 }

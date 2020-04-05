@@ -27,6 +27,7 @@
 #include <map>
 #include "target/types.hpp"
 #include "target/field.hpp"
+#include "target/resource.hpp"
 
 namespace kdl
 {
@@ -44,6 +45,8 @@ namespace kdl
 
         auto name() const -> std::string;
         auto code() const -> std::string;
+
+        auto instantiate_resource() const -> resource;
 
         auto add_template_field(const lexeme label, enum type type) -> void;
         auto template_field_count() const -> std::size_t;

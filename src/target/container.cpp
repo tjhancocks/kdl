@@ -41,6 +41,13 @@ auto kdl::container::code() const -> std::string
     return m_code;
 }
 
+// MARK: - Resource Creation
+
+auto kdl::container::instantiate_resource() const -> resource
+{
+    return kdl::resource(m_code, m_template);
+}
+
 // MARK: - Template Management
 
 auto kdl::container::add_template_field(const lexeme label, kdl::type type) -> void
