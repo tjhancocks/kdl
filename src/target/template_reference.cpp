@@ -36,6 +36,11 @@ auto kdl::template_reference::name() const -> std::string
     return m_name.text();
 }
 
+auto kdl::template_reference::name_lexeme() const -> lexeme
+{
+    return m_name;
+}
+
 auto kdl::template_reference::default_value() const -> std::optional<lexeme>
 {
     return m_default;

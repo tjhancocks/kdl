@@ -48,12 +48,14 @@ auto kdl::sema::type_field::parse(kdl::sema::parser &parser, kdl::container &typ
 
         if (parser.expect({ expectation(lexeme::identifier).be_true(), expectation(lexeme::amp).be_true() })) {
             field.set_type(parser.read().text(), true);
+            parser.advance();
         }
         else if (parser.expect({ expectation(lexeme::identifier).be_true() })) {
             field.set_type(parser.read().text(), false);
         }
         else if (parser.expect({ expectation(lexeme::amp).be_true() })) {
             field.set_type("", true);
+            parser.advance();
         }
         else {
             log::fatal_error(parser.peek(), 1, "Unknown error occurred during semantic analysis");
@@ -123,4 +125,6 @@ auto kdl::sema::type_field::parse(kdl::sema::parser &parser, kdl::container &typ
     }
 
     parser.ensure({ expectation(lexeme::r_brace).be_true() });
+
+    type_container.add_field(field);
 }

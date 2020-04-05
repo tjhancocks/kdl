@@ -40,6 +40,7 @@ namespace kdl
         template_reference(const lexeme name, std::optional<lexeme> default_value);
 
         auto name() const -> std::string;
+        auto name_lexeme() const -> lexeme;
         auto default_value() const -> std::optional<lexeme>;
         auto set_default_value(std::optional<lexeme> default_value) -> void;
 
