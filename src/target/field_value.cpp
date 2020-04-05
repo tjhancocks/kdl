@@ -19,41 +19,51 @@
 // SOFTWARE.
 
 #include "diagnostic/fatal.hpp"
-#include "target/template_reference.hpp"
+#include "target/field_value.hpp"
 
 // MARK: - Constructor
 
-kdl::template_reference::template_reference(const kdl::lexeme name, std::optional<lexeme> default_value)
-    : m_name(name), m_default(default_value)
+kdl::field_value::field_value(const kdl::lexeme name, std::optional<field_value_type> type, std::optional<lexeme> default_value)
+    : m_name(name), m_default(default_value), m_type(type)
 {
 
 }
 
 // MARK: - Accessors
 
-auto kdl::template_reference::name() const -> std::string
+auto kdl::field_value::name() const -> std::string
 {
     return m_name.text();
 }
 
-auto kdl::template_reference::name_lexeme() const -> lexeme
+auto kdl::field_value::name_lexeme() const -> lexeme
 {
     return m_name;
 }
 
-auto kdl::template_reference::default_value() const -> std::optional<lexeme>
+auto kdl::field_value::type() const -> std::optional<field_value_type>
+{
+    return m_type;
+}
+
+auto kdl::field_value::set_type(const field_value_type type) -> void
+{
+    m_type = type;
+}
+
+auto kdl::field_value::default_value() const -> std::optional<lexeme>
 {
     return m_default;
 }
 
-auto kdl::template_reference::set_default_value(std::optional<lexeme> default_value) -> void
+auto kdl::field_value::set_default_value(std::optional<lexeme> default_value) -> void
 {
     m_default = default_value;
 }
 
 // MARK: - Symbol Management
 
-auto kdl::template_reference::add_symbol(const kdl::lexeme symbol, const kdl::lexeme value) -> void
+auto kdl::field_value::add_symbol(const kdl::lexeme symbol, const kdl::lexeme value) -> void
 {
     for (auto s : m_symbols) {
         if (std::get<0>(s).text() == symbol.text()) {
@@ -63,7 +73,7 @@ auto kdl::template_reference::add_symbol(const kdl::lexeme symbol, const kdl::le
     m_symbols.emplace_back(std::make_tuple(symbol, value));
 }
 
-auto kdl::template_reference::value_for(const kdl::lexeme symbol) const -> kdl::lexeme
+auto kdl::field_value::value_for(const kdl::lexeme symbol) const -> kdl::lexeme
 {
     for (auto s : m_symbols) {
         if (std::get<0>(s).text() == symbol.text()) {
@@ -73,12 +83,12 @@ auto kdl::template_reference::value_for(const kdl::lexeme symbol) const -> kdl::
     log::fatal_error(symbol, 1, "Unrecognised symbol '" + symbol.text() + "'");
 }
 
-auto kdl::template_reference::symbol_count() const -> std::size_t
+auto kdl::field_value::symbol_count() const -> std::size_t
 {
     return m_symbols.size();
 }
 
-auto kdl::template_reference::symbol_at(const int i) -> std::tuple<lexeme, lexeme>
+auto kdl::field_value::symbol_at(const int i) -> std::tuple<lexeme, lexeme>
 {
     return m_symbols[i];
 }

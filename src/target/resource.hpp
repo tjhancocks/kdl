@@ -28,7 +28,7 @@
 #include <any>
 #include "parser/lexeme.hpp"
 #include "target/types.hpp"
-#include "target/template_reference.hpp"
+#include "target/field_value.hpp"
 #include "libGraphite/data/data.hpp"
 
 namespace kdl
@@ -53,20 +53,20 @@ namespace kdl
         auto id() const -> int64_t;
         auto name() const -> std::string;
 
-        auto write_byte(const template_reference ref, const uint8_t value) -> void;
-        auto write_short(const template_reference ref, const uint16_t value) -> void;
-        auto write_long(const template_reference ref, const uint32_t value) -> void;
-        auto write_quad(const template_reference ref, const uint64_t value) -> void;
-        auto write_signed_byte(const template_reference ref, const int8_t value) -> void;
-        auto write_signed_short(const template_reference ref, const int16_t value) -> void;
-        auto write_signed_long(const template_reference ref, const int32_t value) -> void;
-        auto write_signed_quad(const template_reference ref, const int64_t value) -> void;
+        auto write_byte(const field_value ref, const uint8_t value) -> void;
+        auto write_short(const field_value ref, const uint16_t value) -> void;
+        auto write_long(const field_value ref, const uint32_t value) -> void;
+        auto write_quad(const field_value ref, const uint64_t value) -> void;
+        auto write_signed_byte(const field_value ref, const int8_t value) -> void;
+        auto write_signed_short(const field_value ref, const int16_t value) -> void;
+        auto write_signed_long(const field_value ref, const int32_t value) -> void;
+        auto write_signed_quad(const field_value ref, const int64_t value) -> void;
 
-        auto write_pstr(const template_reference ref, const std::string value) -> void;
-        auto write_cstr(const template_reference ref, const std::string value, const std::size_t length = 0) -> void;
+        auto write_pstr(const field_value ref, const std::string value) -> void;
+        auto write_cstr(const field_value ref, const std::string value, const std::size_t length = 0) -> void;
 
-        auto write_data(const template_reference ref, const std::string value) -> void;
-        auto write_rect(const template_reference ref, const int16_t t, const int16_t l, const int16_t b, const int16_t r) -> void;
+        auto write_data(const field_value ref, const std::string value) -> void;
+        auto write_rect(const field_value ref, const int16_t t, const int16_t l, const int16_t b, const int16_t r) -> void;
 
         auto assemble() const -> std::shared_ptr<graphite::data::data>;
     };

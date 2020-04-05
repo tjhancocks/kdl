@@ -18,41 +18,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "target/field.hpp"
+#include "target/field_value_type.hpp"
 
-// MARK: - Constructor
+// MARK: - Constructors
 
-kdl::field::field(const kdl::lexeme name)
-    : m_name(name)
+kdl::field_value_type::field_value_type(const bool reference)
+    : m_is_reference(reference)
+{
+
+};
+
+kdl::field_value_type::field_value_type(const lexeme name, const bool reference)
+    : m_name(name), m_is_reference(reference)
 {
 
 }
 
 // MARK: - Accessors
 
-auto kdl::field::name() const -> std::string
+auto kdl::field_value_type::name() const -> std::string
 {
-    return m_name.text();
+    return m_name.has_value() ? m_name->text() : "Any";
 }
 
-auto kdl::field::name_lexeme() const -> kdl::lexeme
+auto kdl::field_value_type::is_reference() const -> bool
+{
+    return m_is_reference;
+}
+
+auto kdl::field_value_type::name_lexeme() const -> std::optional<lexeme>
 {
     return m_name;
 }
 
-// MARK: - Value Management
-
-auto kdl::field::add_value(const field_value value) -> void
-{
-    m_values.emplace_back(value);
-}
-
-auto kdl::field::value_count() const -> std::size_t
-{
-    return m_values.size();
-}
-
-auto kdl::field::value_at(const int i) -> field_value
-{
-    return m_values[i];
-}

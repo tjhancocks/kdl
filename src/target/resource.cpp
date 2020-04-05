@@ -65,62 +65,62 @@ auto kdl::resource::write(const lexeme field, std::any value) -> void
     m_values.emplace(index_of(field), value);
 }
 
-auto kdl::resource::write_byte(const template_reference ref, const uint8_t value) -> void
+auto kdl::resource::write_byte(const field_value ref, const uint8_t value) -> void
 {
     write(ref.name_lexeme(), value);
 }
 
-auto kdl::resource::write_short(const template_reference ref, const uint16_t value) -> void
+auto kdl::resource::write_short(const field_value ref, const uint16_t value) -> void
 {
     write(ref.name_lexeme(), value);
 }
 
-auto kdl::resource::write_long(const template_reference ref, const uint32_t value) -> void
+auto kdl::resource::write_long(const field_value ref, const uint32_t value) -> void
 {
     write(ref.name_lexeme(), value);
 }
 
-auto kdl::resource::write_quad(const template_reference ref, const uint64_t value) -> void
+auto kdl::resource::write_quad(const field_value ref, const uint64_t value) -> void
 {
     write(ref.name_lexeme(), value);
 }
 
-auto kdl::resource::write_signed_byte(const template_reference ref, const int8_t value) -> void
+auto kdl::resource::write_signed_byte(const field_value ref, const int8_t value) -> void
 {
     write(ref.name_lexeme(), value);
 }
 
-auto kdl::resource::write_signed_short(const template_reference ref, const int16_t value) -> void
+auto kdl::resource::write_signed_short(const field_value ref, const int16_t value) -> void
 {
     write(ref.name_lexeme(), value);
 }
 
-auto kdl::resource::write_signed_long(const template_reference ref, const int32_t value) -> void
+auto kdl::resource::write_signed_long(const field_value ref, const int32_t value) -> void
 {
     write(ref.name_lexeme(), value);
 }
 
-auto kdl::resource::write_signed_quad(const template_reference ref, const int64_t value) -> void
+auto kdl::resource::write_signed_quad(const field_value ref, const int64_t value) -> void
 {
     write(ref.name_lexeme(), value);
 }
 
-auto kdl::resource::write_pstr(const template_reference ref, const std::string value) -> void
+auto kdl::resource::write_pstr(const field_value ref, const std::string value) -> void
 {
     write(ref.name_lexeme(), value);
 }
 
-auto kdl::resource::write_cstr(const template_reference ref, const std::string value, const std::size_t length) -> void
+auto kdl::resource::write_cstr(const field_value ref, const std::string value, const std::size_t length) -> void
 {
     write(ref.name_lexeme(), std::tuple(value, length));
 }
 
-auto kdl::resource::write_data(const template_reference ref, const std::string value) -> void
+auto kdl::resource::write_data(const field_value ref, const std::string value) -> void
 {
     write(ref.name_lexeme(), value);
 }
 
-auto kdl::resource::write_rect(const template_reference ref, const int16_t t, const int16_t l, const int16_t b, const int16_t r) -> void
+auto kdl::resource::write_rect(const field_value ref, const int16_t t, const int16_t l, const int16_t b, const int16_t r) -> void
 {
     write(ref.name_lexeme(), std::make_tuple(t, l, b, r));
 }

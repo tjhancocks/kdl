@@ -18,38 +18,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TEMPLATE_REFERENCE_HPP)
-#define KDL_TEMPLATE_REFERENCE_HPP
 
-#include <string>
-#include <vector>
-#include <optional>
-#include "parser/lexeme.hpp"
+#if !defined(KDL_FIELD_SEMA_HPP)
+#define KDL_FIELD_SEMA_HPP
 
-namespace kdl
-{
+#include "parser/parser.hpp"
+#include "target/target.hpp"
+#include "target/resource.hpp"
 
-    struct template_reference
+namespace kdl { namespace sema {
+
+    struct field_sema
     {
-    private:
-        lexeme m_name;
-        std::optional<lexeme> m_default;
-        std::vector<std::tuple<lexeme, lexeme>> m_symbols;
-
     public:
-        template_reference(const lexeme name, std::optional<lexeme> default_value);
-
-        auto name() const -> std::string;
-        auto name_lexeme() const -> lexeme;
-        auto default_value() const -> std::optional<lexeme>;
-        auto set_default_value(std::optional<lexeme> default_value) -> void;
-
-        auto add_symbol(const lexeme symbol, const lexeme value) -> void;
-        auto value_for(const lexeme symbol) const -> lexeme;
-        auto symbol_count() const -> std::size_t;
-        auto symbol_at(const int i) -> std::tuple<lexeme, lexeme>;
+        static auto test(parser& parser) -> bool;
+        static auto parse(parser& parser, container& type_container, resource& resource_data, std::weak_ptr<kdl::target> target) -> void;
     };
 
-};
+}};
 
-#endif //KDL_TEMPLATE_REFERENCE_HPP
+#endif //KDL_FIELD_SEMA_HPP

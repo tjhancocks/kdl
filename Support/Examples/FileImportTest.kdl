@@ -3,8 +3,8 @@
 		CSTR body;
 	};
 
-	field("body") as File {
-		body;
+	field("body") {
+		body as File;
 	};
 };
 

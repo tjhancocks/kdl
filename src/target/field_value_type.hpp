@@ -18,41 +18,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "target/field.hpp"
+#if !defined(KDL_FIELD_VALUE_TYPE_HPP)
+#define KDL_FIELD_VALUE_TYPE_HPP
 
-// MARK: - Constructor
+#include <string>
+#include <optional>
+#include "parser/lexeme.hpp"
 
-kdl::field::field(const kdl::lexeme name)
-    : m_name(name)
+namespace kdl
 {
 
-}
+    struct field_value_type
+    {
+    private:
+        std::optional<lexeme> m_name;
+        bool m_is_reference;
 
-// MARK: - Accessors
+    public:
+        field_value_type(const bool reference);
+        field_value_type(const lexeme name, const bool reference = false);
 
-auto kdl::field::name() const -> std::string
-{
-    return m_name.text();
-}
+        auto name() const -> std::string;
+        auto is_reference() const -> bool;
+        auto name_lexeme() const -> std::optional<lexeme>;
+    };
 
-auto kdl::field::name_lexeme() const -> kdl::lexeme
-{
-    return m_name;
-}
+};
 
-// MARK: - Value Management
-
-auto kdl::field::add_value(const field_value value) -> void
-{
-    m_values.emplace_back(value);
-}
-
-auto kdl::field::value_count() const -> std::size_t
-{
-    return m_values.size();
-}
-
-auto kdl::field::value_at(const int i) -> field_value
-{
-    return m_values[i];
-}
+#endif //KDL_FIELD_VALUE_TYPE_HPP

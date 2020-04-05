@@ -18,36 +18,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_FIELD_HPP)
-#define KDL_FIELD_HPP
+#if !defined(KDL_FIELD_VALUE_HPP)
+#define KDL_FIELD_VALUE_HPP
 
 #include <string>
 #include <vector>
-#include <tuple>
 #include <optional>
 #include "parser/lexeme.hpp"
-#include "target/field_value.hpp"
+#include "target/field_value_type.hpp"
 
 namespace kdl
 {
 
-    struct field
+    struct field_value
     {
     private:
         lexeme m_name;
-        std::vector<field_value> m_values;
+        std::optional<field_value_type> m_type;
+        std::optional<lexeme> m_default;
+        std::vector<std::tuple<lexeme, lexeme>> m_symbols;
 
     public:
-        field(const lexeme name);
+        field_value(const lexeme name, std::optional<field_value_type> type, std::optional<lexeme> default_value);
 
         auto name() const -> std::string;
         auto name_lexeme() const -> lexeme;
 
-        auto add_value(const field_value value) -> void;
-        auto value_count() const -> std::size_t;
-        auto value_at(const int i) -> field_value;
+        auto type() const -> std::optional<field_value_type>;
+        auto set_type(const field_value_type type) -> void;
+
+        auto default_value() const -> std::optional<lexeme>;
+        auto set_default_value(std::optional<lexeme> default_value) -> void;
+
+        auto add_symbol(const lexeme symbol, const lexeme value) -> void;
+        auto value_for(const lexeme symbol) const -> lexeme;
+        auto symbol_count() const -> std::size_t;
+        auto symbol_at(const int i) -> std::tuple<lexeme, lexeme>;
     };
 
 };
 
-#endif //KDL_FIELD_HPP
+#endif //KDL_FIELD_VALUE_HPP

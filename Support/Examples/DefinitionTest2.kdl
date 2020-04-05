@@ -1,0 +1,17 @@
+@type TestType : "type" {
+	template {
+		DWRD alpha;
+		DWRD beta;
+	};
+
+	field("values") {
+		alpha as &;
+		beta;
+	};
+};
+
+declare TestType {
+	new (#128) {
+		values = #128 54;
+	};
+};

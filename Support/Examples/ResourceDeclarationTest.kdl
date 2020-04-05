@@ -19,8 +19,8 @@
 		PSTR name;
 	};
 
-	field("color") as Color& {
-		color;
+	field("color"){
+		color as Color&;
 	};
 
 	field("name") {

@@ -38,30 +38,6 @@ auto kdl::sema::type_field::parse(kdl::sema::parser &parser, kdl::container &typ
 
     parser.ensure({ expectation(lexeme::r_paren).be_true() });
 
-    // The next aspect is optional. This is the type for the field. The type can take one of three forms:
-    //      as &
-    //      as Foo&
-    //      as Foo
-    if (parser.expect({ expectation(lexeme::identifier, "as").be_true() })) {
-        // We are looking at a type specifier for the field.
-        parser.advance();
-
-        if (parser.expect({ expectation(lexeme::identifier).be_true(), expectation(lexeme::amp).be_true() })) {
-            field.set_type(parser.read().text(), true);
-            parser.advance();
-        }
-        else if (parser.expect({ expectation(lexeme::identifier).be_true() })) {
-            field.set_type(parser.read().text(), false);
-        }
-        else if (parser.expect({ expectation(lexeme::amp).be_true() })) {
-            field.set_type("", true);
-            parser.advance();
-        }
-        else {
-            log::fatal_error(parser.peek(), 1, "Unknown error occurred during semantic analysis");
-        }
-    }
-
     // The field body is wrapped in '{' braces '}'. This body is required.
     parser.ensure({ expectation(lexeme::l_brace).be_true() });
 
@@ -72,7 +48,27 @@ auto kdl::sema::type_field::parse(kdl::sema::parser &parser, kdl::container &typ
             log::fatal_error(lx, 1, "Expected an indentifier in field body.");
         }
         auto value_label = parser.read();
-        template_reference ref(value_label, {});
+        field_value ref(value_label, {}, {});
+
+        // Is there an explicit type associated with this field_value?
+        if (parser.expect({ expectation(lexeme::identifier, "as").be_true() })) {
+            parser.advance();
+
+            if (parser.expect({ expectation(lexeme::identifier).be_true(), expectation(lexeme::amp).be_true() })) {
+                ref.set_type(field_value_type(parser.read(), true));
+                parser.advance();
+            }
+            else if (parser.expect({ expectation(lexeme::identifier).be_true() })) {
+                ref.set_type(field_value_type(parser.read()));
+            }
+            else if (parser.expect({ expectation(lexeme::amp).be_true() })) {
+                ref.set_type(field_value_type(true));
+                parser.advance();
+            }
+            else {
+                log::fatal_error(parser.peek(), 1, "Unexpected lexeme encountered in field value type");
+            }
+        }
 
         // Is there a default value associated with this value.
         if (parser.expect({ expectation(lexeme::equals).be_true() })) {
