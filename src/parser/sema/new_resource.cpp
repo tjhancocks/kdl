@@ -115,6 +115,12 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
             else if (std::get<0>(type) == "File" || std::get<0>(type) == "file") {
                 // The field type is the builtin File type. The value should be a string representing a file
                 // path. The contents of the file should be loaded into the field as the value.
+                auto import_file = false;
+                if (parser.expect({ expectation(lexeme::identifier, "import").be_true() })) {
+                    parser.advance();
+                    import_file = true;
+                }
+
                 if (!parser.expect({ expectation(lexeme::string).be_true() })) {
                     auto lx = parser.peek();
                     log::fatal_error(lx, 1, "Fields with the 'File' type expect a string value.");
@@ -136,16 +142,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                 log::fatal_error(file_path, 1, "Picture types are not currently supported.");
             }
             else if (std::get<0>(type) == "Sprite" || std::get<0>(type) == "Sprite") {
-                // The field type is the builtin Sprite type. The value should be a series of strings representing
-                // image files for each frame of the sprite. The images are encoded as a rlëD resource.
-                if (!parser.expect({ expectation(lexeme::string).be_true() })) {
-                    auto lx = parser.peek();
-                    log::fatal_error(lx, 1, "Fields with the 'Sprites' type expect a string value.");
-                }
-                auto file_path = parser.read();
-
-                // TODO: Import file data and correctly encode it.
-                log::fatal_error(file_path, 1, "Sprite types are not currently supported.");
+                log::fatal_error(parser.peek(), 1, "Sprite types are not currently supported.");
             }
             else if (std::get<0>(type) == "ColorIcon" || std::get<0>(type) == "ColorIcon") {
                 // The field type is the builtin ColorIcon type. The value should be a string representing an image file
