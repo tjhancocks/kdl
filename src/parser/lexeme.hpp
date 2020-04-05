@@ -167,9 +167,9 @@ namespace kdl
         template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
         auto value() const -> T
         {
-           if (m_text.find_first_not_of("0123456789ABCDEFabcdef") == std::string::npos) {
+           if (m_text.size() >= 3 && (m_text.substr(0, 2) == "0x" || m_text.substr(0, 2) == "0X")) {
                // Hex
-               return static_cast<T>(std::stoull(m_text, nullptr, 16));
+               return static_cast<T>(std::stoull(m_text.substr(2), nullptr, 16));
            }
            else {
                // Decimal

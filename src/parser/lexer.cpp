@@ -92,7 +92,7 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
             // We're looking at a hexadecimal number
             advance(2);
             consume_while(hexadecimal_set::contains);
-            m_lexemes.emplace_back(kdl::lexeme(m_slice, lexeme::integer, m_pos, m_offset, m_line, m_source));
+            m_lexemes.emplace_back(kdl::lexeme("0x" + m_slice, lexeme::integer, m_pos, m_offset, m_line, m_source));
         }
         else if (test_if(decimal_set::contains) || (test_if(match<'-'>::yes) && test_if(decimal_set::contains, 1))) {
             // We're looking at a number
