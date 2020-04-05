@@ -272,7 +272,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                 if (parser.expect({ expectation(lexeme::semi).be_true() })) {
                     // Does the value have a default? If it does not then throw an error.
                     if (!value.default_value().has_value()) {
-                        log::fatal_error(field_name, 1, "Value #" + std::to_string(i) + " is not defined and has no default value.");
+                        log::fatal_error(field_name, 1, "Value #" + std::to_string(i + 1) + " is not defined and has no default value.");
                     }
                     parser.push(value.default_value().value());
                 }
