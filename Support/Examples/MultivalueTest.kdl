@@ -1,0 +1,27 @@
+@type MultiValue : "MlVl" {
+	template {
+		DWRD alpha;
+		DWRD beta;
+		CSTR gamma;
+		CSTR delta;
+	};
+
+	field("first") {
+		alpha;
+		gamma;
+	};
+
+	field("second") {
+		beta;
+		delta;
+	};
+};
+
+declare MultiValue {
+
+	new (#128) {
+		first = 0xCA "Hello";
+		second = 0x42 "Goodbye";
+	};
+
+};
