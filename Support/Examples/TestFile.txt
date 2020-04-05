@@ -1,0 +1,1 @@
+This is some test text that will be inserted into a resource.

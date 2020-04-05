@@ -21,6 +21,7 @@
 #include "libGraphite/data/writer.hpp"
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/new_resource.hpp"
+#include "parser/file.hpp"
 
 auto kdl::sema::new_resource::test(kdl::sema::parser &parser) -> bool
 {
@@ -31,6 +32,11 @@ auto kdl::sema::new_resource::test(kdl::sema::parser &parser) -> bool
 
 auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &type_container, std::weak_ptr<kdl::target> target) -> void
 {
+    if (target.expired()) {
+        throw std::logic_error("KDL Target is expired, and thus can not continue.");
+    }
+    auto t = target.lock();
+
     // Begin a new resource instance, and get the ID and Name of the resource if provided.
     parser.ensure({
         expectation(lexeme::identifier, "new").be_true(),
@@ -96,9 +102,9 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
 
                 // The internal type should be a signed integer type.
                 auto value = field.value_at(0);
-                auto symbol = type_container.template_field_named(value.name_lexeme());
+                auto value_type = std::get<1>(type_container.template_field_named(value.name_lexeme()));
 
-                switch (std::get<1>(symbol)) {
+                switch (value_type) {
                     case kdl::DWRD: {
                         resource_data.write_signed_short(id.value<int16_t>());
                         break;
@@ -125,9 +131,45 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                     auto lx = parser.peek();
                     log::fatal_error(lx, 1, "Fields with the 'File' type expect a string value.");
                 }
-                auto file_path = parser.read().text();
+                auto string_value = parser.read().text();
 
-                // TODO: Import file data and correctly encode it.
+                if (import_file) {
+                    auto path = t->resolve_src_path(string_value);
+                    string_value = kdl::file(path).contents();
+                }
+
+                // Get the value type for the field
+                auto value = field.value_at(0);
+                auto value_type = std::get<1>(type_container.template_field_named(value.name_lexeme()));
+                switch (value_type) {
+                    case kdl::PSTR: {
+                        if (string_value.size() > 255) {
+                            log::fatal_error(field_name, 1, "String too large for value type.");
+                        }
+                        resource_data.write_pstr(string_value);
+                        break;
+                    }
+                    case kdl::CSTR: {
+                        resource_data.write_cstr(string_value);
+                        break;
+                    }
+                    case kdl::HEXD: {
+                        // Use a cstr write function with a set size to exclude the terminating NUL byte.
+                        resource_data.write_cstr(string_value, string_value.size());
+                        break;
+                    }
+                    case kdl::Cxxx: {
+                        auto size = type_size(value_type);
+                        if (string_value.size() > size) {
+                            log::fatal_error(field_name, 1, "String too large for value type.");
+                        }
+                        resource_data.write_cstr(string_value, size);
+                        break;
+                    }
+                    default: {
+                        log::fatal_error(field_name, 1, "Unsupported value type for field '" + field_name.text() + "' with a type 'File'.");
+                    }
+                }
             }
             else if (std::get<0>(type) == "Picture" || std::get<0>(type) == "Picture") {
                 // The field type is the builtin Picture type. The value should be a string representing an image file

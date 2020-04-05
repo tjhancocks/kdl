@@ -43,6 +43,8 @@ auto main(int argc, const char **argv) -> int
 
     // Loop through each of the files and parse them.
     for (auto file : files) {
+        // 0. Configure the target.
+        target->set_src_root(file->path());
 
         // 1. Perform lexical analysis.
         kdl::lexer lexer(file);

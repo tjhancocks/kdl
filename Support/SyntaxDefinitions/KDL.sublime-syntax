@@ -175,6 +175,7 @@ contexts:
       push:
         - match: ';'
           pop: true
+        - include: import-literal
         - include: resource-literal
         - include: identifier-literal
         - include: number-literal
@@ -183,6 +184,12 @@ contexts:
 
 
 # LITERALS #####################################################################
+
+  import-literal:
+    - match: '(import)[ \t]+("[^"]*")'
+      captures:
+        1: keyword.import.kdl
+        2: string.quoted.double.kdl
 
   identifier-literal:
     - match: '[A-Za-z0-9_-]+'

@@ -1,0 +1,15 @@
+@type Text : "TEXT" {
+	template {
+		CSTR body;
+	};
+
+	field("body") as File {
+		body;
+	};
+};
+
+declare Text {
+	new (#128) {
+		body = import "@rpath/TestFile.txt";
+	};
+};

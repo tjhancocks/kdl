@@ -36,12 +36,16 @@ namespace kdl
     class target
     {
     private:
-        std::string m_path;
+        std::string m_dst_root;
+        std::string m_src_root;
         std::vector<container> m_containers;
 
     public:
         target();
-        target(const std::string path);
+        target(const std::string dst_root);
+
+        auto set_src_root(const std::string src_root) -> void;
+        auto resolve_src_path(const std::string path) const -> std::string;
 
         auto add_container(const container container) -> void;
         auto container_count() const -> std::size_t;

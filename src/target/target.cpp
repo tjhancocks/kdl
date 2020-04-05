@@ -29,7 +29,7 @@ kdl::target::target()
 }
 
 kdl::target::target(const std::string path)
-    : m_path(path)
+    : m_dst_root(path)
 {
 
 }
@@ -59,5 +59,37 @@ auto kdl::target::container_named(const kdl::lexeme name) const -> kdl::containe
         }
     }
     log::fatal_error(name, 1, "Missing definition for type '" + name.text() + "'");
+}
+
+// MARK: - Source Paths
+
+auto kdl::target::set_src_root(const std::string src_root) -> void
+{
+    auto path = src_root;
+    // This needs to be a directory. Check if the path provided is a KDL file. If it is truncate the file name.
+    // If there is a terminating /, then truncate it too.
+    if (path.substr(path.size() - 4) == ".kdl") {
+        while (path.substr(path.size() - 1) != "/") {
+            path.pop_back();
+        }
+    }
+
+    if (path.substr(path.size() - 1) == "/") {
+        path.pop_back();
+    }
+
+    // Save the path.
+    m_src_root = path;
+}
+
+auto kdl::target::resolve_src_path(const std::string path) const -> std::string
+{
+    std::string rpath("@rpath");
+
+    if (path.substr(0, rpath.size()) == rpath) {
+        return m_src_root + path.substr(rpath.size());
+    }
+
+    return path;
 }
 
