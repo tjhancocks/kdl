@@ -1,0 +1,24 @@
+@type BitmaskTest : "BMsk" {
+
+	template {
+		HWRD flags;
+	};
+
+	field("flags") as Bitmask {
+		flags [
+			first = 0x0001,
+			second = 0x0002,
+			third = 0x0004,
+			fourth = 0x0008
+		];
+	};
+
+};
+
+declare BitmaskTest {
+
+	new (#128) {
+		flags = first | second | fourth | 0x00F0;
+	};
+
+};

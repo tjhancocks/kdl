@@ -118,7 +118,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                     }
                 }
             }
-            else if (std::get<0>(type) == "File" || std::get<0>(type) == "file") {
+            else if (std::get<0>(type) == "File") {
                 // The field type is the builtin File type. The value should be a string representing a file
                 // path. The contents of the file should be loaded into the field as the value.
                 auto import_file = false;
@@ -171,7 +171,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                     }
                 }
             }
-            else if (std::get<0>(type) == "Picture" || std::get<0>(type) == "Picture") {
+            else if (std::get<0>(type) == "Picture") {
                 // The field type is the builtin Picture type. The value should be a string representing an image file
                 // path. The contents of the file should be loaded, and then encoded as a PICT resource.
                 if (!parser.expect({ expectation(lexeme::string).be_true() })) {
@@ -183,10 +183,10 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
                 // TODO: Import file data and correctly encode it.
                 log::fatal_error(file_path, 1, "Picture types are not currently supported.");
             }
-            else if (std::get<0>(type) == "Sprite" || std::get<0>(type) == "Sprite") {
+            else if (std::get<0>(type) == "Sprite") {
                 log::fatal_error(parser.peek(), 1, "Sprite types are not currently supported.");
             }
-            else if (std::get<0>(type) == "ColorIcon" || std::get<0>(type) == "ColorIcon") {
+            else if (std::get<0>(type) == "ColorIcon") {
                 // The field type is the builtin ColorIcon type. The value should be a string representing an image file
                 // path. The contents of the file should be loaded, and then encoded as a CICN resource.
                 if (!parser.expect({ expectation(lexeme::string).be_true() })) {
@@ -197,6 +197,68 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
 
                 // TODO: Import file data and correctly encode it.
                 log::fatal_error(file_path, 1, "ColorIcon types are not currently supported.");
+            }
+            else if (std::get<0>(type) == "Bitmask") {
+                if (field.value_count() != 1) {
+                    log::fatal_error(field_name, 1, "The field '" + field_name.text() + "' should have only one value due to it being a 'Bitmask'.");
+                }
+
+                auto value = field.value_at(0);
+                auto value_type = std::get<1>(type_container.template_field_named(value.name_lexeme()));
+
+                if (value_type != kdl::HBYT && value_type != kdl::HWRD && value_type != kdl::HLNG && value_type != kdl::HQAD) {
+                    log::fatal_error(field_name, 1, "The field '" + field_name.text() + "' must be backed by either a HBYT, HWRD, HLNG or HQAD value.");
+                }
+
+                uint64_t mask = 0;
+
+                while (parser.expect({ expectation(lexeme::semi).be_false() })) {
+                    if (parser.expect({ expectation(lexeme::integer).be_true() })) {
+                        // Merge in an integer.
+                        mask |= parser.read().value<uint64_t>();
+                    }
+                    else if (parser.expect({ expectation(lexeme::identifier).be_true() })) {
+                        // Look up symbol and merge it.
+                        auto symbol = parser.read();
+                        auto symbol_value = value.value_for(symbol);
+
+                        if (!symbol_value.is(lexeme::integer)) {
+                            log::fatal_error(symbol, 1, "Type mismatch for '" + symbol.text() + "' in bitmask.");
+                        }
+
+                        mask |= symbol_value.value<uint64_t>();
+                    }
+                    else {
+                        auto lx = parser.peek();
+                        log::fatal_error(lx, 1, "Unexpected lexeme encountered in bitmask: '" + lx.text() + "'");
+                    }
+
+                    if (!parser.expect({ expectation(lexeme::semi).be_true() })) {
+                        parser.ensure({ expectation(lexeme::pipe).be_true() });
+                    }
+                }
+
+                switch (value_type) {
+                    case kdl::HBYT: {
+                        resource_data.write_byte(static_cast<uint8_t>(mask & 0xFF));
+                        break;
+                    }
+                    case kdl::HWRD: {
+                        resource_data.write_short(static_cast<uint16_t>(mask & 0xFFFF));
+                        break;
+                    }
+                    case kdl::HLNG: {
+                        resource_data.write_long(static_cast<uint32_t>(mask & 0xFFFFFFFF));
+                        break;
+                    }
+                    case kdl::HQAD: {
+                        resource_data.write_quad(mask);
+                        break;
+                    }
+                    default: {
+                        throw std::logic_error("Unexpected bitmask type encountered.");
+                    }
+                }
             }
             else {
                 log::fatal_error(parser.peek(), 1, "Unknown field type: '" + std::get<0>(type) + "'");
