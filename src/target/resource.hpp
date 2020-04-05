@@ -37,6 +37,8 @@ namespace kdl
     class resource
     {
     private:
+        int64_t m_id;
+        std::string m_name;
         std::string m_type_code;
         std::vector<std::tuple<lexeme, type>> m_template;
         std::map<int, std::any> m_values;
@@ -45,7 +47,11 @@ namespace kdl
         auto index_of(const lexeme field) const -> int;
 
     public:
-        resource(const std::string code, std::vector<std::tuple<lexeme, type>> tmpl);
+        resource(const std::string code, const int64_t id, const std::string name, std::vector<std::tuple<lexeme, type>> tmpl);
+
+        auto type_code() const -> std::string;
+        auto id() const -> int64_t;
+        auto name() const -> std::string;
 
         auto write_byte(const template_reference ref, const uint8_t value) -> void;
         auto write_short(const template_reference ref, const uint16_t value) -> void;

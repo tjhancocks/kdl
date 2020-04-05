@@ -17,5 +17,5 @@ declare DefaultValueTest {
 
 	new (#129) {
 		value = 0x1122 0x3344;
-	}
+	};
 };

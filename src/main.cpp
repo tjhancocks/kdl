@@ -55,5 +55,8 @@ auto main(int argc, const char **argv) -> int
         parser.parse();
     }
 
+    // Finally save the target to disk.
+    target->save();
+
     return 0;
 }

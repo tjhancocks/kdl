@@ -24,6 +24,7 @@
 // MARK: - Constructors
 
 kdl::target::target()
+    : m_dst_root("."), m_dst_file("result")
 {
 
 }
@@ -93,3 +94,45 @@ auto kdl::target::resolve_src_path(const std::string path) const -> std::string
     return path;
 }
 
+// MARK: - Resource Management
+
+auto kdl::target::add_resource(const resource resource) -> void
+{
+    m_file.add_resource(resource.type_code(), resource.id(), resource.name(), resource.assemble());
+}
+
+// MARK: - Saving
+
+auto kdl::target::target_file_path() const -> std::string
+{
+    auto path = m_dst_root;
+
+    if (path.substr(path.size() - 1) != "/") {
+        path += "/";
+    }
+    path += m_dst_file;
+
+    switch (m_format) {
+        case graphite::rsrc::file::format::classic:
+            path += ".ndat";
+            break;
+        case graphite::rsrc::file::format::extended:
+            path += ".kdat";
+            break;
+        case graphite::rsrc::file::format::rez:
+            path += ".rez";
+            break;
+    }
+
+    return path;
+}
+
+auto kdl::target::set_output_file(const std::string file) -> void
+{
+    m_dst_file = file;
+}
+
+auto kdl::target::save() -> void
+{
+    m_file.write(target_file_path(), m_format);
+}

@@ -23,10 +23,27 @@
 
 // MARK: - Constructor
 
-kdl::resource::resource(const std::string code, std::vector<std::tuple<lexeme, type>> tmpl)
-    : m_template(tmpl), m_type_code(code)
+kdl::resource::resource(const std::string code, const int64_t id, const std::string name, std::vector<std::tuple<lexeme, type>> tmpl)
+    : m_template(tmpl), m_type_code(code), m_id(id), m_name(name)
 {
 
+}
+
+// MARK: - Accessors
+
+auto kdl::resource::type_code() const -> std::string
+{
+    return m_type_code;
+}
+
+auto kdl::resource::id() const -> int64_t
+{
+    return m_id;
+}
+
+auto kdl::resource::name() const -> std::string
+{
+    return m_name;
 }
 
 // MARK: - Helpers

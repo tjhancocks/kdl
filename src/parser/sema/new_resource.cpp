@@ -69,7 +69,7 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
     parser.ensure({ expectation(lexeme::r_paren).be_true() });
 
     // Begin the resource declaration block.
-    auto resource_data = type_container.instantiate_resource();
+    auto resource_data = type_container.instantiate_resource(resource_id, resource_name);
     parser.ensure({ expectation(lexeme::l_brace).be_true() });
 
     while (parser.expect({ expectation(lexeme::r_brace).be_false() })) {
@@ -404,5 +404,6 @@ auto kdl::sema::new_resource::parse(kdl::sema::parser &parser, kdl::container &t
 
     parser.ensure({ expectation(lexeme::r_brace).be_true() });
 
-    auto data = resource_data.assemble();
+    // Add the resource to the target.
+    t->add_resource(resource_data);
 }

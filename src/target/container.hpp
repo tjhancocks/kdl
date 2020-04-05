@@ -46,7 +46,7 @@ namespace kdl
         auto name() const -> std::string;
         auto code() const -> std::string;
 
-        auto instantiate_resource() const -> resource;
+        auto instantiate_resource(const int64_t id, const std::string name) const -> resource;
 
         auto add_template_field(const lexeme label, enum type type) -> void;
         auto template_field_count() const -> std::size_t;

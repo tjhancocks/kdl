@@ -43,9 +43,9 @@ auto kdl::container::code() const -> std::string
 
 // MARK: - Resource Creation
 
-auto kdl::container::instantiate_resource() const -> resource
+auto kdl::container::instantiate_resource(const int64_t id, const std::string name) const -> resource
 {
-    return kdl::resource(m_code, m_template);
+    return kdl::resource(m_code, id, name, m_template);
 }
 
 // MARK: - Template Management
