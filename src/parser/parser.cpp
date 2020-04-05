@@ -21,6 +21,7 @@
 #include "diagnostic/fatal.hpp"
 #include "parser/parser.hpp"
 #include "parser/sema/asm_directive.hpp"
+#include "parser/sema/declaration_block.hpp"
 
 // MARK: - Constructor
 
@@ -39,7 +40,10 @@ auto kdl::sema::parser::parse() -> void
     while (!finished()) {
 
         if (asm_directive::test(*this)) {
-            asm_directive::parse(*this);
+            asm_directive::parse(*this, m_target);
+        }
+        else if (declaration_block::test(*this)) {
+            declaration_block::parse(*this, m_target);
         }
         else {
             auto lx = peek();
