@@ -18,7 +18,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "parser/file.hpp"
+#include "parser/lexer.hpp"
+#include "parser/parser.hpp"
+#include "target/target.hpp"
+
 auto main(int argc, const char **argv) -> int
 {
+    auto target = std::make_shared<kdl::target>();
+    std::vector<std::shared_ptr<kdl::file>> files;
+
+    // Parse the arguments supplied to the program.
+    for (auto i = 1; i < argc; ++i) {
+        // Check for assembler options
+        if (argv[i][0] == '-') {
+
+        }
+
+        // Anything else should be treated as an input file.
+        else {
+            files.emplace_back(std::make_shared<kdl::file>(argv[i]));
+        }
+    }
+
+    // Loop through each of the files and parse them.
+    for (auto file : files) {
+
+        // 1. Perform lexical analysis.
+        kdl::lexer lexer(file);
+        auto lexemes = lexer.analyze();
+
+        // 2. Parse the lexical analysis result.
+        kdl::sema::parser parser(target, lexemes);
+        parser.parse();
+    }
+
     return 0;
 }
