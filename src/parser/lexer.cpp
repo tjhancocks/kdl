@@ -48,6 +48,7 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
         if (test_if(match<'\n'>::yes)) {
             advance();
             m_line++;
+            m_offset = 0;
             continue;
         }
 
@@ -207,6 +208,7 @@ auto kdl::lexer::length() const -> std::size_t
 auto kdl::lexer::advance(const long offset) -> void
 {
     m_pos += offset;
+    m_offset += offset;
 }
 
 auto kdl::lexer::available(const long offset, std::size_t length) const -> bool
