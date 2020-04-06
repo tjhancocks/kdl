@@ -6,6 +6,7 @@
 #define KDL_FILE_HPP
 
 #include <string>
+#include <optional>
 
 namespace kdl
 {
@@ -43,6 +44,17 @@ namespace kdl
          * @return A reference to the contents of the file.
          */
         auto contents() -> std::string&;
+
+        /**
+         * Set the contents of the file without saving the changes to disk.
+         * @param contents The new contents of the file.
+         */
+        auto set_contents(const std::string contents) -> void;
+
+        /**
+         * Save the contents of the file to disk.
+         */
+        auto save(std::optional<std::string> path = {}) -> void;
 
     };
 

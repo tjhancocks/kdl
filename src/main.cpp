@@ -22,6 +22,7 @@
 #include "parser/lexer.hpp"
 #include "parser/parser.hpp"
 #include "target/target.hpp"
+#include "analyzer/template_extractor.hpp"
 
 auto main(int argc, const char **argv) -> int
 {
@@ -32,7 +33,20 @@ auto main(int argc, const char **argv) -> int
     for (auto i = 1; i < argc; ++i) {
         // Check for assembler options
         if (argv[i][0] == '-') {
+            std::string arg(argv[i]);
 
+            if (arg == "-tmpl" && i + 2 < argc) {
+                // Read in a resource file and build KDL definitions from them.
+                std::string res_in(argv[i + 1]);
+                std::string dir_out(argv[i + 2]);
+
+                // Send off to the template extractor
+                kdl::analyzer::template_extractor extractor(res_in, dir_out);
+                extractor.build_type_definitions();
+
+                // Make sure we skip over the parameters.
+                i += 2;
+            }
         }
 
         // Anything else should be treated as an input file.

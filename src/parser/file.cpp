@@ -42,3 +42,24 @@ auto kdl::file::contents() -> std::string&
     return m_contents;
 }
 
+auto kdl::file::set_contents(const std::string contents) -> void
+{
+    m_contents = contents;
+}
+
+// MARK: - Saving
+
+auto kdl::file::save(std::optional<std::string> path) -> void
+{
+    if (path.has_value()) {
+        m_path = path.value();
+    }
+
+    if (m_path.empty()) {
+        return;
+    }
+
+    std::ofstream out(m_path);
+    out << m_contents;
+    out.close();
+}
