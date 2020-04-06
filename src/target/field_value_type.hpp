@@ -23,6 +23,7 @@
 
 #include <string>
 #include <optional>
+#include <vector>
 #include "parser/lexeme.hpp"
 
 namespace kdl
@@ -32,6 +33,7 @@ namespace kdl
     {
     private:
         std::optional<lexeme> m_name;
+        std::vector<lexeme> m_associated;
         bool m_is_reference;
 
     public:
@@ -41,6 +43,13 @@ namespace kdl
         auto name() const -> std::string;
         auto is_reference() const -> bool;
         auto name_lexeme() const -> std::optional<lexeme>;
+
+        auto set_name(const lexeme name) -> void;
+        auto set_is_reference(const bool reference) -> void;
+
+        auto add_associated(const lexeme name) -> void;
+        auto associated_count() const -> std::size_t;
+        auto associated_at(const int i) const -> lexeme;
     };
 
 };

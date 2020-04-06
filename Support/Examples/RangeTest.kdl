@@ -1,0 +1,15 @@
+@type RangeTest : "RTst" {
+	template {
+		DWRD value;
+	};
+
+	field("value") {
+		value as Range<128, 1000>;
+	};
+};
+
+declare RangeTest {
+	new (#128) {
+		value = 130;
+	};
+};

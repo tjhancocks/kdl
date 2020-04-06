@@ -117,6 +117,16 @@ auto kdl::sema::parser::expect(std::initializer_list<kdl::sema::expectation::fun
     return true;
 }
 
+auto kdl::sema::parser::expect_any(std::initializer_list<kdl::sema::expectation::function> expect) const -> bool
+{
+    for (auto f : expect) {
+        if (f(peek())) {
+            return true;
+        }
+    }
+    return false;
+}
+
 auto kdl::sema::parser::ensure(std::initializer_list<kdl::sema::expectation::function> expect) -> void
 {
     for (auto f : expect) {

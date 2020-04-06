@@ -107,6 +107,13 @@ namespace kdl { namespace sema {
         auto expect(std::initializer_list<expectation::function> expect) const -> bool;
 
         /**
+         * Validate the next lexeme with any of the specified expectations.
+         * @param expect A list of possible expectations.
+         * @return true if the next lexeme met any of the expectations.
+         */
+        auto expect_any(std::initializer_list<expectation::function> expect) const -> bool;
+
+        /**
          * Validate a sequence of lexemes with the specified list of expectations. There is a one to one mapping
          * between expectations and lexemes. Each lexeme that meets its expectation is advanced past.
          *

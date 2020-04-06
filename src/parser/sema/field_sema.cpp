@@ -70,7 +70,7 @@ auto kdl::sema::field_sema::parse(kdl::sema::parser &parser, kdl::container &typ
                 value_sema::parse_any_reference(parser, field_definition, value_definition, std::get<1>(tmpl), resource_data);
             }
             else if (value_type.name_lexeme().has_value()) {
-                value_sema::parse_named_type(parser, value_type.name_lexeme().value(), field_definition, value_definition, std::get<1>(tmpl), target, resource_data);
+                value_sema::parse_named_type(parser, value_type, field_definition, value_definition, std::get<1>(tmpl), target, resource_data);
             }
             else if (value_type.is_reference()) {
                 value_sema::parse_any_reference(parser, field_definition, value_definition, std::get<1>(tmpl), resource_data);

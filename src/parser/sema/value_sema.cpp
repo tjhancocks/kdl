@@ -53,18 +53,21 @@ auto kdl::sema::value_sema::parse_any_reference(kdl::sema::parser &parser, const
 
 // MARK: - Explicit Type: `as NamedType`
 
-auto kdl::sema::value_sema::parse_named_type(kdl::sema::parser &parser, const kdl::lexeme name, const kdl::field field,
-                                             const kdl::field_value value, const kdl::type type,
+auto kdl::sema::value_sema::parse_named_type(kdl::sema::parser &parser, const field_value_type value_type,
+                                             const kdl::field field, const kdl::field_value value, const kdl::type type,
                                              std::weak_ptr<kdl::target> target, kdl::resource &resource_data) -> void
 {
-    if (name.text() == "File") {
+    if (value_type.name() == "File") {
         parse_file_type(parser, field, value, type, target, resource_data);
     }
-    else if (name.text() == "Bitmask") {
+    else if (value_type.name() == "Bitmask") {
         parse_bitmask_type(parser, field, value, type, resource_data);
     }
+    else if (value_type.name() == "Range") {
+        parse_range_type(parser, value_type, field, value, type, resource_data);
+    }
     else {
-        log::fatal_error(name, 1, "Unrecognised type name '" + name.text() + "'");
+        log::fatal_error(value_type.name_lexeme().value(), 1, "Unrecognised type name '" + value_type.name() + "'");
     }
 }
 
@@ -192,6 +195,90 @@ auto kdl::sema::value_sema::parse_bitmask_type(kdl::sema::parser &parser, const 
         }
     }
 }
+
+// MARK: - Explicit Type: `as Range<#, #>
+
+template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
+static auto __validate_range(const kdl::lexeme value, const kdl::lexeme lower, const kdl::lexeme upper) -> T
+{
+    auto __v = value.value<T>();
+    auto __lV = lower.value<T>();
+    auto __uV = upper.value<T>();
+    if ((__v >= __lV) && (__v <= __uV)) {
+        return __v;
+    }
+    else {
+        kdl::log::fatal_error(value, 1, "Specified value '" + value.text() + "' is outside of allowed range '" + lower.text() + " ... " + upper.text() + "'");
+    }
+}
+
+auto kdl::sema::value_sema::parse_range_type(kdl::sema::parser &parser,  const field_value_type value_type,
+                                             const kdl::field field, const kdl::field_value value, const kdl::type type,
+                                             kdl::resource &resource_data) -> void
+{
+    // A range requires two associated numeric values.
+    if (value_type.associated_count() != 2) {
+        log::fatal_error(value_type.name_lexeme().value(), 1, "The 'Range' type requires an upper and a lower bound to be provided.");
+    }
+
+    auto lower = value_type.associated_at(0);
+    auto upper = value_type.associated_at(1);
+
+    if (!(lower.is(lexeme::integer) || lower.is(lexeme::percentage) || lower.is(lexeme::res_id))) {
+        log::fatal_error(lower, 1, "Lower bound of 'Range' type must be a numeric value.");
+    }
+    if (!(upper.is(lexeme::integer) || upper.is(lexeme::percentage) || upper.is(lexeme::res_id))) {
+        log::fatal_error(lower, 1, "Upper bound of 'Range' type must be a numeric value.");
+    }
+    if (lower.type() != upper.type()) {
+        log::fatal_error(lower, 1, "Lower and Upper bound of 'Range' type must be of the same type.");
+    }
+
+    // Get the value - we need to know the backing store so that we know what type of integer to work with.
+    if (!parser.expect({ expectation(lower.type()).be_true() })) {
+        auto lx = parser.peek();
+        log::fatal_error(lx, 1, "Incorrect value type provided for field '" + field.name() + "'");
+    }
+
+    switch (type & 0xF000) {
+        case kdl::DBYT: {
+            resource_data.write_signed_byte(value, __validate_range<int8_t>(parser.read(), lower, upper));
+            break;
+        }
+        case kdl::DWRD: {
+            resource_data.write_signed_short(value, __validate_range<int16_t>(parser.read(), lower, upper));
+            break;
+        }
+        case kdl::DLNG: {
+            resource_data.write_signed_long(value, __validate_range<int32_t>(parser.read(), lower, upper));
+            break;
+        }
+        case kdl::DQAD: {
+            resource_data.write_signed_quad(value, __validate_range<int64_t>(parser.read(), lower, upper));
+            break;
+        }
+        case kdl::HBYT: {
+            resource_data.write_byte(value, __validate_range<uint8_t>(parser.read(), lower, upper));
+            break;
+        }
+        case kdl::HWRD: {
+            resource_data.write_short(value, __validate_range<uint16_t>(parser.read(), lower, upper));
+            break;
+        }
+        case kdl::HLNG: {
+            resource_data.write_long(value, __validate_range<uint32_t>(parser.read(), lower, upper));
+            break;
+        }
+        case kdl::HQAD: {
+            resource_data.write_quad(value, __validate_range<uint64_t>(parser.read(), lower, upper));
+            break;
+        }
+        default: {
+            throw std::logic_error("Attempting to handle 'Range' type with a none numeric backing type.");
+        }
+    }
+}
+
 
 // MARK: - Inferred Value
 

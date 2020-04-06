@@ -18,14 +18,18 @@ namespace kdl { namespace sema {
         static auto parse_any_reference(parser& parser, const field field, const field_value value, const type type,
                                         resource& resource_data) -> void;
 
-        static auto parse_named_type(parser& parser, const lexeme name, const field field, const field_value value,
-                                     const type type, std::weak_ptr<target> target, resource& resource_data) -> void;
+        static auto parse_named_type(parser& parser, const field_value_type value_type, const field field,
+                                     const field_value value, const type type, std::weak_ptr<target> target,
+                                     resource& resource_data) -> void;
 
         static auto parse_file_type(parser& parser, const field field, const field_value value, const type type,
                                     std::weak_ptr<target> target, resource& resource_data) -> void;
 
         static auto parse_bitmask_type(parser& parser, const field field, const field_value value, const type type,
                                        resource& resource_data) -> void;
+
+        static auto parse_range_type(parser& parser, const field_value_type value_type, const field field,
+                                     const field_value value, const type type, resource& resource_data) -> void;
 
         static auto parse_value(parser& parser, const field field, const field_value value, const type type,
                                 resource& resource_data) -> void;

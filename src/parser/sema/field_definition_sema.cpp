@@ -53,21 +53,51 @@ auto kdl::sema::field_definition_sema::parse(kdl::sema::parser &parser, kdl::con
         // Is there an explicit type associated with this field_value?
         if (parser.expect({ expectation(lexeme::identifier, "as").be_true() })) {
             parser.advance();
+            field_value_type value_type(false);
 
-            if (parser.expect({ expectation(lexeme::identifier).be_true(), expectation(lexeme::amp).be_true() })) {
-                ref.set_type(field_value_type(parser.read(), true));
+            if (parser.expect({ expectation(lexeme::identifier).be_true() })) {
+                value_type.set_name(parser.read());
+
+                // Do we have associated values/types with the named type?
+                if (parser.expect({ expectation(lexeme::l_angle).be_true() })) {
+                    parser.advance();
+
+                    while (parser.expect({ expectation(lexeme::r_angle).be_false() })) {
+                        if (!parser.expect_any({
+                            expectation(lexeme::identifier).be_true(),
+                            expectation(lexeme::integer).be_true(),
+                            expectation(lexeme::percentage).be_true(),
+                            expectation(lexeme::res_id).be_true()
+                        })) {
+                            auto lx = parser.peek();
+                            log::fatal_error(lx, 1, "Associated values on a type must be either an Identifier or Numeric value.");
+                        }
+                        auto assoc = parser.read();
+                        value_type.add_associated(assoc);
+
+                        if (parser.expect({ expectation(lexeme::r_angle).be_false() })) {
+                            if (parser.expect_any({
+                                expectation(lexeme::comma).be_true(),
+                                expectation(lexeme::pipe).be_true()
+                            })) {
+                                parser.advance();
+                            }
+                            else {
+                                log::fatal_error(parser.peek(), 1, "Multiple associated values on a type must be deliminated by either | or ,");
+                            }
+                        }
+                    }
+
+                    parser.ensure({ expectation(lexeme::r_angle).be_true() });
+                }
+            }
+
+            if (parser.expect({ expectation(lexeme::amp).be_true() })) {
                 parser.advance();
+                value_type.set_is_reference(true);
             }
-            else if (parser.expect({ expectation(lexeme::identifier).be_true() })) {
-                ref.set_type(field_value_type(parser.read()));
-            }
-            else if (parser.expect({ expectation(lexeme::amp).be_true() })) {
-                ref.set_type(field_value_type(true));
-                parser.advance();
-            }
-            else {
-                log::fatal_error(parser.peek(), 1, "Unexpected lexeme encountered in field value type");
-            }
+
+            ref.set_type(value_type);
         }
 
         // Is there a default value associated with this value.

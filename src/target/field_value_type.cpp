@@ -51,3 +51,29 @@ auto kdl::field_value_type::name_lexeme() const -> std::optional<lexeme>
     return m_name;
 }
 
+auto kdl::field_value_type::set_name(const kdl::lexeme name) -> void
+{
+    m_name = name;
+}
+
+auto kdl::field_value_type::set_is_reference(const bool reference) -> void
+{
+    m_is_reference = reference;
+}
+
+// MARK: - Associated Management
+
+auto kdl::field_value_type::add_associated(const kdl::lexeme name) -> void
+{
+    m_associated.emplace_back(name);
+}
+
+auto kdl::field_value_type::associated_count() const -> std::size_t
+{
+    return m_associated.size();
+}
+
+auto kdl::field_value_type::associated_at(const int i) const -> kdl::lexeme
+{
+    return m_associated[i];
+}
