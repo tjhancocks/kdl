@@ -96,20 +96,23 @@ contexts:
                 6: entity.other.attribute-name.kdl
 
   field-definition:
-    - match: '(field)[ \t]*\(("[A-Za-z0-9_]+")\)([ \t]*(as)[ \t]*([A-Za-z0-9_]*&?))?'
+    - match: '(field)[ \t]*\(("[A-Za-z0-9_]+")\)'
       scope: meta.impl.kdl
       captures:
         1: keyword.declaration.impl.kdl
         2: string.quoted.double.kdl
-        4: keyword.declaration.trait.kdl
-        5: entity.name.type.kdl
       push:
         - match: '\{'
           scope: punctuation.definition.field.begin.kdl
           set:
-            - match: '([A-Za-z0-9_]+)'
+            - match: '([A-Za-z0-9_]+)([ \t]+(as)[ \t]*(([A-Za-z0-9_]*)(\<([A-Za-z0-9_]+)([ \t]*(\||,)[ \t]*([A-Za-z0-9_]+))*>)?(&?)))?'
               captures:
                 1: entity.other.attribute-name.kdl
+                3: keyword.other.kdl
+                5: entity.name.type.kdl
+                7: entity.other.inherited-class.kdl
+                10: entity.other.inherited-class.kdl
+                11: entity.name.type.kdl
               push:
                 - include: string-literal
                 - include: identifier-literal
@@ -139,11 +142,12 @@ contexts:
 # RESOURCE DECLARATION #########################################################
 
   resource-declaration:
-    - match: '(declare)[ \t]+([A-Za-z0-9_]+)'
+    - match: '((@)example[ \t]+)?(declare)[ \t]+([A-Za-z0-9_]+)'
       scope: meta.impl.kdl
       captures:
-        1: keyword.declaration.impl.kdl
-        2: entity.name.type.kdl
+        1:  keyword.kdl
+        3: keyword.declaration.impl.kdl
+        4: entity.name.type.kdl
       set:
         - match: '\{'
           scope: punctuation.definition.begin.kdl
