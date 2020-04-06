@@ -1,0 +1,15 @@
+@type ExampleTest : "exmp" {
+	template {
+		CSTR Text;
+	};
+
+	field("Body") {
+		Text;
+	};
+};
+
+@example declare ExampleTest {
+	new (#128) {
+		Body = "Hello, World!";
+	};
+};

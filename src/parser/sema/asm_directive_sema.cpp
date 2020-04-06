@@ -25,6 +25,7 @@
 #include <iostream>
 #include "parser/sema/asm_directive_sema.hpp"
 #include "parser/sema/type_definition_sema.hpp"
+#include "parser/sema/declaration_sema.hpp"
 #include "parser/parser.hpp"
 #include "parser/expectation.hpp"
 #include "diagnostic/fatal.hpp"
@@ -70,6 +71,18 @@ auto kdl::sema::asm_directive_sema::parse(parser &parser, std::weak_ptr<kdl::tar
     // distinct parser.
     if (directive_name == "type") {
         type_definition_sema::parse(parser, target);
+        return;
+    }
+
+    // We also need to check for the @example directive. This needs to go through the standard resource instance
+    // declaration, but with the export disabled - these declarations are just as the directive suggests... examples.
+    if (directive_name == "example") {
+        if (declaration_sema::test(parser)) {
+            declaration_sema::parse(parser, target, true);
+        }
+        else {
+            log::fatal_error(parser.peek(), 1, "'@example' directives denote that a declaration block is an example. Expected 'declare' keyword.");
+        }
         return;
     }
 

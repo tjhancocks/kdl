@@ -30,7 +30,7 @@ auto kdl::sema::declaration_sema::test(kdl::sema::parser& parser) -> bool
     });
 }
 
-auto kdl::sema::declaration_sema::parse(kdl::sema::parser& parser, std::weak_ptr<kdl::target> target) -> void
+auto kdl::sema::declaration_sema::parse(kdl::sema::parser& parser, std::weak_ptr<kdl::target> target, const bool is_example) -> void
 {
     if (target.expired()) {
         throw std::logic_error("KDL Target is expired, and thus can not continue.");
@@ -51,7 +51,7 @@ auto kdl::sema::declaration_sema::parse(kdl::sema::parser& parser, std::weak_ptr
 
     while (parser.expect({ expectation(lexeme::r_brace).be_false() })) {
         if (resource_instance_sema::test(parser)) {
-            resource_instance_sema::parse(parser, type_container, target);
+            resource_instance_sema::parse(parser, type_container, target, is_example);
         }
         else {
             log::fatal_error(parser.peek(), 1, "Expected either an 'override' or a 'new' keyword.");

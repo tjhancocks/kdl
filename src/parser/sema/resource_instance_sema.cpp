@@ -31,7 +31,7 @@ auto kdl::sema::resource_instance_sema::test(kdl::sema::parser &parser) -> bool
     });
 }
 
-auto kdl::sema::resource_instance_sema::parse(kdl::sema::parser &parser, kdl::container &type_container, std::weak_ptr<kdl::target> target) -> void
+auto kdl::sema::resource_instance_sema::parse(kdl::sema::parser &parser, kdl::container &type_container, std::weak_ptr<kdl::target> target, const bool is_example) -> void
 {
     if (target.expired()) {
         throw std::logic_error("KDL Target is expired, and thus can not continue.");
@@ -88,5 +88,11 @@ auto kdl::sema::resource_instance_sema::parse(kdl::sema::parser &parser, kdl::co
     parser.ensure({ expectation(lexeme::r_brace).be_true() });
 
     // Add the resource to the target.
-    t->add_resource(resource_data);
+    if (!is_example) {
+        t->add_resource(resource_data);
+    }
+    else {
+        // Assemble the resource so that any errors relating to that can trigger.
+        resource_data.assemble();
+    }
 }

@@ -31,7 +31,7 @@ namespace kdl { namespace sema {
     {
     public:
         static auto test(parser& parser) -> bool;
-        static auto parse(parser& parser, container& type_container, std::weak_ptr<kdl::target> target) -> void;
+        static auto parse(parser& parser, container& type_container, std::weak_ptr<kdl::target> target, const bool is_example) -> void;
     };
 
 }};
