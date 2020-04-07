@@ -141,6 +141,7 @@ namespace kdl
 
     struct identifier_set
     {
+        static auto limited_contains(const std::string) -> bool;
         static auto contains(const std::string) -> bool;
     };
 

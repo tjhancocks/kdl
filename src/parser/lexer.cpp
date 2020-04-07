@@ -114,7 +114,7 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
                 m_lexemes.emplace_back(kdl::lexeme(m_slice, lexeme::integer, m_pos, m_offset, m_line, m_source));
             }
         }
-        else if (test_if(identifier_set::contains)) {
+        else if (test_if(identifier_set::limited_contains)) {
             consume_while(identifier_set::contains);
 
             // TODO: Check for keywords
@@ -306,6 +306,17 @@ auto kdl::identifier_set::contains(const std::string __Chk) -> bool
 {
     for (auto __ch : __Chk) {
         auto condition = (__ch >= 'A' && __ch <= 'Z') || (__ch >= 'a' && __ch <= 'z')  || (__ch >= '0' && __ch <= '1') || __ch == '_';
+        if (!condition) {
+            return false;
+        }
+    }
+    return true;
+}
+
+auto kdl::identifier_set::limited_contains(const std::string __Chk) -> bool
+{
+    for (auto __ch : __Chk) {
+        auto condition = (__ch >= 'A' && __ch <= 'Z') || (__ch >= 'a' && __ch <= 'z')  || __ch == '_';
         if (!condition) {
             return false;
         }
