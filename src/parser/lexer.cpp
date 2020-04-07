@@ -183,6 +183,9 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
         else if (test_if(match<':'>::yes)) {
             m_lexemes.emplace_back(kdl::lexeme(read(), lexeme::colon, m_pos, m_offset, m_line, m_source));
         }
+        else if (test_if(match<'!'>::yes)) {
+            m_lexemes.emplace_back(kdl::lexeme(read(), lexeme::exclaim, m_pos, m_offset, m_line, m_source));
+        }
 
         // Unrecognised character encountered
         else {
@@ -302,7 +305,7 @@ auto kdl::set<tC, ttC...>::not_contains(const std::string __Chk) -> bool
 auto kdl::identifier_set::contains(const std::string __Chk) -> bool
 {
     for (auto __ch : __Chk) {
-        auto condition = (__ch >= 'A' && __ch <= 'Z') || (__ch >= 'a' && __ch <= 'z') || __ch == '_';
+        auto condition = (__ch >= 'A' && __ch <= 'Z') || (__ch >= 'a' && __ch <= 'z')  || (__ch >= '0' && __ch <= '1') || __ch == '_';
         if (!condition) {
             return false;
         }

@@ -44,7 +44,7 @@ namespace kdl
             integer, string, res_id, identifier,
             l_paren, r_paren, l_angle, r_angle, l_brace, r_brace, l_bracket, r_bracket,
             comma, dot, pipe, slash, amp, colon, semi, plus, minus, star, equals, carat,
-            directive, var, percentage
+            directive, var, percentage, exclaim
         };
 
     private:
