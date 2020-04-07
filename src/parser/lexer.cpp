@@ -305,7 +305,7 @@ auto kdl::set<tC, ttC...>::not_contains(const std::string __Chk) -> bool
 auto kdl::identifier_set::contains(const std::string __Chk) -> bool
 {
     for (auto __ch : __Chk) {
-        auto condition = (__ch >= 'A' && __ch <= 'Z') || (__ch >= 'a' && __ch <= 'z')  || (__ch >= '0' && __ch <= '1') || __ch == '_';
+        auto condition = (__ch >= 'A' && __ch <= 'Z') || (__ch >= 'a' && __ch <= 'z')  || (__ch >= '0' && __ch <= '9') || __ch == '_';
         if (!condition) {
             return false;
         }
