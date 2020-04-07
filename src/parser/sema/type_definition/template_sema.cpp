@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 #include "diagnostic/fatal.hpp"
-#include "parser/sema/template_sema.hpp"
+#include "template_sema.hpp"
 
 auto kdl::sema::template_sema::parse(kdl::sema::parser &parser, kdl::container &type_container) -> void
 {

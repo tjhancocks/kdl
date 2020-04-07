@@ -19,8 +19,8 @@
 // SOFTWARE.
 
 #include "diagnostic/fatal.hpp"
-#include "parser/sema/declaration_sema.hpp"
-#include "parser/sema/resource_instance_sema.hpp"
+#include "declaration_sema.hpp"
+#include "resource_instance_sema.hpp"
 
 auto kdl::sema::declaration_sema::test(kdl::sema::parser& parser) -> bool
 {

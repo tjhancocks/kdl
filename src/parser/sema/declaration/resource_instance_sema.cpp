@@ -19,8 +19,8 @@
 // SOFTWARE.
 
 #include "diagnostic/fatal.hpp"
-#include "parser/sema/resource_instance_sema.hpp"
-#include "parser/sema/field_sema.hpp"
+#include "resource_instance_sema.hpp"
+#include "field_sema.hpp"
 #include "parser/file.hpp"
 #include "target/resource.hpp"
 

@@ -23,9 +23,9 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "parser/sema/asm_directive_sema.hpp"
-#include "parser/sema/type_definition_sema.hpp"
-#include "parser/sema/declaration_sema.hpp"
+#include "asm_directive_sema.hpp"
+#include "parser/sema/type_definition/type_definition_sema.hpp"
+#include "parser/sema/declaration/declaration_sema.hpp"
 #include "parser/parser.hpp"
 #include "parser/expectation.hpp"
 #include "diagnostic/fatal.hpp"

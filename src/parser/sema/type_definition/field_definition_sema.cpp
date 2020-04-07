@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 #include "diagnostic/fatal.hpp"
-#include "parser/sema/field_definition_sema.hpp"
+#include "field_definition_sema.hpp"
 
 auto kdl::sema::field_definition_sema::parse(kdl::sema::parser &parser, kdl::container &type_container) -> void
 {

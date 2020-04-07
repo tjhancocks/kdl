@@ -20,8 +20,8 @@
 
 #include "diagnostic/fatal.hpp"
 #include "parser/parser.hpp"
-#include "parser/sema/asm_directive_sema.hpp"
-#include "parser/sema/declaration_sema.hpp"
+#include "parser/sema/directives/asm_directive_sema.hpp"
+#include "parser/sema/declaration/declaration_sema.hpp"
 
 // MARK: - Constructor
 

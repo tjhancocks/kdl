@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 #include "diagnostic/fatal.hpp"
-#include "parser/sema/value_sema.hpp"
+#include "value_sema.hpp"
 #include "parser/file.hpp"
 #include "target/resource.hpp"
 
