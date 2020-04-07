@@ -114,3 +114,15 @@ auto kdl::container::field_named(const kdl::lexeme name) -> kdl::field
     }
     log::fatal_error(name, 1, "Missing field named '" + name.text() + "'");
 }
+
+// MARK: - Assertions
+
+auto kdl::container::add_assertion(const kdl::assertion assertion) -> void
+{
+    m_assertions.emplace_back(assertion);
+}
+
+auto kdl::container::assertions() const -> std::vector<assertion>
+{
+    return m_assertions;
+}

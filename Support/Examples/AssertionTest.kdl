@@ -1,0 +1,19 @@
+@type AssertTest : "asrt" {
+	template {
+		DWRD Field1;
+		DWRD Field2;
+	};
+
+	assert($id != 128);
+
+	field("Value") {
+		Field1;
+		Field2;
+	};
+};
+
+@example declare AssertTest {
+	new (#128) {
+		Value = 1 2;
+	};
+};

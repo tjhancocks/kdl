@@ -28,6 +28,7 @@
 #include "target/types.hpp"
 #include "target/field.hpp"
 #include "target/resource.hpp"
+#include "target/assertion.hpp"
 
 namespace kdl
 {
@@ -39,6 +40,7 @@ namespace kdl
         std::string m_code;
         std::vector<std::tuple<lexeme, type>> m_template;
         std::vector<field> m_fields;
+        std::vector<assertion> m_assertions;
 
     public:
         container(const lexeme name, const std::string code);
@@ -57,6 +59,9 @@ namespace kdl
         auto field_count() const -> std::size_t;
         auto field_at(const int i) const -> field;
         auto field_named(const lexeme name) -> field;
+
+        auto add_assertion(const assertion assertion) -> void;
+        auto assertions() const -> std::vector<assertion>;
     };
 
 };

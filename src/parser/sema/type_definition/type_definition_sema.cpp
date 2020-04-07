@@ -19,9 +19,9 @@
 // SOFTWARE.
 
 #include "diagnostic/fatal.hpp"
-#include "type_definition_sema.hpp"
-#include "template_sema.hpp"
-#include "field_definition_sema.hpp"
+#include "parser/sema/type_definition/template_sema.hpp"
+#include "parser/sema/type_definition/field_definition_sema.hpp"
+#include "parser/sema/type_definition/type_definition_sema.hpp"
 #include "target/container.hpp"
 
 auto kdl::sema::type_definition_sema::parse(kdl::sema::parser& parser, std::weak_ptr<kdl::target> target) -> void
