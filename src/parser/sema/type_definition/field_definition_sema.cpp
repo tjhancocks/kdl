@@ -38,6 +38,30 @@ auto kdl::sema::field_definition_sema::parse(kdl::sema::parser &parser, kdl::con
 
     parser.ensure({ expectation(lexeme::r_paren).be_true() });
 
+    // Check if the field is marked as repeatable
+    if (parser.expect({ expectation(lexeme::identifier, "repeatable").be_true() })) {
+        parser.advance();
+        parser.ensure({ expectation(lexeme::l_angle).be_true() });
+
+        if (!parser.expect({ expectation(lexeme::integer).be_true() })) {
+            auto lx = parser.peek();
+            log::fatal_error(lx, 1,"Lower bound of a repeatable must be an integer.");
+        }
+        auto lower = parser.read();
+
+        parser.ensure({ expectation(lexeme::comma).be_true() });
+
+        if (!parser.expect({ expectation(lexeme::integer).be_true() })) {
+            auto lx = parser.peek();
+            log::fatal_error(lx, 1,"Lower bound of a repeatable must be an integer.");
+        }
+        auto upper = parser.read();
+
+        field.make_repeatable(lower.value<std::size_t>(), upper.value<std::size_t>());
+
+        parser.ensure({ expectation(lexeme::r_angle).be_true() });
+    }
+
     // The field body is wrapped in '{' braces '}'. This body is required.
     parser.ensure({ expectation(lexeme::l_brace).be_true() });
 
@@ -49,6 +73,25 @@ auto kdl::sema::field_definition_sema::parse(kdl::sema::parser &parser, kdl::con
         }
         auto value_label = parser.read();
         field_value ref(value_label, {}, {});
+
+        // Is there a name extension attached to this value label?
+        if (parser.expect({ expectation(lexeme::l_angle).be_true() })) {
+            parser.advance();
+
+            while (parser.expect({ expectation(lexeme::r_angle).be_false() })) {
+                if (!parser.expect({ expectation(lexeme::var).be_true() })) {
+                    auto lx = parser.peek();
+                    log::fatal_error(lx, 1, "Expected variable for name extension.");
+                }
+                ref.add_name_extension(parser.read());
+
+                if (parser.expect({ expectation(lexeme::r_angle).be_false() })) {
+                    parser.ensure({ expectation(lexeme::comma).be_true() });
+                }
+            }
+
+            parser.ensure({ expectation(lexeme::r_angle).be_true() });
+        }
 
         // Is there an explicit type associated with this field_value?
         if (parser.expect({ expectation(lexeme::identifier, "as").be_true() })) {

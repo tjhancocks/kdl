@@ -38,11 +38,11 @@ auto kdl::sema::value_sema::parse_any_reference(kdl::sema::parser &parser, const
     // Ensure the type is valid for a reference.
     switch (type & 0xF000) {
         case kdl::DWRD: {
-            resource_data.write_signed_short(value, ref.value<int16_t>());
+            resource_data.write_signed_short(field, value, ref.value<int16_t>());
             break;
         }
         case kdl::DQAD: {
-            resource_data.write_signed_quad(value, ref.value<int64_t>());
+            resource_data.write_signed_quad(field, value, ref.value<int64_t>());
             break;
         }
         default: {
@@ -105,16 +105,16 @@ auto kdl::sema::value_sema::parse_file_type(kdl::sema::parser &parser, const kdl
             if (string_value.size() > 255) {
                 log::fatal_error(string_lx, 1, "String too large for value type.");
             }
-            resource_data.write_pstr(value, string_value);
+            resource_data.write_pstr(field, value, string_value);
             break;
         }
         case kdl::CSTR: {
-            resource_data.write_cstr(value, string_value);
+            resource_data.write_cstr(field, value, string_value);
             break;
         }
         case kdl::HEXD: {
             // Use a cstr write function with a set size to exclude the terminating NUL byte.
-            resource_data.write_data(value, string_value);
+            resource_data.write_data(field, value, string_value);
             break;
         }
         case kdl::Cxxx: {
@@ -122,7 +122,7 @@ auto kdl::sema::value_sema::parse_file_type(kdl::sema::parser &parser, const kdl
             if (string_value.size() > size) {
                 log::fatal_error(string_lx, 1, "String too large for value type.");
             }
-            resource_data.write_cstr(value, string_value, size);
+            resource_data.write_cstr(field, value, string_value, size);
             break;
         }
         default: {
@@ -175,19 +175,19 @@ auto kdl::sema::value_sema::parse_bitmask_type(kdl::sema::parser &parser, const 
 
     switch (type & 0xF000) {
         case kdl::HBYT: {
-            resource_data.write_byte(value, static_cast<uint8_t>(mask & 0xFF));
+            resource_data.write_byte(field, value, static_cast<uint8_t>(mask & 0xFF));
             break;
         }
         case kdl::HWRD: {
-            resource_data.write_short(value, static_cast<uint16_t>(mask & 0xFFFF));
+            resource_data.write_short(field, value, static_cast<uint16_t>(mask & 0xFFFF));
             break;
         }
         case kdl::HLNG: {
-            resource_data.write_long(value, static_cast<uint32_t>(mask & 0xFFFFFFFF));
+            resource_data.write_long(field, value, static_cast<uint32_t>(mask & 0xFFFFFFFF));
             break;
         }
         case kdl::HQAD: {
-            resource_data.write_quad(value, mask);
+            resource_data.write_quad(field, value, mask);
             break;
         }
         default: {
@@ -242,35 +242,35 @@ auto kdl::sema::value_sema::parse_range_type(kdl::sema::parser &parser,  const f
 
     switch (type & 0xF000) {
         case kdl::DBYT: {
-            resource_data.write_signed_byte(value, __validate_range<int8_t>(parser.read(), lower, upper));
+            resource_data.write_signed_byte(field, value, __validate_range<int8_t>(parser.read(), lower, upper));
             break;
         }
         case kdl::DWRD: {
-            resource_data.write_signed_short(value, __validate_range<int16_t>(parser.read(), lower, upper));
+            resource_data.write_signed_short(field, value, __validate_range<int16_t>(parser.read(), lower, upper));
             break;
         }
         case kdl::DLNG: {
-            resource_data.write_signed_long(value, __validate_range<int32_t>(parser.read(), lower, upper));
+            resource_data.write_signed_long(field, value, __validate_range<int32_t>(parser.read(), lower, upper));
             break;
         }
         case kdl::DQAD: {
-            resource_data.write_signed_quad(value, __validate_range<int64_t>(parser.read(), lower, upper));
+            resource_data.write_signed_quad(field, value, __validate_range<int64_t>(parser.read(), lower, upper));
             break;
         }
         case kdl::HBYT: {
-            resource_data.write_byte(value, __validate_range<uint8_t>(parser.read(), lower, upper));
+            resource_data.write_byte(field, value, __validate_range<uint8_t>(parser.read(), lower, upper));
             break;
         }
         case kdl::HWRD: {
-            resource_data.write_short(value, __validate_range<uint16_t>(parser.read(), lower, upper));
+            resource_data.write_short(field, value, __validate_range<uint16_t>(parser.read(), lower, upper));
             break;
         }
         case kdl::HLNG: {
-            resource_data.write_long(value, __validate_range<uint32_t>(parser.read(), lower, upper));
+            resource_data.write_long(field, value, __validate_range<uint32_t>(parser.read(), lower, upper));
             break;
         }
         case kdl::HQAD: {
-            resource_data.write_quad(value, __validate_range<uint64_t>(parser.read(), lower, upper));
+            resource_data.write_quad(field, value, __validate_range<uint64_t>(parser.read(), lower, upper));
             break;
         }
         default: {
@@ -292,7 +292,7 @@ auto kdl::sema::value_sema::parse_value(kdl::sema::parser &parser, const kdl::fi
                 auto lx = parser.peek();
                 log::fatal_error(lx, 1, "Expected an integer literal for field '" + field.name() + "'.");
             }
-            resource_data.write_signed_byte(value, parser.read().value<int8_t>());
+            resource_data.write_signed_byte(field, value, parser.read().value<int8_t>());
             break;
         }
         case kdl::DWRD: {
@@ -300,7 +300,7 @@ auto kdl::sema::value_sema::parse_value(kdl::sema::parser &parser, const kdl::fi
                 auto lx = parser.peek();
                 log::fatal_error(lx, 1, "Expected an integer literal for field '" + field.name() + "'.");
             }
-            resource_data.write_signed_short(value, parser.read().value<int16_t>());
+            resource_data.write_signed_short(field, value, parser.read().value<int16_t>());
             break;
         }
         case kdl::DLNG: {
@@ -308,7 +308,7 @@ auto kdl::sema::value_sema::parse_value(kdl::sema::parser &parser, const kdl::fi
                 auto lx = parser.peek();
                 log::fatal_error(lx, 1, "Expected an integer literal for field '" + field.name() + "'.");
             }
-            resource_data.write_signed_long(value, parser.read().value<int32_t>());
+            resource_data.write_signed_long(field, value, parser.read().value<int32_t>());
             break;
         }
         case kdl::DQAD: {
@@ -316,7 +316,7 @@ auto kdl::sema::value_sema::parse_value(kdl::sema::parser &parser, const kdl::fi
                 auto lx = parser.peek();
                 log::fatal_error(lx, 1, "Expected an integer literal for field '" + field.name() + "'.");
             }
-            resource_data.write_signed_quad(value, parser.read().value<int64_t>());
+            resource_data.write_signed_quad(field, value, parser.read().value<int64_t>());
             break;
         }
         case kdl::HBYT: {
@@ -324,7 +324,7 @@ auto kdl::sema::value_sema::parse_value(kdl::sema::parser &parser, const kdl::fi
                 auto lx = parser.peek();
                 log::fatal_error(lx, 1, "Expected an integer literal for field '" + field.name() + "'.");
             }
-            resource_data.write_byte(value, parser.read().value<uint8_t>());
+            resource_data.write_byte(field, value, parser.read().value<uint8_t>());
             break;
         }
         case kdl::HWRD: {
@@ -332,7 +332,7 @@ auto kdl::sema::value_sema::parse_value(kdl::sema::parser &parser, const kdl::fi
                 auto lx = parser.peek();
                 log::fatal_error(lx, 1, "Expected an integer literal for field '" + field.name() + "'.");
             }
-            resource_data.write_short(value, parser.read().value<uint16_t>());
+            resource_data.write_short(field, value, parser.read().value<uint16_t>());
             break;
         }
         case kdl::HLNG: {
@@ -340,7 +340,7 @@ auto kdl::sema::value_sema::parse_value(kdl::sema::parser &parser, const kdl::fi
                 auto lx = parser.peek();
                 log::fatal_error(lx, 1, "Expected an integer literal for field '" + field.name() + "'.");
             }
-            resource_data.write_long(value, parser.read().value<uint32_t>());
+            resource_data.write_long(field, value, parser.read().value<uint32_t>());
             break;
         }
         case kdl::HQAD: {
@@ -348,7 +348,7 @@ auto kdl::sema::value_sema::parse_value(kdl::sema::parser &parser, const kdl::fi
                 auto lx = parser.peek();
                 log::fatal_error(lx, 1, "Expected an integer literal for field '" + field.name() + "'.");
             }
-            resource_data.write_quad(value, parser.read().value<uint64_t>());
+            resource_data.write_quad(field, value, parser.read().value<uint64_t>());
             break;
         }
 
@@ -357,7 +357,7 @@ auto kdl::sema::value_sema::parse_value(kdl::sema::parser &parser, const kdl::fi
                 auto lx = parser.peek();
                 log::fatal_error(lx, 1, "Expected an string literal for field '" + field.name() + "'.");
             }
-            resource_data.write_pstr(value, parser.read().text());
+            resource_data.write_pstr(field, value, parser.read().text());
             break;
         }
         case kdl::CSTR: {
@@ -365,7 +365,7 @@ auto kdl::sema::value_sema::parse_value(kdl::sema::parser &parser, const kdl::fi
                 auto lx = parser.peek();
                 log::fatal_error(lx, 1, "Expected an string literal for field '" + field.name() + "'.");
             }
-            resource_data.write_cstr(value, parser.read().text());
+            resource_data.write_cstr(field, value, parser.read().text());
             break;
         }
 
@@ -374,7 +374,7 @@ auto kdl::sema::value_sema::parse_value(kdl::sema::parser &parser, const kdl::fi
                 auto lx = parser.peek();
                 log::fatal_error(lx, 1, "Expected an string literal for field '" + field.name() + "'.");
             }
-            resource_data.write_cstr(value, parser.read().text(), type_size(type));
+            resource_data.write_cstr(field, value, parser.read().text(), type_size(type));
             break;
         }
 
@@ -388,7 +388,7 @@ auto kdl::sema::value_sema::parse_value(kdl::sema::parser &parser, const kdl::fi
                 auto lx = parser.peek();
                 log::fatal_error(lx, 1, "Expected 4 integer literals for field '" + field.name() + "'.");
             }
-            resource_data.write_rect(value,
+            resource_data.write_rect(field, value,
                                      parser.read().value<int16_t>(),
                                      parser.read().value<int16_t>(),
                                      parser.read().value<int16_t>(),

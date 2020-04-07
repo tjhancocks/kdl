@@ -38,7 +38,18 @@ auto kdl::sema::field_sema::parse(kdl::sema::parser &parser, kdl::container &typ
         log::fatal_error(lx, 1, "Expected an identifier for the field name.");
     }
     auto field_name = parser.read();
+
     auto field_definition = type_container.field_named(field_name);
+
+    // Lock the field, and handle repeated instances.
+    std::map<std::string, lexeme> name_extensions;
+    auto lock = resource_data.acquire_field_value_lock(field_name, field_definition.repeat_lower_bound());
+    if (!field_definition.is_repeatable() && lock > 0) {
+        log::fatal_error(field_name, 1, "Attempting to reference field '" + field_name.text() + "' more than once.");
+    }
+    else if (field_definition.is_repeatable() && lock > field_definition.repeat_upper_bound()) {
+        log::fatal_error(field_name, 1, "Attempting to reference field '" + field_name.text() + "' more than the allowed number of times.");
+    }
 
     parser.ensure({ expectation(lexeme::equals).be_true() });
 
@@ -62,7 +73,7 @@ auto kdl::sema::field_sema::parse(kdl::sema::parser &parser, kdl::container &typ
         if (value_definition.type().has_value()) {
             // There is a explicit type provided.
             auto value_type = value_definition.type().value();
-            auto tmpl = type_container.template_field_named(value_definition.name_lexeme());
+            auto tmpl = type_container.template_field_named(value_definition.base_name_lexeme());
 
             // There are several forms an explicit type can take, and the way in which they are handled varies.
             if (value_type.name_lexeme().has_value() && value_type.is_reference()) {
@@ -81,7 +92,7 @@ auto kdl::sema::field_sema::parse(kdl::sema::parser &parser, kdl::container &typ
         }
         else {
             // There is no explicit type provided... infer the type.
-            auto tmpl = type_container.template_field_named(value_definition.name_lexeme());
+            auto tmpl = type_container.template_field_named(value_definition.name(resource_data.name_extensions_for_field(field_name)));
             value_sema::parse_value(parser, field_definition, value_definition, std::get<1>(tmpl), resource_data);
         }
     }
