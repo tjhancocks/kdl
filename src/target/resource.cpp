@@ -46,12 +46,37 @@ auto kdl::resource::name() const -> std::string
     return m_name;
 }
 
+// MARK: - Field Locks
+
+auto kdl::resource::acquire_field_value_lock(const kdl::lexeme name, const std::size_t base_value) -> int
+{
+    if (m_field_locks.find(name.text()) == m_field_locks.end()) {
+        m_field_locks.emplace(name.text(), base_value);
+        return base_value;
+    }
+
+    auto n = m_field_locks.at(name.text()) + 1;
+    m_field_locks[name.text()] = n;
+    return n;
+}
+
+auto kdl::resource::name_extensions_for_field(const kdl::lexeme name) -> std::map<std::string, lexeme>
+{
+    std::map<std::string, lexeme> vars;
+
+    if (m_field_locks.find(name.text()) != m_field_locks.end()) {
+        vars.emplace("FieldNumber", lexeme(std::to_string(m_field_locks.at(name.text())), lexeme::integer));
+    }
+
+    return vars;
+}
+
 // MARK: - Helpers
 
-auto kdl::resource::index_of(const lexeme field) const -> int
+auto kdl::resource::index_of(const std::string field) const -> int
 {
     for (auto i = 0; i < m_template.size(); ++i) {
-        if (std::get<0>(m_template[i]).text() == field.text()) {
+        if (std::get<0>(m_template[i]).text() == field) {
             return i;
         }
     }
@@ -60,69 +85,69 @@ auto kdl::resource::index_of(const lexeme field) const -> int
 
 // MARK: - Field Setters
 
-auto kdl::resource::write(const lexeme field, std::any value) -> void
+auto kdl::resource::write(const std::string field, std::any value) -> void
 {
     m_values.emplace(index_of(field), value);
 }
 
-auto kdl::resource::write_byte(const field_value ref, const uint8_t value) -> void
+auto kdl::resource::write_byte(const field field, const field_value ref, const uint8_t value) -> void
 {
-    write(ref.name_lexeme(), value);
+    write(ref.name(name_extensions_for_field(field.name_lexeme())), value);
 }
 
-auto kdl::resource::write_short(const field_value ref, const uint16_t value) -> void
+auto kdl::resource::write_short(const field field, const field_value ref, const uint16_t value) -> void
 {
-    write(ref.name_lexeme(), value);
+    write(ref.name(name_extensions_for_field(field.name_lexeme())), value);
 }
 
-auto kdl::resource::write_long(const field_value ref, const uint32_t value) -> void
+auto kdl::resource::write_long(const field field, const field_value ref, const uint32_t value) -> void
 {
-    write(ref.name_lexeme(), value);
+    write(ref.name(name_extensions_for_field(field.name_lexeme())), value);
 }
 
-auto kdl::resource::write_quad(const field_value ref, const uint64_t value) -> void
+auto kdl::resource::write_quad(const field field, const field_value ref, const uint64_t value) -> void
 {
-    write(ref.name_lexeme(), value);
+    write(ref.name(name_extensions_for_field(field.name_lexeme())), value);
 }
 
-auto kdl::resource::write_signed_byte(const field_value ref, const int8_t value) -> void
+auto kdl::resource::write_signed_byte(const field field, const field_value ref, const int8_t value) -> void
 {
-    write(ref.name_lexeme(), value);
+    write(ref.name(name_extensions_for_field(field.name_lexeme())), value);
 }
 
-auto kdl::resource::write_signed_short(const field_value ref, const int16_t value) -> void
+auto kdl::resource::write_signed_short(const field field, const field_value ref, const int16_t value) -> void
 {
-    write(ref.name_lexeme(), value);
+    write(ref.name(name_extensions_for_field(field.name_lexeme())), value);
 }
 
-auto kdl::resource::write_signed_long(const field_value ref, const int32_t value) -> void
+auto kdl::resource::write_signed_long(const field field, const field_value ref, const int32_t value) -> void
 {
-    write(ref.name_lexeme(), value);
+    write(ref.name(name_extensions_for_field(field.name_lexeme())), value);
 }
 
-auto kdl::resource::write_signed_quad(const field_value ref, const int64_t value) -> void
+auto kdl::resource::write_signed_quad(const field field, const field_value ref, const int64_t value) -> void
 {
-    write(ref.name_lexeme(), value);
+    write(ref.name(name_extensions_for_field(field.name_lexeme())), value);
 }
 
-auto kdl::resource::write_pstr(const field_value ref, const std::string value) -> void
+auto kdl::resource::write_pstr(const field field, const field_value ref, const std::string value) -> void
 {
-    write(ref.name_lexeme(), value);
+    write(ref.name(name_extensions_for_field(field.name_lexeme())), value);
 }
 
-auto kdl::resource::write_cstr(const field_value ref, const std::string value, const std::size_t length) -> void
+auto kdl::resource::write_cstr(const field field, const field_value ref, const std::string value, const std::size_t length) -> void
 {
-    write(ref.name_lexeme(), std::tuple(value, length));
+    write(ref.name(name_extensions_for_field(field.name_lexeme())), std::tuple(value, length));
 }
 
-auto kdl::resource::write_data(const field_value ref, const std::string value) -> void
+auto kdl::resource::write_data(const field field, const field_value ref, const std::string value) -> void
 {
-    write(ref.name_lexeme(), value);
+    write(ref.name(name_extensions_for_field(field.name_lexeme())), value);
 }
 
-auto kdl::resource::write_rect(const field_value ref, const int16_t t, const int16_t l, const int16_t b, const int16_t r) -> void
+auto kdl::resource::write_rect(const field field, const field_value ref, const int16_t t, const int16_t l, const int16_t b, const int16_t r) -> void
 {
-    write(ref.name_lexeme(), std::make_tuple(t, l, b, r));
+    write(ref.name(name_extensions_for_field(field.name_lexeme())), std::make_tuple(t, l, b, r));
 }
 
 // MARK: - Assembly
@@ -135,7 +160,7 @@ auto kdl::resource::assemble() const -> std::shared_ptr<graphite::data::data>
     for (auto field : m_template) {
         auto type = std::get<1>(field);
         auto field_name = std::get<0>(field);
-        auto index = index_of(field_name);
+        auto index = index_of(field_name.text());
         auto wrapped_value = m_values.at(index);
 
         switch (type & 0xF000) {
@@ -208,7 +233,7 @@ auto kdl::resource::synthesize_variables() const -> std::map<std::string, lexeme
     for (auto field : m_template) {
         auto type = std::get<1>(field);
         auto field_name = std::get<0>(field);
-        auto index = index_of(field_name);
+        auto index = index_of(field_name.text());
         auto wrapped_value = m_values.at(index);
 
 

@@ -54,6 +54,7 @@ namespace kdl
         auto template_field_count() const -> std::size_t;
         auto template_field_at(const int i) const -> std::tuple<std::string, type>;
         auto template_field_named(const lexeme name) const -> std::tuple<std::string, type>;
+        auto template_field_named(const std::string name) const -> std::tuple<std::string, type>;
 
         auto add_field(const field field) -> void;
         auto field_count() const -> std::size_t;

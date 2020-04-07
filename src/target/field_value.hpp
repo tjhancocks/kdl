@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include <map>
 #include "parser/lexeme.hpp"
 #include "target/field_value_type.hpp"
 
@@ -34,6 +35,7 @@ namespace kdl
     {
     private:
         lexeme m_name;
+        std::vector<lexeme> m_name_extensions;
         std::optional<field_value_type> m_type;
         std::optional<lexeme> m_default;
         std::vector<std::tuple<lexeme, lexeme>> m_symbols;
@@ -41,8 +43,10 @@ namespace kdl
     public:
         field_value(const lexeme name, std::optional<field_value_type> type, std::optional<lexeme> default_value);
 
-        auto name() const -> std::string;
-        auto name_lexeme() const -> lexeme;
+        auto name(std::optional<std::map<std::string, lexeme>> extension_vars = {}) const -> std::string;
+        auto base_name_lexeme() const -> lexeme;
+
+        auto add_name_extension(const lexeme var) -> void;
 
         auto type() const -> std::optional<field_value_type>;
         auto set_type(const field_value_type type) -> void;

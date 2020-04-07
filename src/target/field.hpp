@@ -35,6 +35,9 @@ namespace kdl
     {
     private:
         lexeme m_name;
+        bool m_repeatable;
+        std::size_t m_repeat_lower;
+        std::size_t m_repeat_upper;
         std::vector<field_value> m_values;
 
     public:
@@ -46,6 +49,11 @@ namespace kdl
         auto add_value(const field_value value) -> void;
         auto value_count() const -> std::size_t;
         auto value_at(const int i) -> field_value;
+
+        auto make_repeatable(const std::size_t lower, const std::size_t upper) -> void;
+        auto is_repeatable() const -> bool;
+        auto repeat_lower_bound() const -> std::size_t;
+        auto repeat_upper_bound() const -> std::size_t;
     };
 
 };

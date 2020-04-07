@@ -92,6 +92,11 @@ auto kdl::container::template_field_named(const lexeme name) const -> std::tuple
     log::fatal_error(name, 1, "Missing template field named '" + name.text() + "'");
 }
 
+auto kdl::container::template_field_named(const std::string name) const -> std::tuple<std::string, type>
+{
+    return template_field_named(lexeme(name, lexeme::identifier));
+}
+
 // MARK: - Field Management
 
 auto kdl::container::add_field(const kdl::field field) -> void

@@ -31,14 +31,32 @@ kdl::field_value::field_value(const kdl::lexeme name, std::optional<field_value_
 
 // MARK: - Accessors
 
-auto kdl::field_value::name() const -> std::string
+auto kdl::field_value::name(std::optional<std::map<std::string, lexeme>> extension_vars) const -> std::string
 {
-    return m_name.text();
+    std::string name(m_name.text());
+
+    if (extension_vars.has_value()) {
+        auto vars = extension_vars.value();
+
+        for (auto ext : m_name_extensions) {
+            if (vars.find(ext.text()) == vars.end()) {
+                log::fatal_error(ext, 1, "Field name extension '" + ext.text() + "' could not be resolved.");
+            }
+            name.append(vars.at(ext.text()).text());
+        }
+    }
+
+    return name;
 }
 
-auto kdl::field_value::name_lexeme() const -> lexeme
+auto kdl::field_value::base_name_lexeme() const -> lexeme
 {
     return m_name;
+}
+
+auto kdl::field_value::add_name_extension(const kdl::lexeme var) -> void
+{
+    m_name_extensions.emplace_back(var);
 }
 
 auto kdl::field_value::type() const -> std::optional<field_value_type>
@@ -92,4 +110,3 @@ auto kdl::field_value::symbol_at(const int i) -> std::tuple<lexeme, lexeme>
 {
     return m_symbols[i];
 }
-

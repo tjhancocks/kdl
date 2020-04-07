@@ -56,3 +56,27 @@ auto kdl::field::value_at(const int i) -> field_value
 {
     return m_values[i];
 }
+
+// MARK: - Repeatable
+
+auto kdl::field::make_repeatable(const std::size_t lower, const std::size_t upper) -> void
+{
+    m_repeatable = true;
+    m_repeat_lower = lower;
+    m_repeat_upper = upper;
+}
+
+auto kdl::field::is_repeatable() const -> bool
+{
+    return m_repeatable;
+}
+
+auto kdl::field::repeat_lower_bound() const -> std::size_t
+{
+    return m_repeat_lower;
+}
+
+auto kdl::field::repeat_upper_bound() const -> std::size_t
+{
+    return m_repeat_upper;
+}
