@@ -52,6 +52,15 @@ auto kdl::container::instantiate_resource(const int64_t id, const std::string na
 
 auto kdl::container::add_template_field(const lexeme label, kdl::type type) -> void
 {
+    // Check for the special identifier name "_", which represents an unused entity. Give it a private
+    // internal name: __N
+    if (label.text() == "_") {
+        auto name = "__" + std::to_string(m_template.size());
+        auto lx = lexeme(name, lexeme::identifier);
+        m_template.emplace_back(lx);
+        return;
+    }
+
     // Quickly scan for duplicate names.
     for (auto t : m_template) {
         if (std::get<0>(t).text() == label.text()) {
