@@ -21,6 +21,7 @@
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/type_definition/template_sema.hpp"
 #include "parser/sema/type_definition/field_definition_sema.hpp"
+#include "parser/sema/type_definition/assertion_sema.hpp"
 #include "parser/sema/type_definition/type_definition_sema.hpp"
 #include "target/container.hpp"
 
@@ -58,6 +59,9 @@ auto kdl::sema::type_definition_sema::parse(kdl::sema::parser& parser, std::weak
         auto lx = parser.read();
         if (lx.text() == "template") {
             template_sema::parse(parser, type_container);
+        }
+        else if (lx.text() == "assert") {
+            assertion_sema::parse(parser, type_container);
         }
         else if (lx.text() == "field") {
             field_definition_sema::parse(parser, type_container);
