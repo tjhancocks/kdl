@@ -1,0 +1,21 @@
+@type RepeatableTest: "RpTs" {
+	template {
+		DWRD Foo1;
+		DWRD Foo2;
+		DWRD Foo3;
+		DWRD Foo4;
+	};
+
+	field("Value") repeatable<1, 4> {
+		Foo<$FieldNumber> = 0;
+	};
+};
+
+@example declare RepeatableTest {
+	new (#128) {
+		Value = 10;
+		Value = 20;
+		Value = 30;
+		Value = 40;
+	};
+};
