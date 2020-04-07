@@ -74,6 +74,7 @@ contexts:
               scope: punctuation.definition.type.end.kdl
               pop: true
             - include: template-definition
+            - include: assertion-rule
             - include: field-definition
 
 # TYPE DEFINITION ##############################################################
@@ -96,23 +97,27 @@ contexts:
                 6: entity.other.attribute-name.kdl
 
   field-definition:
-    - match: '(field)[ \t]*\(("[A-Za-z0-9_]+")\)'
+    - match: '(field)[ \t]*\(("[A-Za-z0-9_]+")\)([ \t]+(repeatable)[ \t]*\<([0-9]+)[ \t]*\,[ \t]*([0-9]*)\>)?'
       scope: meta.impl.kdl
       captures:
         1: keyword.declaration.impl.kdl
         2: string.quoted.double.kdl
+        4: keyword.other.kdl
+        5: constant.numeric.integer.decimal.kdl
+        6: constant.numeric.integer.decimal.kdl
       push:
         - match: '\{'
           scope: punctuation.definition.field.begin.kdl
           set:
-            - match: '([A-Za-z0-9_]+)([ \t]+(as)[ \t]*(([A-Za-z0-9_]*)(\<([A-Za-z0-9_]+)([ \t]*(\||,)[ \t]*([A-Za-z0-9_]+))*>)?(&?)))?'
+            - match: '([A-Za-z0-9_]+(\<(\$[A-Za-z0-9_]+)\>)?)([ \t]+(as)[ \t]*(([A-Za-z0-9_]*)(\<([A-Za-z0-9_]+)([ \t]*(\||,)[ \t]*([A-Za-z0-9_]+))*>)?(&?)))?'
               captures:
                 1: entity.other.attribute-name.kdl
-                3: keyword.other.kdl
-                5: entity.name.type.kdl
-                7: entity.other.inherited-class.kdl
-                10: entity.other.inherited-class.kdl
-                11: entity.name.type.kdl
+                3: variable.other.member.kdl
+                5: keyword.other.kdl
+                7: entity.name.type.kdl
+                9: entity.other.inherited-class.kdl
+                12: entity.other.inherited-class.kdl
+                13: entity.name.type.kdl
               push:
                 - include: string-literal
                 - include: identifier-literal
@@ -139,13 +144,33 @@ contexts:
               scope: punctuation.definition.field.end.kdl
               pop: true
 
+  assertion-rule:
+    - match: '(assert)[ \t]*'
+      scope: meta.impl.kdl
+      captures:
+        1: keyword.kdl
+      push:
+        - match: '\('
+          set:
+            - match: '\);'
+              pop: true
+            - match: '((\$)[A-Za-z0-9_]+)'
+              captures:
+                1: variable.language.kdl
+            - match: '([<>=-\\+\\*\\/!]+)'
+              captures:
+                1: keyword.operator.arithmetic.kdl
+            - include: number-literal
+            - include: resource-literal
+            - include: percentage-literal
+
 # RESOURCE DECLARATION #########################################################
 
   resource-declaration:
     - match: '((@)example[ \t]+)?(declare)[ \t]+([A-Za-z0-9_]+)'
       scope: meta.impl.kdl
       captures:
-        1:  keyword.kdl
+        1: keyword.kdl
         3: keyword.declaration.impl.kdl
         4: entity.name.type.kdl
       set:
