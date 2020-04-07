@@ -39,6 +39,7 @@ auto kdl::sema::resource_instance_sema::parse(kdl::sema::parser &parser, kdl::co
     auto t = target.lock();
 
     // Begin a new resource instance, and get the ID and Name of the resource if provided.
+    auto resource_first_lx = parser.peek();
     parser.ensure({
         expectation(lexeme::identifier, "new").be_true(),
         expectation(lexeme::l_paren).be_true()
@@ -86,6 +87,13 @@ auto kdl::sema::resource_instance_sema::parse(kdl::sema::parser &parser, kdl::co
     }
 
     parser.ensure({ expectation(lexeme::r_brace).be_true() });
+
+    // Run any assertions that the type specifies on this instance.
+    for (auto assertion : type_container.assertions()) {
+        if (!assertion.evaluate(resource_data.synthesize_variables())) {
+            log::fatal_error(resource_first_lx, 1, "Assertion Failed: " + assertion.failure_text());
+        }
+    }
 
     // Add the resource to the target.
     if (!is_example) {

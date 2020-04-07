@@ -53,6 +53,8 @@ namespace kdl
         auto id() const -> int64_t;
         auto name() const -> std::string;
 
+        auto synthesize_variables() const -> std::map<std::string, lexeme>;
+
         auto write_byte(const field_value ref, const uint8_t value) -> void;
         auto write_short(const field_value ref, const uint16_t value) -> void;
         auto write_long(const field_value ref, const uint32_t value) -> void;

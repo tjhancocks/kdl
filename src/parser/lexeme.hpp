@@ -60,6 +60,17 @@ namespace kdl
          * Constructs a new lexeme.
          * @param text The source text value from which this lexeme is being created.
          * @param type The lexical type that the token is
+         */
+        lexeme(std::string text, enum type type)
+            : m_text(text), m_type(type), m_owner({})
+        {
+
+        }
+
+        /**
+         * Constructs a new lexeme.
+         * @param text The source text value from which this lexeme is being created.
+         * @param type The lexical type that the token is
          * @param pos The absolute position of the token within the source file.
          * @param offset The position of the token upon the current line.
          * @param line The line that the token was found.

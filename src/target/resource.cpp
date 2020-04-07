@@ -195,3 +195,65 @@ auto kdl::resource::assemble() const -> std::shared_ptr<graphite::data::data>
 
     return data;
 }
+
+// MARK: - Variables
+
+auto kdl::resource::synthesize_variables() const -> std::map<std::string, lexeme>
+{
+    std::map<std::string, lexeme> vars;
+
+    vars.emplace("id", lexeme(std::to_string(m_id), lexeme::res_id));
+    vars.emplace("name", lexeme(m_name, lexeme::string));
+
+    for (auto field : m_template) {
+        auto type = std::get<1>(field);
+        auto field_name = std::get<0>(field);
+        auto index = index_of(field_name);
+        auto wrapped_value = m_values.at(index);
+
+
+        switch (type & 0xF000) {
+            case kdl::HBYT: {
+                vars.emplace(field_name.text(), lexeme(std::to_string(std::any_cast<uint8_t>(wrapped_value)), lexeme::integer));
+                break;
+            }
+            case kdl::HWRD: {
+                vars.emplace(field_name.text(), lexeme(std::to_string(std::any_cast<uint16_t>(wrapped_value)), lexeme::integer));
+                break;
+            }
+            case kdl::HLNG: {
+                vars.emplace(field_name.text(), lexeme(std::to_string(std::any_cast<uint32_t>(wrapped_value)), lexeme::integer));
+                break;
+            }
+            case kdl::HQAD: {
+                vars.emplace(field_name.text(), lexeme(std::to_string(std::any_cast<uint64_t>(wrapped_value)), lexeme::integer));
+                break;
+            }
+            case kdl::DBYT: {
+                vars.emplace(field_name.text(), lexeme(std::to_string(std::any_cast<int8_t>(wrapped_value)), lexeme::integer));
+                break;
+            }
+            case kdl::DWRD: {
+                vars.emplace(field_name.text(), lexeme(std::to_string(std::any_cast<int16_t>(wrapped_value)), lexeme::integer));
+                break;
+            }
+            case kdl::DLNG: {
+                vars.emplace(field_name.text(), lexeme(std::to_string(std::any_cast<int32_t>(wrapped_value)), lexeme::integer));
+                break;
+            }
+            case kdl::DQAD: {
+                vars.emplace(field_name.text(), lexeme(std::to_string(std::any_cast<int64_t>(wrapped_value)), lexeme::integer));
+                break;
+            }
+            case kdl::PSTR:
+            case kdl::Cxxx:
+            case kdl::CSTR: {
+                auto str = std::any_cast<std::tuple<std::string, std::size_t>>(wrapped_value);
+                vars.emplace(field_name.text(), lexeme(std::get<0>(str), lexeme::string));
+                break;
+            }
+        }
+    }
+
+    return vars;
+}

@@ -47,7 +47,7 @@ static auto __resolve_variable(const kdl::lexeme var, std::map<std::string, kdl:
 auto kdl::assertion::evaluate(std::map<std::string, lexeme> variables) const -> bool
 {
     auto lhs = __resolve_variable(m_lhs, variables);
-    auto rhs = __resolve_variable(m_lhs, variables);
+    auto rhs = __resolve_variable(m_rhs, variables);
 
     if (lhs.type() != rhs.type()) {
         kdl::log::fatal_error(lhs, 1, "Type mismatch in assertion. Both LHS and RHS must be of the same type.");
@@ -88,4 +88,24 @@ auto kdl::assertion::evaluate(std::map<std::string, lexeme> variables) const -> 
             kdl::log::fatal_error(lhs, 1, "Unsupported type found in assertion.");
         }
     }
+}
+
+// MARK: - Reasons
+
+auto kdl::assertion::failure_text() const -> std::string
+{
+    std::string reason;
+    reason.append(m_lhs.text());
+
+    switch (m_operation) {
+        case lt:    reason.append(" must be less than "); break;
+        case lteq:  reason.append(" must be less than or equal to "); break;
+        case eq:    reason.append(" must be equal to "); break;
+        case neq:   reason.append(" must not be equal to "); break;
+        case gteq:  reason.append(" must be greater than or equal to "); break;
+        case gt:    reason.append(" must be greater than "); break;
+    }
+
+    reason.append(m_rhs.text());
+    return reason;
 }

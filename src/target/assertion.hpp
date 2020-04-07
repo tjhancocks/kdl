@@ -41,6 +41,8 @@ namespace kdl
         assertion(const lexeme lhs, enum operation op, const lexeme rhs);
 
         auto evaluate(std::map<std::string, lexeme> variables) const -> bool;
+
+        auto failure_text() const -> std::string;
     };
 
 };
