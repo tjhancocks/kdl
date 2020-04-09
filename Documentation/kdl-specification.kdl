@@ -1,357 +1,430 @@
-` KDL Specification 1.0
-
-` This is the primary specification on KDL, and defines/specifies the language
-` through examples. The first section of this document will define the basic
-` tokens/lexemes of the language.
-
-` §1 SCALAR TYPES --------------------------------------------------------------
-` §1.1 - INTEGERS --------------------------------------------------------------
-` Integers are a fundamental type in any language. Due to the close association
-` with the Classic Macintosh and the Resource Manager, KDL defines its integer
-` type symbols as so.
-
-`  1	   2	   4	   8
-DBYT	DWRD	DLNG	DQAD
-HBYT	HWRD	HLNG	HQAD
-
-` These symbols are purely used for type definitions and will not really be used
-` in general use.
-` Using an integer is fairly standard and as one would expect it to be.
-
-	100
-	-42
-	0xCA
-	0x23D2
-
-` §1.2 - STRINGS ---------------------------------------------------------------
-` Strings are another fundamental type in most languages. Strings in KDL can 
-` represent a number of different underlying types of string, and depending on
-` the situation will be encoded as a specific type of string. These underlying
-` String types are:
+` KESTREL DEVELOPMENT LANGUAGE SPECIFICATION
 ` 
-` 	- Pascal String (Leading length byte followed by characters)
-`	- Long Pascal String (Leading length word followed by characters)
-` 	- Fixed width string (Characters of string padded/truncated to the width)
-`	- C String (Characters of string terminated by a NUL byte)
+`	Specification Version 2
+` 	Language Version 0.2
+` 	Date: 8 April 2020
+`	Author: Tom Hancocks
 `
-` Representing a string in code is simple however, and done like so:
-
-	"Hello, World!"
-
-` Adjacent strings will be concatanted together, meaning that the following:
-
-	"Hello, "
-	"World!"
-
-` Will actually be seen as:
-
-	"Hello, World!"
-
-` §1.3 - RESOURCE ID -----------------------------------------------------------
-` Resource ID's are semantically distinct from integers in so far as what they
-` represent. Whilst the two are interchangable as a raw value, an integer can
-` not be used to identify a resource. A Resource ID can be represented in a
-` number of different ways.
+` ------------------------------------------------------------------------------
+` §0 : OVERVIEW ================================================================
+` This document is intended to act as a specification for KDL. The document is
+` itself a KDL script, with explanations being provided as a comments. Whilst it
+` is technically possible to pass this document through the KDL assembler it is
+` not recommended.
 `
-`	Generic ID (A basic numeric ID, that could represent any type of resource)
-	#128
-
-` 	Specific ID (A numeric ID with an associated type)
-	Foo.#128
-
-` 	Inline Definition (Create a resource and capture a reference to it)
-	new { ... }
-
-` §2 ASSEMBLER MACROS/INSTRUCTIONS ---------------------------------------------
-` KDL defines a number of macros and instructions that can be used to instruct
-` the assembler to do something. All assembler macros and instructions begin 
-` with a '@' symbol.
-
-` §2.1 - OUT INSTRUCTION -------------------------------------------------------
-` This instruction is purely for debugging purposes and can be considered 
-` optional in an implementation of KDL. It simply echos an string value to the
-` standard output of the assembler. The @out instruction should append a newline
-` character to the end of the output.
-	
-	@out "Hello, World!";
-
-` §2.2 - IMPORT INSTRUCTION ----------------------------------------------------
-` The implementation of this instruction is required. It tells the assembler to
-` import the specified file to the location of the @import instruction.
-
-	@import "some-file.kdl";
-
-` §3 TYPE DEFINITION -----------------------------------------------------------
-` KDL is designed to be fully extensible and allow for resource types to be
-` defined at runtime, bypassing the need to bake in type definitions.
-` A type definition can be started using the following syntax.
-
-@type TypeName : "code" { ... };
-
-` The _TypeName_ here is the name that will be used by KDL to reference the type
-` It is not particularly important, beyond how the type will be referenced.
-` The _code_ is never seen elsewhere with KDL, but is used by the assembler
-` when encoding a resource file, as the Resource Type code. A resource code must
-` be 4 characters long.
+` This document is provided as a KDL script so that syntax highlighting can be
+` taken advantage of in your favorite code editor (provided there is a syntax
+` definition available.)
 `
-` An example type definition for the 'VERS' resource.
-
-@type Version : "VERS" { ... };
-
-` The contents of the '{' braces '}' is used by the assembler to determine what
-` the type is and what is used to represent it.
-
-` §3.1 - TEMPLATE --------------------------------------------------------------
-` The template is a structure with in a type, that defines the underlying binary
-` structure of the resource type. This resembles the 'TMPL' resource that was
-` used to define custom resource types.
+` KDL is designed to provide a modern textual representation of the Macintosh
+` Resource Fork. The Resource Fork is obsolete as of the time of this writing,
+` but it still plays a role for many. Older Macintosh software and games relied
+` on the Resource Fork, and games such as the Escape Velocity series are built
+` upon them and depend on the availability of it for their Plugin development
+` communities.
 `
-` A template is started as such:
-
-@type SpriteAnimation : "spïn" {
-	template {
-		DWRD spritesID;
-		DWRD masksID;
-		DWRD xSize;
-		DWRD ySize;
-		DWRD xTiles;
-		DWRD yTiles;
-	};
-};
-
-` The template is comprised of a number of fields. These fields take the form
-` of:
-
-	TYPE name;
-
-` The type can be any of the following:
-`	- DBYT	Signed 8-bit value (-128 - 127)
-`	- DWRD	Signed 16-bit value (-32768 - 32767)
-`	- DLNG	Signed 32-bit value (-2147483648 - 2147483647)
-`	- DQAD	Signed 64-bit value (-9223372036854775808 - 9223372036854775807)
-`	- HBYT	Unsigned 8-bit value (0 - 255)
-`	- HWRD	Unsigned 16-bit value (0 - 65535)
-`	- HLNG	Unsigned 32-bit value (0 - 4294967295)
-`	- HQAD	Unsigned 64-bit value (0 - 18446744073709551615)
-`	- PSTR	Pascal String (leading byte for string length)
-`	- CSTR	C String (terminating NUL byte)
-`	- Cxxx	Fixed width string (xxx bytes wide)
-`	- RECT	4 DWRD values (top, left, bottom, right)
-` 	- HEXD	Remaining bytes in resource (must be last)
-
-` The names given to each field can be referenced later in the type definition.
-
-` §3.2 - FIELD DEFINITION ------------------------------------------------------
-` Type definitions can also contain a number of field defintions. These are used
-` to tell KDL how a resource might be declared, what default values it should
-` use, and symbol definitions to represent obscure or cryptic values.
-
-@type SpriteAnimation : "spïn" {
-	` A field with a single required value
-	field("sprites") as & {
-		spritesID;
-	};
-
-	` A field with a multiple required values
-	field("size") {
-		xSize;
-		ySize;
-	};
-
-	` A field with an optional value
-	field("masks") as Picture&  {
-		masksID = -1;
-	};
-
-	` A field with two optional values.
-	field("tiles") {
-		xTiles = 6;
-		yTiles = 6;
-	};
-};
-
-` There is quite a lot to break down here. First of all let's take a look at the
-` actual field definition:
-
-	field("sprites") as &
-
-` The leading _field_ here is spelling. It tells the assembler that we are 
-` beginning a field definition. The parentheses contain a string which is the
-` name of the field. This name will be used by others when declaring a resource,
-` and is how KDL will reference the field.
-` The terminate `as &` needs a little bit more in depth explanation. By default
-` KDL will infer the type of the field based on the values that it comprises of.
-` In the instance of the "size" field, the type would be a tuple of `DWRD DWRD`.
-` By default KDL would interpret "sprites" to be of type `DWRD`. However here,
-` we actually want it to be a resource reference, so we add the `as &` to it. We
-` could explicitly state the type like so:
-
-	field("sprites") as DWRD
-
-` but this would be unnecessary.
-` The '&' in this context is used to represent a generic resource reference. As
-` in we do not know what type of resource this might be. This should be used
-` when the reference could be any one of multiple resource types. Adding a 
-` leading type name to the '&' will specialise the type of reference required.
+` Due to the difficulties in accessing and editing resources, specialised tools
+` commonly sprang up to assist developers and plugin creators. For the Escape
+` Velocity series, generic tools such as ResEdit were used, or even specialised
+` tools as NovaTools, MissionComputer or EVNEW.
 `
-`	&			Generic resource reference
-`	Picture&	Reference to a Picture resource.
-
-` Inside the field definition are value definitions. These are simply references
-` to fields within the template. The values can be given default values (and 
-` thus become optional).
+` ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+` NOTE: The name ResourceFork actually refers to a specific File Fork in the
+`       file system, not the binary format that holds resources. Prior to 
+`		Mac OS X there was no distinction between the format and the fork in
+` 		which it was held. Apple began packaging resources inside the DataFork
+`		of a file with the introduction of Mac OS X. These files can be 
+`		recognised by their .rsrc file extension and are called ResourceFiles.
+` ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 `
-`	xTiles; 	This value is required as it has no default value specified.
-` 	xTiles = 0;	This value is not required as it has a default value specified.
+` Kestrel will rely upon the Resource format, but not expect people to actually
+` deal with it on a day to day basis when developing content. This is where KDL
+` comes in.
 `
-` Another consideration with values is the ability to specify symbols for them.
-` Symbols are predefined values that can be used with them. Symbols are defined
-` like so:
+` ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+` EXAMPLE:
 
-	xTiles [
-		standard = 6,
-		extra = 12,
-	];
-
-	yTiles = standard [
-		standard = 6,
-		extra = 12,
-	];
-
-` §3.3 - FILE CONTENTS ---------------------------------------------------------
-` This is a special type of field that can be defined, that imports the contents
-` of a file and writes them to the value of that field. Let's take a look at an
-` example resource type:
-
-	@type Picture : "PICT" {
-		template {
-			HEXD data;
+	declare Color {
+		new (#128, "Red") {
+			RGB = 0xFF0000;
 		};
 
-		field("path") as File {
-			data;
+		new (#129, "Green") {
+			RGB = 0x00FF00;
 		};
 	};
 
-` This type of field is simply defined by having a type of `File`.
+	declare Fruit {
+		new (#128, "Apple") {
+			AverageWeight = 100;
+			Color = #129;
+		};
 
-` §4 RESOURCE DECLARATIONS -----------------------------------------------------
-` The primary concern of KDL is to be able to declare resources. In declaring a
-` resource, the user provides information and data to the assembler to use as
-` data in the binary data of the resource once it is assembled.
+		new (#129, "Strawberry") {
+			AverageWeight = 10;
+			Color = #128;
+		};
+	};
+
+` ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 `
-` Resource declarations are contained with in a declaration block. A declaration
-` block is defined like so:
+` This document will cover the various elements and components of KDL and how 
+` the language is intended to work. It is not intended to be a tutorial, but can
+` be used as a learning resource for the language.
+`
+` ------------------------------------------------------------------------------
+` $1 : LITERALS ================================================================
+` All programming languages have a concept of literals, and KDL is no different.
+` A literal is quite simply a type of value that is used by the language to 
+` represent something. There are n types of literal in KDL, which are; Integer,
+` String, ResourceID, Percentage, Identifier and Variable.
+`
+` ------------------------------------------------------------------------------
+` $1.1 : INTEGER LITERAL =======================================================
+` Integers are whole numbers. They are amongst the most common type of data 
+` found in computing, and the most fundamental type of data addressed by KDL.
+` Below is an example of some integers.
 
-	declare ResourceType { ... };
+	-5	-4	-3	-2	-1	0	1 	2	3	4	5
 
-` The _ResourceType_ is the name of a previously defined resource. For instance:
+` This is a simple number line that illustrates a sequence of integers. They can
+` be either negative or positive, but must be whole numbers. Fractional values
+` are not permitted.
+`
+` You can also represent integers using hexadecimal notation in KDL. This will
+` sometimes make more sense than using the more common decimal notation.
 
-	@type MyType : "code" { ... };
+	0xCAFECAFE	0x0010	0x42	0xD00D
 
-	declare MyType { ... };
+` ------------------------------------------------------------------------------
+` $1.2 : STRING LITERAL ========================================================
+` Strings are the basic means of representing text. They are a sequence of 
+` characters, and can be recognised as such:
 
-` §4.1 - RESOURCE INSTANCE -----------------------------------------------------
-` There are several ways to create a new or override an existing resource 
-` instance. Resource instances are denoted within the declaration block by 
-` either the _new_ or _override_ keywords.
+	"This is a string."
+	"Strings are encapsulated inside double quotes."
 
-	declare MyType {
-		new (#128) {
+` There isn't really very much to say about strings at the moment, as the 
+` handling of strings in KDL is extremely basic.
+`
+` ------------------------------------------------------------------------------
+` $1.3 : RESOURCE ID LITERAL ===================================================
+` Traditionally ResourceIDs have just been a signed 16-bit integer. However due
+` to the integral/fundamental role that resources play within KDL, it was 
+` decided early on to create a special type of literal for them:
 
-		};
+	#128	#129	#-1000
 
-		new (#129, "Resource Name") {
+` ResourceIDs are simply integers prefixed by a hash ('#'). Internally KDL 
+` treats them the same as integers (expect for when it is checking data types).
+`
+` This diagram illustrates the relationship between the types. We will extend
+` this over the course of the document.
+`
+`   +------------+       
+`   | ResourceID | --------is a---+ 
+`   +------------+                |      +---------+
+`                                 +--->  | Integer |
+`   +------------+                |      +---------+
+`   |   String   | -composed of---+
+`   +------------+
+`
+` ------------------------------------------------------------------------------
+` $1.4 : PERCENTAGE LITERAL ====================================================
+` The percentage literal is predominantly present to serve as a syntactic sugar,
+` for situations where a percentage makes semantic sense. This type should not
+` be relied on heavily at present.
 
-		};
+	5%	95%
 
-		override (#130) {
+`
+`   +------------+       
+`   | Percentage | --------is a---+ 
+`   +------------+                |
+`                                 |
+`   +------------+                |      +---------+
+`   | ResourceID | --------is a---+----> | Integer |
+`   +------------+                |      +---------+
+`                                 |
+`   +------------+                |
+`   |   String   | -composed of---+
+`   +------------+
+`
+` ------------------------------------------------------------------------------
+` $1.5 : IDENTIFIER LITERAL ====================================================
+` An identifier literal is a special type of value that is used to identify 
+` another value. They are typically used as Type names, Field names and Labels.
 
-		};
+	ExampleIdentifier
+	ShipAnimation
 
-		override (#131, "Resource Name") {
+`
+`                             +------------+       
+`                             | Percentage | --------is a---+ 
+`                             +------------+                |
+`                                                           |
+`                             +------------+                |      +---------+
+`                             | ResourceID | --------is a---+----> | Integer |
+`                             +------------+                |      +---------+
+`                                                           |
+`   +------------+            +------------+                |
+`   | Identifier |  is a--->  |   String   | -composed of---+
+`   +------------+            +------------+
+`
+` ------------------------------------------------------------------------------
+` $1.6 : VARIABLE LITERAL ======================================================
+`
 
-		};
-	};
+	$FieldNumber
+	$id
 
-` Resource instances then contain a list of fields along with associated values.
-` What fields are accepted and what values they can take, is defined through the
-` type definition.
-
-	declare MyType {
-		new (#128) {
-			example_field = 42;
-		};
-	};
-
-` Fields can accept a number of value types. The following example illustrates 
-` the relationship of types to values.
-
-	@type IntegerType : "typ1" {
-		template {
-			DWRD value;
-		};
-
-		field("field") {
-			value;
-		};
-	};
-
-	declare IntegerType {
-		new (#128) {
-			field = 42;
-		};
-	};
-
-
-	@type StringType : "typ2" {
-		template {
-			PSTR value;
-		};
-
-		field("field") {
-			value;
-		};
-	};
-
-	declare StringType {
-		new (#128) {
-			field = "Hello, World!";
-		};
-	};
-
-
-	@type ResourceType : "typ3" {
-		template {
-			DWRD value;
-		};
-
-		field("field") as & {
-			value;
-		};
-	};
+`
+`   +------------+            +------------+       
+`   |  Variable  |            | Percentage | --------is a---+ 
+`   +------------+            +------------+                |
+`         |                                                 |
+`         |                   +------------+                |      +---------+
+`       is an                 | ResourceID | --------is a---+----> | Integer |
+`         |                   +------------+                |      +---------+
+`         V                                                 |
+`   +------------+            +------------+                |
+`   | Identifier |  is a--->  |   String   | -composed of---+
+`   +------------+            +------------+
+`
+` ------------------------------------------------------------------------------
+` $2 : RESOURCE DECLARATIONS ===================================================
+` For the average user of KDL, construction of resources is the most important
+` aspect of the language. Resource construction is performed through a resource
+` declaration block, like so:
 
 	declare ResourceType {
+
+` Within the declaration block, we can then create a new resources. When 
+` creating a resource we need to specify a resource id, and optionally a 
+` resource name. The 'new' keyword here denotes that we are creating a new
+` resource.
+
+		new (#128, "Resource Name") {
+
+` Within the 'new' resource block, we provide a list of fields and values that
+` should be associated with them.
+
+			Field1 = 0x23;
+			Field2 = "A string value";
+			Field3 = #129;
+
+` In addition to simple field values like these, some fields can accept multiple
+` values.
+
+			Field4 = 0x53 #150;
+			Field5 = "Option 1" "Option 2";
+
+` Going further still for fields that take a string type value or binary data,
+` you can import the contents of another file as the value of the field.
+
+			Field6 = import "File.txt";
+
+` Some fields also have predefined values that could be specified through the
+` use of an identifier.
+
+			Field7 = PredefinedValue;
+
+` Taking predefined values further, the value for a field might actually be a
+` bitmask or set of flags. If this is the case then you can combine multiple 
+` values together like so:
+
+			Field8 = 0x0001 | 0x0002 | 0x0010;
+			Field9 = Option1 | Option4 | Option10;
+
+		};
+
+	};
+
+` Resource construction is straight forward are relatively simple by design. The
+` intention is that the complexity should be handled by KDL and the Type 
+` Definition itself.
+`
+` ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+` NOTE: KDL is still immature and is likely to see a number of expansions over
+`       time. The complexity in resource declaration may increase as the 
+`       capabilities of KDL increase.
+` ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`
+` It should be noted as well that is possible to mark a set of declarations as
+` examples, and not included in final assembly. Example declarations are still
+` processed the same, and will be subjected to all the same error checks.
+` 
+` Examples are useful when debugging or illustrating how to use a resource type
+` that you have just defined/created.
+`
+` Examples declarations can be recognised as so:
+
+	@example declare ResourceType {
 		new (#128) {
-			field = #128;
+			Field1 = "This resource is an example!";
 		};
 	};
 
+` ------------------------------------------------------------------------------
+` $3 : TYPE DEFINITIONS ========================================================
+` This section is relavent to anyone has an interest in defining custom resource
+` types for inclusion in their plugins (Lua Scripting will provide a way of
+` decoding and using these resources in Kestrel), who wishes to work on Kestrel
+` itself and needs to add a new type to the engine, or is just curious about how
+` it works.
+` 
+` Let's take a quick look at a type definition before diving in to the mechanics
+` behind it.
 
-	@type DualType : "typ4" {
+	@type Message : "msg#" {
 		template {
-			DWRD value;
-			DWRD second_value;
+			DWRD Count;
+			PSTR Text;
 		};
 
-		field("field") {
-			value;
-			second_value;
+		assert($Count > 0, $Count < 10);
+
+		field("RepeatedMessage") {
+			Count;
+			Text;
 		};
 	};
 
-	declare DualType {
+	@example declare Message {
 		new (#128) {
-			field = 10 20;
+			RepeatedMessage = 5 "Hello, World";
+		};
+	};
+
+` The above example defines a resource type "Message", where each instance has
+` a field that specifies the number of times to repeat a message. After the 
+` definition, it then provides an example of using the type.
+`
+` For illustration purposes, and for referencing later this is the binary data
+` that is generated by the example.
+`
+`   050C 4865 6C6C 6F2C 2057 6F72 6C64   |   ^^Hello, World
+`
+` Don't worry if that doesn't really explain anything. We will get to it later.
+`
+` The type definition begins with the '@type' directive, and is followed by the
+` the name of the type which will be used within KDL and then finally the type
+` code that will represent the type within a resource file.
+`
+` In this example, the type name is 'Message' and the type code is 'msg#'.
+
+	@type Message : "msg#" {
+
+` The type code of a resource must be 4 characters long, and representable in
+` Macintosh Roman Encoding.
+`
+` ------------------------------------------------------------------------------
+` $3.1 : TEMPLATE ==============================================================
+` By convention the first aspect of a type definition should be the _template_.
+` This is a structure that defines the binary layout and fields that make up an
+` individual instance of the resource.
+
+		template {
+
+` A template field consists of two parts, a data type and a name. The data type
+` is always represented in caps, and is always 4 characters in length. The name
+` is capitalized and uses PascalCase by convention, though this is not required.
+		
+			DWRD Count;
+			PSTR Message;
+
+` The following data types are available for use in KDL. The name of each type
+` is provided beside it.
+			
+			HBYT UnsignedByte;      ` 8 Bits / 1 Byte
+			DBYT SignedByte;        ` 8 Bits / 1 Byte
+			HWRD UnsignedWord;      ` 16 Bits / 2 Bytes
+			DWRD SignedWord;        ` 16 Bits / 2 Bytes
+			HLNG UnsignedLong;      ` 32 Bits / 4 Bytes
+			DLNG SignedLong;        ` 32 Bits / 4 Bytes
+			HQAD UnsignedQuad;      ` 64 Bits / 8 Bytes
+			DQAD SignedQuad;        ` 64 Bits / 8 Bytes
+			PSTR PascalString;      ` 1 Byte Length + String.
+			CSTR CString;           ` String + NUL Terminator.
+			C000 FixedLengthString; ` 000 - Hex Value representing length of str
+			HEXD RawBinaryData;		` All remaining bytes in resource.
+			RECT RectangleStruct;	` 4(2) Bytes: Top Left Bottom Right
+		};
+
+` Overtime additional data types may be added to KDL, depending on the required
+` resources to be represented.
+`
+` Each template field automatically becomes a variable within the scope of the
+` resource instance. For example, the value of 'Count' field will be accessible
+` through the '$Count' variable.
+`
+` KDL exposes an additional two variables within each resource, '$id' and 
+` '$name'.
+`
+` These variables can be used in specific locations, and are not able to be used
+` where ever. As of the time of writing this document (Version 0.2) variables
+` can be used within assertions.
+`
+` ------------------------------------------------------------------------------
+` $3.2 : ASSERTIONS ============================================================
+` Assertions are a special clauses that can be added to a type definition that
+` tell KDL that certain conditions must be met for the resource to be valid. At
+` present these conditions must take the form of a simple binary equality, such
+` as:
+
+		assert($id >= #128);
+		assert($Count > 0, $Count < 10);
+
+` Assertions provide a way to ensure that certain values are valid, or that the
+` ID of a resource is within expected/allowed ranges.
+`
+` ------------------------------------------------------------------------------
+` $3.3 : FIELDS ================================================================
+` When constructing resources for a defined type, the user specifies values for
+` the resources through the use of fields. These differ from the fields of the
+` template, but are related.
+`
+` These fields are the public facing element of the type, where as the fields in
+` the template can be thought of as the private internals and mechanics.
+`
+` To start creating a field is simple, simply provide the name of the field:
+
+		field("RepeatedMessage") {
+
+` Now that we are working with a specific field, we can attach template fields
+` to the field. These represent the specific values that can be provided to the
+` resource.
+`
+` We can add template fields by simply supplying their names:
+
+			Count;
+			Message;
+
+` Simply supplying template fields like this is not particularly useful for all
+` types of value. For instance, if the field represents a resource id, then we
+` would prefer that the user be required to supply a resource id. This can be
+` enforced by adding the following to the template field name.
+
+			Graphic as &;
+
+` The 'as' keyword is used to tell KDL that we are supplying explicit type 
+` information to the value. The '&' used in this scenario tells KDL that we want
+` a resource reference. The '&' by itself is an unqualified resource reference,
+` meaning that it is not specifically requiring a reference to a fixed type of
+` resource.
+`
+` Conversely you can make a qualified resource reference by doing the following:
+
+			Graphic as Foo&;
+
+` Here we have told KDL that the reference is to a Foo type. If the user is only
+` supplying a resource id then the qualified resource reference does not make
+` much difference. The advantage of this will become apparent later in the 
+` document.
+`
+` Explicit types do not have to be resource references, and instead can be an
+` in place value.
+
+
 		};
 	};
