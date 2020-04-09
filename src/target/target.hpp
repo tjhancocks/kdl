@@ -48,7 +48,8 @@ namespace kdl
 
     public:
         target();
-        target(const std::string dst_root);
+
+        auto set_dst_path(const std::string dst_path) -> void;
 
         auto set_src_root(const std::string src_root) -> void;
         auto resolve_src_path(const std::string path) const -> std::string;

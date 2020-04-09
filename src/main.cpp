@@ -37,9 +37,19 @@ auto main(int argc, const char **argv) -> int
         if (argv[i][0] == '-') {
             std::string arg(argv[i]);
 
-            if (arg == "-v") {
+            if (arg == "-v" || arg == "--version") {
+                // Display the version information to the user
                 std::cout << "KDL Version " << KDL_VERSION << std::endl;
                 std::cout << "\t" << KDL_LICENSE << " " << KDL_AUTHORS << std::endl;
+            }
+            else if (arg == "-o") {
+                // Set the output destination. This output destination could be either a singular file,
+                // or a directory. If it is a file then extract the file name. It needs to be separated
+                // from the output directory.
+                target->set_dst_path(argv[i + 1]);
+
+                // Make we skip over the parameter.
+                i += 1;
             }
             else if (arg == "-tmpl" && i + 2 < argc) {
                 // Read in a resource file and build KDL definitions from them.
@@ -59,6 +69,11 @@ auto main(int argc, const char **argv) -> int
         else {
             files.emplace_back(std::make_shared<kdl::file>(argv[i]));
         }
+    }
+
+    // If there are no input files then end here.
+    if (files.empty()) {
+        return 0;
     }
 
     // Loop through each of the files and parse them.

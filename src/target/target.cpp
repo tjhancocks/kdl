@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <filesystem>
 #include "target/target.hpp"
 #include "diagnostic/fatal.hpp"
 
@@ -25,12 +26,6 @@
 
 kdl::target::target()
     : m_dst_root("."), m_dst_file("result")
-{
-
-}
-
-kdl::target::target(const std::string path)
-    : m_dst_root(path)
 {
 
 }
@@ -60,6 +55,39 @@ auto kdl::target::container_named(const kdl::lexeme name) const -> kdl::containe
         }
     }
     log::fatal_error(name, 1, "Missing definition for type '" + name.text() + "'");
+}
+
+// MARK: - Destination Paths
+
+auto kdl::target::set_dst_path(const std::string dst_path) -> void
+{
+    auto path = dst_path;
+    std::string filename;
+
+    if (std::filesystem::exists(path) && !std::filesystem::is_directory(path)) {
+        while (path.substr(path.size() - 1) != "/") {
+            filename = path.substr(path.size() - 1) + filename;
+            path.pop_back();
+        }
+    }
+    else if (std::filesystem::exists(path) && std::filesystem::is_directory(path)) {
+        filename = "result";
+    }
+    else {
+        while (path.substr(path.size() - 1) != "/") {
+            filename = path.substr(path.size() - 1) + filename;
+            path.pop_back();
+        }
+        std::filesystem::create_directory(path);
+    }
+
+    // Make sure the end of the path is a name.
+    if (path.substr(path.size() - 1) == "/") {
+        path.pop_back();
+    }
+
+    m_dst_root = path;
+    m_dst_file = filename;
 }
 
 // MARK: - Source Paths
