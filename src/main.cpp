@@ -18,6 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <iostream>
+#include "kdl_version.hpp"
 #include "parser/file.hpp"
 #include "parser/lexer.hpp"
 #include "parser/parser.hpp"
@@ -35,7 +37,11 @@ auto main(int argc, const char **argv) -> int
         if (argv[i][0] == '-') {
             std::string arg(argv[i]);
 
-            if (arg == "-tmpl" && i + 2 < argc) {
+            if (arg == "-v") {
+                std::cout << "KDL Version " << KDL_VERSION << std::endl;
+                std::cout << "\t" << KDL_LICENSE << " " << KDL_AUTHORS << std::endl;
+            }
+            else if (arg == "-tmpl" && i + 2 < argc) {
                 // Read in a resource file and build KDL definitions from them.
                 std::string res_in(argv[i + 1]);
                 std::string dir_out(argv[i + 2]);
