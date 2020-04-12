@@ -112,6 +112,7 @@ namespace kdl { namespace sema {
          * @return true if the next lexeme met any of the expectations.
          */
         auto expect_any(std::initializer_list<expectation::function> expect) const -> bool;
+        auto expect_any(std::vector<expectation::function> expect) const -> bool;
 
         /**
          * Validate a sequence of lexemes with the specified list of expectations. There is a one to one mapping

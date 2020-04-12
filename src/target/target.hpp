@@ -23,7 +23,8 @@
 
 #include <string>
 #include <vector>
-#include "target/container.hpp"
+#include "target/new/type_container.hpp"
+#include "target/new/resource_instance.hpp"
 #include "libGraphite/rsrc/file.hpp"
 
 namespace kdl
@@ -41,7 +42,7 @@ namespace kdl
         std::string m_dst_file;
         std::string m_src_root;
         graphite::rsrc::file::format m_format { graphite::rsrc::file::format::classic };
-        std::vector<container> m_containers;
+        std::vector<build_target::type_container> m_type_containers;
         graphite::rsrc::file m_file;
 
         auto target_file_path() const -> std::string;
@@ -56,12 +57,12 @@ namespace kdl
 
         auto set_output_file(const std::string file) -> void;
 
-        auto add_container(const container container) -> void;
-        auto container_count() const -> std::size_t;
-        auto container_at(const int i) const -> container;
-        auto container_named(const lexeme name) const -> container;
+        auto add_type_container(const build_target::type_container container) -> void;
+        auto type_container_count() const -> std::size_t;
+        auto type_container_at(const int i) const -> build_target::type_container;
+        auto type_container_named(const kdl::lexeme name) const -> build_target::type_container;
 
-        auto add_resource(const resource resource) -> void;
+        auto add_resource(const build_target::resource_instance resource) -> void;
 
         auto save() -> void;
     };

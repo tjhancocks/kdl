@@ -20,8 +20,9 @@
 
 #include "diagnostic/fatal.hpp"
 #include "parser/parser.hpp"
-#include "parser/sema/directives/asm_directive_sema.hpp"
-#include "parser/sema/declaration/declaration_sema.hpp"
+#include "parser/sema/declarations/declaration_parser.hpp"
+#include "parser/sema/directives/directive_parser.hpp"
+#include "parser/sema/type_definition/type_definition_parser.hpp"
 
 // MARK: - Constructor
 
@@ -35,21 +36,34 @@ kdl::sema::parser::parser(std::weak_ptr<kdl::target> target, std::vector<kdl::le
 
 auto kdl::sema::parser::parse() -> void
 {
+    auto target = m_target.lock();
     m_ptr = 0;
 
     while (!finished()) {
 
-        if (asm_directive_sema::test(*this)) {
-            asm_directive_sema::parse(*this, m_target);
+        if (expect({ expectation(lexeme::directive, "type").be_true() })) {
+            auto container = type_definition_parser(*this).parse(true);
+            target->add_type_container(container);
         }
-        else if (declaration_sema::test(*this)) {
-            declaration_sema::parse(*this, m_target);
+        else if (expect({ expectation(lexeme::directive, "example").be_true(), expectation(lexeme::identifier, "declare").be_true() })) {
+            advance();
+            declaration_parser(*this, m_target).parse();
+        }
+        else if (expect({ expectation(lexeme::directive).be_true() })) {
+            asm_directive(*this).parse();
+        }
+        else if (expect({ expectation(lexeme::identifier, "declare").be_true() })) {
+            auto declarations = declaration_parser(*this, m_target).parse();
+            for (auto instance : declarations) {
+                target->add_resource(instance);
+            }
         }
         else {
             auto lx = peek();
             log::fatal_error(lx, 1, "Unexpected lexeme '" + lx.text() + "' encountered.");
         }
 
+        ensure({ expectation(lexeme::semi).be_true() });
     }
 }
 
@@ -118,6 +132,11 @@ auto kdl::sema::parser::expect(std::initializer_list<kdl::sema::expectation::fun
 }
 
 auto kdl::sema::parser::expect_any(std::initializer_list<kdl::sema::expectation::function> expect) const -> bool
+{
+    return expect_any(std::vector(expect));
+}
+
+auto kdl::sema::parser::expect_any(std::vector<expectation::function> expect) const -> bool
 {
     for (auto f : expect) {
         if (f(peek())) {

@@ -18,4 +18,109 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "binary_type.hpp"
+#include "target/new/binary_type.hpp"
+
+auto kdl::build_target::binary_type_for_name(const std::string name) -> enum binary_type
+{
+    if (name == "HBYT") {
+        return binary_type::HBYT;
+    }
+    else if (name == "DBYT") {
+        return binary_type::DBYT;
+    }
+//    else if (name == "FBYT") {
+//        return binary_type::FBYT;
+//    }
+    else if (name == "HWRD") {
+        return binary_type::HWRD;
+    }
+    else if (name == "DWRD") {
+        return binary_type::DWRD;
+    }
+//    else if (name == "FWRD") {
+//        return binary_type::FWRD;
+//    }
+    else if (name == "HLNG") {
+        return binary_type::HLNG;
+    }
+    else if (name == "DLNG") {
+        return binary_type::DLNG;
+    }
+//    else if (name == "FLNG") {
+//        return binary_type::FLNG;
+//    }
+    else if (name == "HQAD") {
+        return binary_type::HQAD;
+    }
+    else if (name == "DQAD") {
+        return binary_type::DQAD;
+    }
+//    else if (name == "FQAD") {
+//        return binary_type::FQAD;
+//    }
+//    else if (name == "AWRD") {
+//        return binary_type::AWRD;
+//    }
+//    else if (name == "ALNG") {
+//        return binary_type::ALNG;
+//    }
+//    else if (name == "AQAD") {
+//        return binary_type::AQAD;
+//    }
+    else if (name == "HEXD") {
+        return binary_type::HEXD;
+    }
+    else if (name == "PSTR") {
+        return binary_type::PSTR;
+    }
+//    else if (name == "LSTR") {
+//        return binary_type::LSTR;
+//    }
+//    else if (name == "WSTR") {
+//        return binary_type::WSTR;
+//    }
+//    else if (name == "ESTR") {
+//        return binary_type::ESTR;
+//    }
+//    else if (name == "OSTR") {
+//        return binary_type::OSTR;
+//    }
+    else if (name == "CSTR") {
+        return binary_type::CSTR;
+    }
+//    else if (name == "ECST") {
+//        return binary_type::ECST;
+//    }
+//    else if (name == "OCST") {
+//        return binary_type::OCST;
+//    }
+//    else if (name == "BOOL") {
+//        return binary_type::BOOL;
+//    }
+//    else if (name == "BBIT") {
+//        return binary_type::BBIT;
+//    }
+//    else if (name == "TNAM") {
+//        return binary_type::TNAM;
+//    }
+//    else if (name == "CHAR") {
+//        return binary_type::CHAR;
+//    }
+    else if (name == "RECT") {
+        return binary_type::RECT;
+    }
+    else if (name[0] == 'C') {
+        auto width = static_cast<uint32_t>(std::stoul(name.substr(1), nullptr, 16));
+        return static_cast<binary_type>(static_cast<uint32_t>(Cnnn) | width);
+    }
+//    else if (name[0] == 'H') {
+//        auto width = static_cast<uint32_t>(std::stoul(name.substr(1), nullptr, 16));
+//        return static_cast<binary_type>(static_cast<uint32_t>(Hnnn) | width);
+//    }
+//    else if (name[0] == 'P' && name[1] == '0') {
+//        auto width = static_cast<uint32_t>(std::stoul(name.substr(1), nullptr, 16));
+//        return static_cast<binary_type>(static_cast<uint32_t>(P0nn) | width);
+//    }
+
+    return binary_type::INVALID;
+};

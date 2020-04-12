@@ -32,30 +32,31 @@ kdl::target::target()
 
 // MARK: - Container Management
 
-auto kdl::target::add_container(const kdl::container container) -> void
+auto kdl::target::add_type_container(const build_target::type_container container) -> void
 {
-    m_containers.emplace_back(container);
+    m_type_containers.emplace_back(container);
 }
 
-auto kdl::target::container_count() const -> std::size_t
+auto kdl::target::type_container_count() const -> std::size_t
 {
-    return m_containers.size();
+    return m_type_containers.size();
 }
 
-auto kdl::target::container_at(const int i) const -> kdl::container
+auto kdl::target::type_container_at(const int i) const -> build_target::type_container
 {
-    return m_containers[i];
+    return m_type_containers[i];
 }
 
-auto kdl::target::container_named(const kdl::lexeme name) const -> kdl::container
+auto kdl::target::type_container_named(const kdl::lexeme name) const -> build_target::type_container
 {
-    for (auto c : m_containers) {
+    for (auto c : m_type_containers) {
         if (c.name() == name.text()) {
             return c;
         }
     }
     log::fatal_error(name, 1, "Missing definition for type '" + name.text() + "'");
 }
+
 
 // MARK: - Destination Paths
 
@@ -124,7 +125,7 @@ auto kdl::target::resolve_src_path(const std::string path) const -> std::string
 
 // MARK: - Resource Management
 
-auto kdl::target::add_resource(const resource resource) -> void
+auto kdl::target::add_resource(const build_target::resource_instance resource) -> void
 {
     m_file.add_resource(resource.type_code(), resource.id(), resource.name(), resource.assemble());
 }

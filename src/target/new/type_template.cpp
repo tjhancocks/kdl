@@ -23,42 +23,60 @@
 
 // MARK: - Binary Field Management
 
-auto kdl::target::type_template::add_binary_field(const kdl::target::type_template::binary_field field) -> void
+auto kdl::build_target::type_template::add_binary_field(const kdl::build_target::type_template::binary_field field) -> void
 {
     m_fields.emplace_back(field);
 }
 
-auto kdl::target::type_template::add_binary_field(const std::string label, const kdl::target::binary_type type) -> void
+auto kdl::build_target::type_template::add_binary_field(const lexeme label, const kdl::build_target::binary_type type) -> void
 {
-    binary_field field;
-    field.label = label;
-    field.type = type;
-    add_binary_field(field);
+    add_binary_field(binary_field(label, type));
 }
 
 // MARK: - Field Look Up
 
-auto kdl::target::type_template::binary_field_count() const -> std::size_t
+auto kdl::build_target::type_template::binary_field_count() const -> std::size_t
 {
     return m_fields.size();
 }
 
-auto kdl::target::type_template::binary_field_at(const std::size_t n) const -> kdl::target::type_template::binary_field
+auto kdl::build_target::type_template::binary_field_at(const std::size_t n) const -> kdl::build_target::type_template::binary_field
 {
     return m_fields.at(n);
 }
 
-auto kdl::target::type_template::binary_field_named(const std::string name) const -> kdl::target::type_template::binary_field
+auto kdl::build_target::type_template::binary_field_named(const std::string name) const -> kdl::build_target::type_template::binary_field
 {
-    binary_field_named(lexeme(name, lexeme::identifier));
+    return binary_field_named(lexeme(name, lexeme::identifier));
 }
 
-auto kdl::target::type_template::binary_field_named(const kdl::lexeme lx) -> kdl::target::type_template::binary_field
+auto kdl::build_target::type_template::binary_field_named(const kdl::lexeme lx) const -> kdl::build_target::type_template::binary_field
 {
+    return binary_field_at(binary_field_index(lx));
+}
+
+auto kdl::build_target::type_template::binary_field_index(const std::string name) const -> int
+{
+    return binary_field_index(lexeme(name, lexeme::identifier));
+}
+
+auto kdl::build_target::type_template::binary_field_index(const kdl::lexeme lx) const -> int
+{
+    auto i = 0;
     for (auto f : m_fields) {
-        if (lx.is(f.label)) {
-            return f;
+        if (lx.is(f.label.text())) {
+            return i;
         }
+        ++i;
     }
     log::fatal_error(lx, 1, "Could not find binary field '" + lx.text() + "' inside template.");
+}
+
+// MARK: - Binary Field Construction
+
+kdl::build_target::type_template::binary_field::binary_field(const kdl::lexeme label,
+                                                             const kdl::build_target::binary_type type)
+    : label(label), type(type)
+{
+
 }
