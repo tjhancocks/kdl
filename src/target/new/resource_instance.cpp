@@ -238,7 +238,14 @@ auto kdl::build_target::resource_instance::assemble() const -> std::shared_ptr<g
                 break;
             }
             case build_target::HEXD: {
-                writer.write_pstr(std::any_cast<std::string>(wrapped_value));
+                if (wrapped_value.type() == typeid(std::vector<char>)) {
+                    auto bytes = std::any_cast<std::vector<char>>(wrapped_value);
+                    writer.write_bytes(bytes);
+                }
+                else if (wrapped_value.type() == typeid(std::vector<uint8_t>)) {
+                    auto bytes = std::any_cast<std::vector<uint8_t>>(wrapped_value);
+                    writer.write_bytes(bytes);
+                }
                 break;
             }
             case build_target::PSTR:

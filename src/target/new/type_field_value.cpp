@@ -107,3 +107,30 @@ auto kdl::build_target::type_field_value::value_for(const lexeme symbol) const -
     }
     log::fatal_error(symbol, 1, "Unrecognised symbol name '" + symbol.text() + "'");
 }
+
+// MARK: - Conversions
+
+auto kdl::build_target::type_field_value::set_conversion_map(const std::tuple<lexeme, lexeme> map) -> void
+{
+    m_conversion_map = map;
+}
+
+auto kdl::build_target::type_field_value::set_conversion_map(const kdl::lexeme input, const kdl::lexeme output) -> void
+{
+    m_conversion_map = std::make_tuple(input, output);
+}
+
+auto kdl::build_target::type_field_value::has_conversion_defined() const -> bool
+{
+    return m_conversion_map.has_value();
+}
+
+auto kdl::build_target::type_field_value::conversion_input() const -> lexeme
+{
+    return std::get<0>(m_conversion_map.value());
+}
+
+auto kdl::build_target::type_field_value::conversion_output() const -> lexeme
+{
+    return std::get<1>(m_conversion_map.value());
+}

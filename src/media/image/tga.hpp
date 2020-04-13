@@ -67,7 +67,9 @@ namespace kdl { namespace media { namespace image {
 
     public:
         tga(const std::string path);
+        tga(std::shared_ptr<std::vector<char>> data);
 
+        auto surface() -> std::weak_ptr<graphite::qd::surface>;
     };
 
 }}};

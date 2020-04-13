@@ -33,6 +33,13 @@ kdl::media::image::tga::tga(const std::string path)
     decode(reader);
 }
 
+kdl::media::image::tga::tga(std::shared_ptr<std::vector<char>> data)
+{
+    auto ptr = std::make_shared<graphite::data::data>(data, data->size(), 0, graphite::data::data::lsb);
+    graphite::data::reader reader(ptr, 0);
+    decode(reader);
+}
+
 // MARK: - Decoding
 
 auto kdl::media::image::tga::decode(graphite::data::reader &reader) -> bool
@@ -113,24 +120,31 @@ auto kdl::media::image::tga::decode(graphite::data::reader &reader) -> bool
                 throw std::logic_error("Illegal data_type_code encountered: " + std::to_string(header.data_type_code));
             }
         }
-
-        // Finished
-        return true;
     }
+
+    // Finished
+    return true;
 }
 
 auto kdl::media::image::tga::merge_bytes(const int position, const std::vector<char> bytes, const int offset, const int size) -> void
 {
     if (size == 4) {
-        m_surface->set(position, graphite::qd::color(bytes[2], bytes[1], bytes[0], bytes[3]));
+        m_surface->set(position, graphite::qd::color(bytes[offset + 2], bytes[offset + 1], bytes[offset + 0], bytes[offset + 3]));
     }
     else if (size == 3) {
-        m_surface->set(position, graphite::qd::color(bytes[2], bytes[1], bytes[0], 255));
+        m_surface->set(position, graphite::qd::color(bytes[offset + 2], bytes[offset + 1], bytes[offset + 0], 255));
     }
     else if (size == 2) {
-        m_surface->set(position, graphite::qd::color((bytes[1] & 0x7c) << 1,
-                                                     ((bytes[1] & 0x03) << 6) | ((bytes[0] & 0xe0) >> 2),
-                                                     (bytes[0] & 0x1f) << 3,
-                                                     bytes[1] & 0x80));
+        m_surface->set(position, graphite::qd::color((bytes[offset + 1] & 0x7c) << 1,
+                                                     ((bytes[offset + 1] & 0x03) << 6) | ((bytes[offset + 0] & 0xe0) >> 2),
+                                                     (bytes[offset + 0] & 0x1f) << 3,
+                                                     bytes[offset + 1] & 0x80));
     }
+}
+
+// MARK: - Accessors
+
+auto kdl::media::image::tga::surface() -> std::weak_ptr<graphite::qd::surface>
+{
+    return m_surface;
 }

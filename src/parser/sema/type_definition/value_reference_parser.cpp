@@ -23,6 +23,7 @@
 #include "parser/sema/type_definition/name_extension_parser.hpp"
 #include "parser/sema/type_definition/kdl_type_parser.hpp"
 #include "parser/sema/type_definition/symbol_list_parser.hpp"
+#include "parser/sema/type_definition/conversion_parser.hpp"
 
 // MARK: - Constructor
 
@@ -60,6 +61,11 @@ auto kdl::sema::value_reference_parser::parse() -> kdl::build_target::type_field
         // TODO: Perform type checking here...
 
         ref.set_default_value(m_parser.read());
+    }
+
+    // Check for a type/data conversion.
+    if (m_parser.expect({ expectation(lexeme::identifier, "__conversion").be_true() })) {
+        ref.set_conversion_map(conversion_parser(m_parser).parse());
     }
 
     // Check for a symbol list.

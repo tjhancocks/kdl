@@ -40,6 +40,7 @@ namespace kdl { namespace build_target {
         std::optional<lexeme> m_default_value;
         std::vector<std::tuple<lexeme, lexeme>> m_symbols;
         std::vector<lexeme> m_name_extensions;
+        std::optional<std::tuple<lexeme, lexeme>> m_conversion_map;
 
     public:
         type_field_value(const lexeme base_name);
@@ -60,6 +61,12 @@ namespace kdl { namespace build_target {
 
         auto set_name_extensions(const std::vector<lexeme> name_extensions) -> void;
         auto add_name_extension(const lexeme ext) -> void;
+
+        auto set_conversion_map(const std::tuple<lexeme, lexeme> map) -> void;
+        auto set_conversion_map(const lexeme input, const lexeme output) -> void;
+        auto has_conversion_defined() const -> bool;
+        auto conversion_input() const -> lexeme;
+        auto conversion_output() const -> lexeme;
     };
 
 }};

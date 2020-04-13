@@ -1,0 +1,17 @@
+@type MacintoshPicture : "PICT" {
+	template {
+		HEXD Data;
+	};
+
+	field("File") {
+		` The data should be imported from an image file and converted to a 
+		` PICT format. The
+		Data as File<TGA> __conversion($InputFormat, PICT);
+	};
+};
+
+declare MacintoshPicture {
+	new(#128) {
+		File = import "@rpath/TestImage.tga";
+	};
+};

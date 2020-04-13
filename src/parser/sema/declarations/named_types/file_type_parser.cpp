@@ -20,6 +20,7 @@
 
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/named_types/file_type_parser.hpp"
+#include "media/conversion.hpp"
 
 // MARK: - Constructor
 
@@ -58,6 +59,31 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
     if (import_file) {
         auto path = target->resolve_src_path(string_value);
         string_value = kdl::file(path).contents();
+    }
+
+    // Check if we need to perform a conversion on the file data.
+    if (m_field_value.has_conversion_defined()) {
+        // Get the defined input format.
+        std::vector<lexeme> valid_input_formats;
+        if (m_field_value.conversion_input().is(lexeme::var, "InputFormat")) {
+            // The conversion is expecting the File to carry it's own input type.
+            valid_input_formats = m_explicit_type.type_hints();
+        }
+        else {
+            // The conversion has specified exactly what is going to happen. The file type hints will be ignored.
+            valid_input_formats.emplace_back(m_field_value.conversion_input());
+        }
+
+        // For now we expect only a single input type.
+        if (valid_input_formats.empty() || valid_input_formats.size() > 1) {
+            log::fatal_error(m_field_value.conversion_input(), 1, "Bad conversion map. Unable to deduce input format.");
+        }
+
+        // Perform the conversion
+        auto input_format = valid_input_formats.at(0);
+        auto output_format = m_field_value.conversion_output();
+        auto output = kdl::media::conversion(string_value, input_format, output_format).perform_conversion();
+        string_value = std::string(output.begin(), output.end());
     }
 
     // Get the value type for the field, and the set it.
