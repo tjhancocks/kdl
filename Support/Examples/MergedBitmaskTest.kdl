@@ -1,0 +1,24 @@
+@type MergedBitmask : "MBMK" {
+	template {
+		HWRD Flags1;
+		DWRD Zero;
+		HWRD Flags2;
+	};
+
+	field("Flags") {
+		Flags1 as Bitmask [
+			OptionSet1a = 0x0010,
+			OptionSet1b = 0x0020,
+		];
+		Flags2 as Bitmask [
+			OptionSet2a = 0x0100,
+			OptionSet2b = 0x0020,
+		];
+	};
+};
+
+@example declare MergedBitmask {
+	new (#128) {
+		Flags = OptionSet1a | OptionSet1b | OptionSet2a | OptionSet2b;
+	};
+};

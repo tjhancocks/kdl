@@ -28,13 +28,13 @@
 
 kdl::sema::named_value_parser::named_value_parser(kdl::sema::parser &parser, kdl::build_target::type_field &field,
                                                   kdl::build_target::type_field_value &field_value,
-                                                  kdl::build_target::type_template::binary_field binary_field,
+                                                  std::vector<kdl::build_target::type_template::binary_field> binary_fields,
                                                   kdl::build_target::kdl_type &type,
                                                   std::weak_ptr<kdl::target> target)
     : m_parser(parser),
       m_explicit_type(type),
       m_field(field),
-      m_binary_field(binary_field),
+      m_binary_fields(binary_fields),
       m_field_value(field_value),
       m_target(target)
 {
@@ -48,15 +48,15 @@ auto kdl::sema::named_value_parser::parse(kdl::build_target::resource_instance &
     auto type_name = m_explicit_type.name().value();
 
     if (type_name.is("File")) {
-        file_type_parser(m_parser, m_field, m_field_value, m_binary_field, m_explicit_type, m_target)
+        file_type_parser(m_parser, m_field, m_field_value, m_binary_fields.back(), m_explicit_type, m_target)
                 .parse(instance);
     }
     else if (type_name.is("Bitmask")) {
-        bitmask_parser(m_parser, m_field, m_field_value, m_binary_field, m_explicit_type)
+        bitmask_parser(m_parser, m_field, m_field_value, m_binary_fields, m_explicit_type)
                 .parse(instance);
     }
     else if (type_name.is("Range")) {
-        range_parser(m_parser, m_field, m_field_value, m_binary_field, m_explicit_type)
+        range_parser(m_parser, m_field, m_field_value, m_binary_fields.back(), m_explicit_type)
                 .parse(instance);
     }
     else if (type_name.is("Color")) {

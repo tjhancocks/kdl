@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "parser/sema/type_definition/binary_field.hpp"
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/field_parser.hpp"
 #include "parser/sema/declarations/unnamed_reference_value_parser.hpp"
@@ -58,10 +59,13 @@ auto kdl::sema::field_parser::parse() -> void
         auto field_value = field.value_at(n);
 
         // TODO: This is a slight hack, but it works for now.
-        auto extended_name = field_value.extended_name({
-            std::make_pair("FieldNumber", lexeme(std::to_string(lock), lexeme::integer))
-        });
-        auto binary_field = m_type.internal_template().binary_field_named(extended_name);
+        std::vector<build_target::type_template::binary_field> binary_fields;
+        for (auto i = 0; i < field_value.joined_value_count() + 1; ++i) {
+            auto extended_name = (i == 0 ? field_value : field_value.joined_value_at(i - 1)).extended_name({
+                std::make_pair("FieldNumber", lexeme(std::to_string(lock), lexeme::integer))
+            });
+            binary_fields.emplace_back(m_type.internal_template().binary_field_named(extended_name));
+        }
 
         if (m_parser.expect({ expectation(lexeme::semi).be_true() })) {
             // There are no more values provided for the field, so we need to use default values.
@@ -80,25 +84,25 @@ auto kdl::sema::field_parser::parse() -> void
             // There are several forms an explicit type can take.
             if (explicit_type.name().has_value() && explicit_type.is_reference()) {
                 // TODO: This should be a named reference.
-                unnamed_reference_value_parser(m_parser, field, field_value, binary_field, explicit_type)
+                unnamed_reference_value_parser(m_parser, field, field_value, binary_fields.back(), explicit_type)
                         .parse(m_instance);
             }
             else if (explicit_type.name().has_value()) {
-                named_value_parser(m_parser, field, field_value, binary_field, explicit_type, m_target)
+                named_value_parser(m_parser, field, field_value, binary_fields, explicit_type, m_target)
                         .parse(m_instance);
             }
             else if (explicit_type.is_reference()) {
-                unnamed_reference_value_parser(m_parser, field, field_value, binary_field, explicit_type)
+                unnamed_reference_value_parser(m_parser, field, field_value, binary_fields.back(), explicit_type)
                         .parse(m_instance);
             }
             else {
-                throw std::logic_error("Impossible explicit type encounterd - Any");
+                throw std::logic_error("Impossible explicit type encountered - Any");
             }
         }
 
         // Or are we looking at an implicitly provided type.
         else {
-            implicit_value_parser(m_parser, field, field_value, binary_field)
+            implicit_value_parser(m_parser, field, field_value, binary_fields.back())
                     .parse(m_instance);
         }
     }

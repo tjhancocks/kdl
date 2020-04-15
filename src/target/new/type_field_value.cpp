@@ -134,3 +134,45 @@ auto kdl::build_target::type_field_value::conversion_output() const -> lexeme
 {
     return std::get<1>(m_conversion_map.value());
 }
+
+// MARK: - Joined Values
+
+auto kdl::build_target::type_field_value::join_value(const kdl::build_target::type_field_value value) -> void
+{
+    m_joined_values.emplace_back(value);
+}
+
+auto kdl::build_target::type_field_value::joined_value_count() const -> std::size_t
+{
+    return m_joined_values.size();
+}
+
+auto kdl::build_target::type_field_value::joined_value_for(
+        const kdl::lexeme symbol) const -> std::optional<std::tuple<int, lexeme>>
+{
+    // Check if the symbol is in this. If it is return an empty optional.
+    for (auto value : m_symbols) {
+        if (std::get<0>(value).is(symbol.text())) {
+            return {};
+        }
+    }
+
+    // Now check through each of the joined values for the symbol, return the type_field_value instance and the value
+    // of the symbol, if it is found.
+    int i = 0;
+    for (auto field_value : m_joined_values) {
+        for (auto value : field_value.m_symbols) {
+            if (std::get<0>(value).is(symbol.text())) {
+                return std::tuple(i, std::get<1>(value));
+            }
+        }
+        ++i;
+    }
+
+    log::fatal_error(symbol, 1, "Unrecognised symbol name '" + symbol.text() + "'");
+}
+
+auto kdl::build_target::type_field_value::joined_value_at(const int i) -> kdl::build_target::type_field_value
+{
+    return m_joined_values.at(i);
+}

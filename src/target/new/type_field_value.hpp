@@ -41,6 +41,7 @@ namespace kdl { namespace build_target {
         std::vector<std::tuple<lexeme, lexeme>> m_symbols;
         std::vector<lexeme> m_name_extensions;
         std::optional<std::tuple<lexeme, lexeme>> m_conversion_map;
+        std::vector<type_field_value> m_joined_values;
 
     public:
         type_field_value(const lexeme base_name);
@@ -67,6 +68,11 @@ namespace kdl { namespace build_target {
         auto has_conversion_defined() const -> bool;
         auto conversion_input() const -> lexeme;
         auto conversion_output() const -> lexeme;
+
+        auto join_value(const type_field_value value) -> void;
+        auto joined_value_count() const -> std::size_t;
+        auto joined_value_at(const int i) -> type_field_value;
+        auto joined_value_for(const lexeme symbol) const -> std::optional<std::tuple<int, lexeme>>;
     };
 
 }};

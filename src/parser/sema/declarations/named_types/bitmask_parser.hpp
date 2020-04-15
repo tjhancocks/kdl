@@ -32,11 +32,11 @@ namespace kdl { namespace sema {
         build_target::kdl_type& m_explicit_type;
         build_target::type_field& m_field;
         build_target::type_field_value& m_field_value;
-        build_target::type_template::binary_field m_binary_field;
+        std::vector<build_target::type_template::binary_field> m_binary_fields;
     public:
         bitmask_parser(parser& parser, build_target::type_field& field,
                        build_target::type_field_value& field_value,
-                       build_target::type_template::binary_field binary_field,
+                       std::vector<build_target::type_template::binary_field> binary_fields,
                        build_target::kdl_type& type);
 
         auto parse(build_target::resource_instance& instance) -> void;

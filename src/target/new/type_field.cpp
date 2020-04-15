@@ -43,8 +43,21 @@ auto kdl::build_target::type_field::name() const -> kdl::lexeme
 
 // MARK: - Value Management
 
+static inline auto __is_bitmask(const kdl::build_target::type_field_value& value) -> bool
+{
+    return value.explicit_type().has_value()
+        && value.explicit_type().value().name().has_value()
+        && value.explicit_type().value().name().value().is("Bitmask")
+        && !value.explicit_type().value().is_reference();
+}
+
 auto kdl::build_target::type_field::add_value(const kdl::build_target::type_field_value value) -> void
 {
+    // Merge bitmasks together.
+    if (m_values.size() > 0 && __is_bitmask(value) && __is_bitmask(m_values.back())) {
+        m_values.back().join_value(value);
+        return;
+    }
     m_values.emplace_back(value);
 }
 
