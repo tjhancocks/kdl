@@ -56,6 +56,7 @@ namespace kdl { namespace build_target {
 
         auto field_use_count(const lexeme field) const -> int;
         auto acquire_field(const lexeme field, const int initial_count = 0) -> int;
+        auto reset_acquistion_locks() -> void;
 
         auto write_byte(const type_field field, const type_field_value field_value, const uint8_t value) -> void;
         auto write_short(const type_field field, const type_field_value field_value, const uint16_t value) -> void;

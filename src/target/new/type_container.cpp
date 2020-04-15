@@ -87,6 +87,10 @@ auto kdl::build_target::type_container::field_named(const kdl::lexeme name) -> k
     }
     log::fatal_error(name, 1, "The field '" + name.text() + "' could not be found in type '" + m_name + "'");
 }
+auto kdl::build_target::type_container::all_fields() const -> std::vector<type_field>
+{
+    return m_fields;
+}
 
 // MARK: - Instance
 

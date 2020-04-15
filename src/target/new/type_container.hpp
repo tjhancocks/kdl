@@ -60,6 +60,7 @@ namespace kdl { namespace build_target {
         auto add_field(const lexeme name) -> type_field&;
         auto add_field(const type_field field) -> void;
         auto field_named(const lexeme name) -> type_field;
+        auto all_fields() const -> std::vector<type_field>;
 
         auto assertions() const -> std::vector<assertion>;
         auto add_assertion(const assertion assertion) -> void;

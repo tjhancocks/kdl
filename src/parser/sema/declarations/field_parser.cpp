@@ -107,3 +107,64 @@ auto kdl::sema::field_parser::parse() -> void
         }
     }
 }
+
+auto kdl::sema::field_parser::apply_defaults_for_field(const lexeme field_name) -> void
+{
+    auto field = m_type.field_named(field_name);
+
+    // Iterate over the number of expected instances of the field
+    for (auto field_number = field.lower_repeat_bound(); field_number <= field.upper_repeat_bound(); ++field_number) {
+        auto lock = m_instance.acquire_field(field_name, field.lower_repeat_bound());
+
+        // Iterate over the expected values for the field.
+        for (auto n = 0; n < field.expected_values(); ++n) {
+            auto field_value = field.value_at(n);
+
+            // Do we have a default value - if not break out of this value and move to the next field
+            if (!field_value.default_value().has_value()) {
+                break;
+            }
+
+            // Handle joined/merged values.
+            std::vector<build_target::type_template::binary_field> binary_fields;
+            for (auto i = 0; i < field_value.joined_value_count() + 1; ++i) {
+                auto extended_name = (i == 0 ? field_value : field_value.joined_value_at(i - 1)).extended_name({
+                    std::make_pair("FieldNumber", lexeme(std::to_string(lock), lexeme::integer))
+                });
+                binary_fields.emplace_back(m_type.internal_template().binary_field_named(extended_name));
+            }
+
+            // Push a default value in preparation for inserting a default value.
+            m_parser.push(field_value.default_value().value());
+
+            // Are we looking at an explicitly provided type?
+            if (field_value.explicit_type().has_value()) {
+                auto explicit_type = field_value.explicit_type().value();
+
+                // There are several forms an explicit type can take.
+                if (explicit_type.name().has_value() && explicit_type.is_reference()) {
+                    // TODO: This should be a named reference.
+                    unnamed_reference_value_parser(m_parser, field, field_value, binary_fields.back(), explicit_type)
+                            .parse(m_instance);
+                }
+                else if (explicit_type.name().has_value()) {
+                    named_value_parser(m_parser, field, field_value, binary_fields, explicit_type, m_target)
+                            .parse(m_instance);
+                }
+                else if (explicit_type.is_reference()) {
+                    unnamed_reference_value_parser(m_parser, field, field_value, binary_fields.back(), explicit_type)
+                            .parse(m_instance);
+                }
+                else {
+                    throw std::logic_error("Impossible explicit type encountered on default field values - Any");
+                }
+            }
+
+                // Or are we looking at an implicitly provided type.
+            else {
+                implicit_value_parser(m_parser, field, field_value, binary_fields.back())
+                        .parse(m_instance);
+            }
+        }
+    }
+}

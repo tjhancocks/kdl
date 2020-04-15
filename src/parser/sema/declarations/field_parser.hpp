@@ -38,6 +38,7 @@ namespace kdl { namespace sema {
         field_parser(parser& parser, build_target::type_container& type, build_target::resource_instance& instance, std::weak_ptr<target> target);
 
         auto parse() -> void;
+        auto apply_defaults_for_field(const lexeme field_name) -> void;
     };
 
 }}

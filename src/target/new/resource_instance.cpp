@@ -71,6 +71,11 @@ auto kdl::build_target::resource_instance::acquire_field(const kdl::lexeme field
     return n;
 }
 
+auto kdl::build_target::resource_instance::reset_acquistion_locks() -> void
+{
+    m_field_counts.clear();
+}
+
 // MARK: - Name Extensions
 
 auto kdl::build_target::resource_instance::available_name_extensions(const type_field field) const -> std::map<std::string, lexeme>
@@ -98,7 +103,7 @@ auto kdl::build_target::resource_instance::index_of(const std::string field) con
 
 auto kdl::build_target::resource_instance::write(const std::string field, std::any value) -> void
 {
-    m_values.emplace(index_of(field), value);
+    m_values[index_of(field)] = value;
 }
 
 auto kdl::build_target::resource_instance::write_byte(const type_field field, const type_field_value field_value, const uint8_t value) -> void

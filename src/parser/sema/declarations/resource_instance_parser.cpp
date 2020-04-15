@@ -78,7 +78,13 @@ auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource
         }
     }
 
+    // Acquire a new instance of the resource and populate it with default values.
     auto instance = m_type.new_instance(m_id, m_name);
+    for (auto field : m_type.all_fields()) {
+        field_parser(m_parser, m_type, instance, m_target).apply_defaults_for_field(field.name());
+    }
+    instance.reset_acquistion_locks();
+
     m_parser.ensure({ expectation(lexeme::l_brace).be_true() });
     while (m_parser.expect({ expectation(lexeme::r_brace).be_false() })) {
         field_parser(m_parser, m_type, instance, m_target).parse();
