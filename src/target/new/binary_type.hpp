@@ -79,6 +79,7 @@ namespace kdl { namespace build_target {
     };
 
     auto binary_type_for_name(const std::string name) -> enum binary_type;
+    auto binary_type_base_size(enum binary_type) -> std::size_t;
 
 }};
 

@@ -190,7 +190,7 @@ auto kdl::build_target::resource_instance::assemble() const -> std::shared_ptr<g
         auto index = index_of(field_name.text());
 
         if (m_values.find(index) == m_values.end()) {
-            // TODO: Handle a missing value
+            writer.write_byte(0, build_target::binary_type_base_size(type));
             continue;
         }
 

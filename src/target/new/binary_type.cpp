@@ -124,3 +124,36 @@ auto kdl::build_target::binary_type_for_name(const std::string name) -> enum bin
 
     return binary_type::INVALID;
 };
+
+auto kdl::build_target::binary_type_base_size(enum binary_type type) -> std::size_t
+{
+    switch (type & ~0xFFF) {
+        case binary_type::CSTR:
+        case binary_type::PSTR:
+        case binary_type::HBYT:
+        case binary_type::DBYT: {
+            return 1;
+        }
+        case binary_type::HWRD:
+        case binary_type::DWRD: {
+            return 2;
+        }
+        case binary_type::HLNG:
+        case binary_type::DLNG: {
+            return 4;
+        }
+        case binary_type::RECT:
+        case binary_type::HQAD:
+        case binary_type::DQAD: {
+            return 8;
+        }
+        case binary_type::Cnnn: {
+            return type & 0xFFF;
+        }
+        case binary_type::HEXD: {
+            return 0;
+        }
+        default:
+            return 0;
+    }
+}
