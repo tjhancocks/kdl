@@ -50,7 +50,7 @@ auto kdl::sema::parser::parse() -> void
             declaration_parser(*this, m_target).parse();
         }
         else if (expect({ expectation(lexeme::directive).be_true() })) {
-            asm_directive(*this).parse();
+            asm_directive(*this, m_target).parse();
         }
         else if (expect({ expectation(lexeme::identifier, "declare").be_true() })) {
             auto declarations = declaration_parser(*this, m_target).parse();
@@ -153,5 +153,20 @@ auto kdl::sema::parser::ensure(std::initializer_list<kdl::sema::expectation::fun
         if (f(Tk) == false) {
             log::fatal_error(Tk, 1, "Could not ensure the correctness of the token '" + Tk.text() + "'");
         }
+    }
+}
+
+// MARK: - Lexeme Insertion
+
+auto kdl::sema::parser::insert(std::vector<lexeme> lexemes, const int offset) -> void
+{
+    if (finished(offset, 1)) {
+        // We trying to insert at the end of the stream.
+        m_lexemes.insert(m_lexemes.end(), lexemes.begin(), lexemes.end());
+    }
+    else {
+        // We're inserting mid stream.
+        auto insertion_ptr = m_lexemes.begin() + m_ptr + offset;
+        m_lexemes.insert(insertion_ptr, lexemes.begin(), lexemes.end());
     }
 }

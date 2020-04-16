@@ -18,35 +18,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "diagnostic/fatal.hpp"
-#include "parser/sema/directives/directive_parser.hpp"
-#include "parser/sema/directives/out_directive_parser.hpp"
-#include "parser/sema/directives/import_directive_parser.hpp"
+#if !defined(KDL_IMPORT_DIRECTIVE_PARSER_HPP)
+#define KDL_IMPORT_DIRECTIVE_PARSER_HPP
 
-// MARK: - Constructor
+#include "parser/parser.hpp"
 
-kdl::sema::asm_directive::asm_directive(kdl::sema::parser &parser, std::weak_ptr<target> target)
-    : m_parser(parser), m_target(target)
-{
+namespace kdl { namespace sema {
 
-}
+    class import_directive_parser
+    {
+    public:
+        static auto parse(parser& parser, std::weak_ptr<target> target) -> void;
+    };
 
-// MARK: - Parser
+}};
 
-auto kdl::sema::asm_directive::parse() -> void
-{
-    if (!m_parser.expect({ expectation(lexeme::directive).be_true() })) {
-        log::fatal_error(m_parser.peek(), 1, "A '@' (directive) identifier expected");
-    }
-    auto directive = m_parser.read();
-
-    if (directive.text() == "out") {
-        out_directive_parser::parse(m_parser);
-    }
-    else if (directive.text() == "import") {
-        import_directive_parser::parse(m_parser, m_target);
-    }
-    else {
-        log::fatal_error(directive, 1, "Unrecognised directive '" + directive.text() + "'");
-    }
-}
+#endif //KDL_IMPORT_DIRECTIVE_PARSER_HPP

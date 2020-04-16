@@ -19,34 +19,31 @@
 // SOFTWARE.
 
 #include "diagnostic/fatal.hpp"
-#include "parser/sema/directives/directive_parser.hpp"
-#include "parser/sema/directives/out_directive_parser.hpp"
+#include "parser/lexer.hpp"
 #include "parser/sema/directives/import_directive_parser.hpp"
-
-// MARK: - Constructor
-
-kdl::sema::asm_directive::asm_directive(kdl::sema::parser &parser, std::weak_ptr<target> target)
-    : m_parser(parser), m_target(target)
-{
-
-}
 
 // MARK: - Parser
 
-auto kdl::sema::asm_directive::parse() -> void
+auto kdl::sema::import_directive_parser::parse(parser &parser, std::weak_ptr<target> target) -> void
 {
-    if (!m_parser.expect({ expectation(lexeme::directive).be_true() })) {
-        log::fatal_error(m_parser.peek(), 1, "A '@' (directive) identifier expected");
+    if (target.expired()) {
+        throw std::logic_error("Build target has expired. This is a bug!");
     }
-    auto directive = m_parser.read();
+    auto t = target.lock();
 
-    if (directive.text() == "out") {
-        out_directive_parser::parse(m_parser);
+    if (!parser.expect({ expectation(lexeme::string).be_true() })) {
+        log::fatal_error(parser.peek(), 1, "Expected string for include path.");
     }
-    else if (directive.text() == "import") {
-        import_directive_parser::parse(m_parser, m_target);
-    }
-    else {
-        log::fatal_error(directive, 1, "Unrecognised directive '" + directive.text() + "'");
-    }
+    auto include_path = parser.read();
+
+    // Resolve the path/file to be included.
+    auto resolved_include_path = t->resolve_src_path(include_path.text());
+
+    // Open the file and prepare to perform lexical analysis.
+    auto file = std::make_shared<kdl::file>(resolved_include_path);
+    auto lexer = kdl::lexer(file);
+
+    // Perform lexical analysis and insert the lexemes into the parser. As we're still expecting a semi colon to appear,
+    // we need to insert the lexemes _after_ it.
+    parser.insert(lexer.analyze(), 1);
 }

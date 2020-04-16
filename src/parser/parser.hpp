@@ -39,7 +39,7 @@ namespace kdl { namespace sema {
     private:
         std::weak_ptr<target> m_target;
         std::size_t m_ptr { 0 };
-        const std::vector<lexeme> m_lexemes;
+        std::vector<lexeme> m_lexemes;
         std::optional<lexeme> m_tmp_lexeme;
 
     public:
@@ -127,7 +127,7 @@ namespace kdl { namespace sema {
          * Insert new lexemes into the parser at the current location.
          * @param lexemes The list of lexemes to be inserted.
          */
-        auto insert(std::vector<lexeme> lexemes) -> void;
+        auto insert(std::vector<lexeme> lexemes, const int offset = 0) -> void;
 
     };
 

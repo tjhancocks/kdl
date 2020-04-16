@@ -29,9 +29,10 @@ namespace kdl { namespace sema {
     {
     private:
         parser& m_parser;
+        std::weak_ptr<target> m_target;
 
     public:
-        asm_directive(parser& parser);
+        asm_directive(parser& parser, std::weak_ptr<target> target);
 
         auto parse() -> void;
     };

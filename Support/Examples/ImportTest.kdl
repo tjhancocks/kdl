@@ -1,0 +1,2 @@
+@import "@rpath/MacroTest.kdl";
+@out "Succesfully imported MacroTest.kdl!";
