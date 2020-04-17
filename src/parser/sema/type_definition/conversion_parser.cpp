@@ -43,7 +43,7 @@ auto kdl::sema::conversion_parser::parse() -> std::tuple<lexeme, lexeme>
     list.set_delimiter(lexeme::comma);
     list.add_valid_list_item(lexeme::identifier, "PICT");
     list.add_valid_list_item(lexeme::identifier, "TGA");
-    list.add_valid_list_item(lexeme::identifier, "CICN");
+    list.add_valid_list_item(lexeme::identifier, "cicn");
     list.add_valid_list_item(lexeme::identifier, "rleD");
     list.add_valid_list_item(lexeme::identifier, "ppat");
     list.add_valid_list_item(lexeme::var, "InputFormat");

@@ -42,6 +42,10 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
     if (m_input_file_format.is("TGA") && m_output_file_format.is("PICT")) {
         return __tga_to_pict();
     }
+    // TGA -> cicn
+    else if (m_input_file_format.is("TGA") && m_output_file_format.is("cicn")) {
+        return __tga_to_cicn();
+    }
 
     log::fatal_error(m_input_file_format, 1, "Unable to perform conversion between '" + m_input_file_format.text() + "' and '" + m_output_file_format.text() + "'");
 }
@@ -57,4 +61,15 @@ auto kdl::media::conversion::__tga_to_pict() const -> std::vector<char>
     auto pict_data = pict.data();
 
     return std::vector<char>(pict_data->get()->begin(), pict_data->get()->end());
+}
+
+auto kdl::media::conversion::__tga_to_cicn() const -> std::vector<char>
+{
+    image::tga tga(m_input_file_contents);
+    auto tga_surface = tga.surface().lock();
+
+    graphite::qd::cicn cicn(tga_surface);
+    auto cicn_data = cicn.data();
+
+    return std::vector<char>(cicn_data->get()->begin(), cicn_data->get()->end());
 }
