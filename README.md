@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/tjhancocks/kdl.svg?branch=master)](https://travis-ci.org/tjhancocks/kdl) [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/tjhancocks/kdl/blob/master/LICENSE) [![GitHub release](https://img.shields.io/github/release/Naereen/StrapDown.js.svg)](https://gitHub.com/tjhancocks/kdl/releases/)
+
 # KDL (Kestrel Development Language)
 This is an ancillary project of Kestrel, and acts as the primary development kit
 for the Kestrel Game Engine.
