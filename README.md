@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/tjhancocks/kdl.svg?branch=master)](https://travis-ci.org/tjhancocks/kdl) [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/tjhancocks/kdl/blob/master/LICENSE) [![GitHub release](https://img.shields.io/github/release/Naereen/StrapDown.js.svg)](https://gitHub.com/tjhancocks/kdl/releases/)
+[![Build Status](https://travis-ci.org/tjhancocks/kdl.svg?branch=master)](https://travis-ci.org/tjhancocks/kdl) 
+[![Version](https://img.shields.io/badge/version-v0.1.2-orange.svg)](#) [![Version](https://img.shields.io/badge/licennse-MIT-blue.svg)](#)
 
 # KDL (Kestrel Development Language)
 This is an ancillary project of Kestrel, and acts as the primary development kit
