@@ -86,7 +86,12 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
             }
 
             consume_while(decimal_set::contains);
-            m_lexemes.emplace_back(kdl::lexeme(m_slice, lexeme::res_id, m_pos, m_offset, m_line, m_source));
+            if (negative) {
+                m_lexemes.emplace_back(kdl::lexeme("-" + m_slice, lexeme::res_id, m_pos, m_offset, m_line, m_source));
+            }
+            else {
+                m_lexemes.emplace_back(kdl::lexeme(m_slice, lexeme::res_id, m_pos, m_offset, m_line, m_source));
+            }
         }
         else if (test_if(match<'$'>::yes)) {
             // We're looking at a variable.
@@ -109,14 +114,17 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
 
             consume_while(decimal_set::contains);
             auto number_text = m_slice;
+            if (negative) {
+                number_text = "-" + number_text;
+            }
 
             if (test_if(match<'%'>::yes)) {
                 // This is a percentage.
                 advance();
-                m_lexemes.emplace_back(kdl::lexeme(m_slice, lexeme::percentage, m_pos, m_offset, m_line, m_source));
+                m_lexemes.emplace_back(kdl::lexeme(number_text, lexeme::percentage, m_pos, m_offset, m_line, m_source));
             }
             else {
-                m_lexemes.emplace_back(kdl::lexeme(m_slice, lexeme::integer, m_pos, m_offset, m_line, m_source));
+                m_lexemes.emplace_back(kdl::lexeme(number_text, lexeme::integer, m_pos, m_offset, m_line, m_source));
             }
         }
         else if (test_if(identifier_set::limited_contains)) {
