@@ -20,6 +20,7 @@
 # SOFTWARE.
 
 DIR=$(pwd)
+ORIG_DIR=$(pwd)
 
 if [[ "${DIR}" =~ Support/Tools/$ ]]; then
 	DIR=$(echo ${DIR} | rev | cut -d '/' -f4- | rev)
@@ -84,4 +85,6 @@ chmod 0755 "${DIR}/bin/${OS}/Install"
 
 # Create a zip archive
 VERSION=$(git describe --tags --dirty --match "v*")
-zip -r "${DIR}/bin/KDL-${VERSION}-${OS}.zip" "${DIR}/bin/${OS}"
+cd "${DIR}/bin"
+zip -r "${DIR}/bin/KDL-${VERSION}-${OS}.zip" "${OS}"
+cd "${ORIG_DIR}"
