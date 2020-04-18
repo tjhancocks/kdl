@@ -31,13 +31,25 @@ auto main(int argc, const char **argv) -> int
     auto target = std::make_shared<kdl::target>();
     std::vector<std::shared_ptr<kdl::file>> files;
 
+    // Load in the default system configuration.
+    // TODO: The configuration file should be located in a different location on Windows.
+    auto configuration_file = std::make_shared<kdl::file>("~/.config.kdl");
+    target->set_src_root(configuration_file->path());
+    kdl::sema::parser(target, kdl::lexer(configuration_file).analyze()).parse();
+
     // Parse the arguments supplied to the program.
     for (auto i = 1; i < argc; ++i) {
         // Check for assembler options
         if (argv[i][0] == '-') {
             std::string arg(argv[i]);
 
-            if (arg == "-v" || arg == "--version") {
+            if (arg == "--configuration") {
+                // Specify a configuration file to load over the top of the previous configuration.
+                configuration_file = std::make_shared<kdl::file>("~/.config.kdl");
+                target->set_src_root(configuration_file->path());
+                kdl::sema::parser(target, kdl::lexer(configuration_file).analyze()).parse();
+            }
+            else if (arg == "-v" || arg == "--version") {
                 // Display the version information to the user
                 std::cout << "KDL Version " << KDL_VERSION << std::endl;
                 std::cout << "\t" << KDL_LICENSE << " " << KDL_AUTHORS << std::endl;
