@@ -53,7 +53,8 @@ namespace kdl
 
         auto set_dst_path(const std::string dst_path) -> void;
 
-        auto set_scenario_root(const std::string path) -> void;
+        auto set_scenario_root(std::string_view path) -> void;
+        auto scenario_manifest(std::string_view scenario_name) -> std::string;
 
         auto set_src_root(const std::string src_root) -> void;
         auto resolve_src_path(const std::string path) const -> std::string;
