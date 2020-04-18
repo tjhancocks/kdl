@@ -1,0 +1,29 @@
+@type SymbolTest : "SÿTe" {
+    template {
+        DWRD numeric;
+        CSTR string;
+        DWRD multinum;
+        CSTR multistr;
+    };
+
+    field("numeric") {
+        numeric = B [ A = 1, B = 2];
+    };
+
+    field("string") {
+        string = A [ A = "A", B = "B" ];
+    };
+
+    field("multivalue") {
+        multinum = B [ A = 1, B = 2];
+        multistr = A [ A = "A", B = "B" ];
+    };
+};
+
+declare SymbolTest {
+    new (#128) {
+        numeric = A;
+        string = B;
+        multivalue = A B;
+    };
+};

@@ -20,7 +20,7 @@
     };
 
     field("engine"){
-        engine as Engine&;
+        engine as Engine& [ None = #-1 ];
     };
 
     field("name") {
@@ -43,6 +43,6 @@ declare Vehicle {
 
     new (#129, "Trailer") {
         name = "Trailer";
-        engine = #-1;
+        engine = None;
     };
 };
