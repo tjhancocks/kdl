@@ -23,7 +23,7 @@
 #
 
 ---
-name: KDL 2 (Kestrel Development Kit)
+name: KDL (Kestrel Development Kit)
 file_extensions:
   - kdl
 scope: source.kdl
@@ -33,12 +33,15 @@ contexts:
     - include: single-line-comment
 
   main:
+    - include: configuration
     - include: directive
     - include: resource-declaration
     - include: string-literal
     - include: number-literal
     - include: resource-literal
     - include: percentage-literal
+    - include: variable-literal
+    - include: identifier-literal
 
 # COMMENTS #####################################################################
 
@@ -61,6 +64,17 @@ contexts:
         - include: string-literal
         - match: ';'
           pop: true
+    - match: '((@)(configuration))'
+      captures:
+        1: keyword.kdl
+      set:
+        - match: '\{'
+          scope: punctuation.definition.type.begin.kdl
+          set:
+            - match: '\};'
+              scope: punctuation.definition.type.end.kdl
+              pop: true
+            - include: configuration-key-value
     - match: '((@)(type))[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]*\:[ \t]*(".{4}")'
       captures:
         1: keyword.kdl
@@ -76,6 +90,22 @@ contexts:
             - include: template-definition
             - include: assertion-rule
             - include: field-definition
+
+# CONFIGURATION ################################################################
+
+  configuration-key-value:
+    - match: '([A-Za-z0-9_]+)[ \t]*\=[ \t]*'
+      captures:
+        1: entity.other.attribute-name.kdl
+      push:
+        - include: string-literal
+        - include: identifier-literal
+        - include: number-literal
+        - include: resource-literal
+        - include: percentage-literal
+        - match: ';'
+          pop: true
+
 
 # TYPE DEFINITION ##############################################################
 

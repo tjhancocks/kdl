@@ -17,6 +17,12 @@ namespace kdl
      */
     struct file
     {
+    public:
+        static auto exists(std::string_view path) -> bool;
+        static auto is_directory(std::string_view path) -> bool;
+        static auto create_directory(std::string_view path) -> void;
+        static auto resolve_tilde(std::string_view path) -> std::string;
+
     private:
         std::string m_path;
         std::string m_contents;
@@ -31,7 +37,7 @@ namespace kdl
          * Read the specified file from disk.
          * @param path The path from with the load the file.
          */
-        file(const std::string path);
+        file(std::string_view path);
 
         /**
          * The location of the file on disk. Will be empty if this is a blank file.

@@ -20,8 +20,10 @@
 
 #include <sys/stat.h>
 #include <unistd.h>
+#include <iostream>
 #include "target/target.hpp"
 #include "diagnostic/fatal.hpp"
+#include "parser/file.hpp"
 
 // MARK: - Constructors
 
@@ -61,35 +63,18 @@ auto kdl::target::type_container_named(const kdl::lexeme name) const -> build_ta
 
 // MARK: - Destination Paths
 
-static inline auto __exists(const std::string& path) -> bool
-{
-    struct stat buffer;
-    return (stat(path.c_str(), &buffer) == 0);
-}
-
-static inline auto __is_directory(const std::string& path) -> bool
-{
-    struct stat buffer;
-    return (stat(path.c_str(), &buffer) == 0 && S_ISDIR(buffer.st_mode));
-}
-
-static inline auto __make_directory(const std::string& path) -> void
-{
-    mkdir(path.c_str(), 0700);
-}
-
 auto kdl::target::set_dst_path(const std::string dst_path) -> void
 {
     auto path = dst_path;
     std::string filename;
 
-    if (__exists(path) && !__is_directory(path)) {
+    if (kdl::file::exists(path) && !kdl::file::is_directory(path)) {
         while (path.substr(path.size() - 1) != "/") {
             filename = path.substr(path.size() - 1) + filename;
             path.pop_back();
         }
     }
-    else if (__exists(path) && __is_directory(path)) {
+    else if (kdl::file::exists(path) && kdl::file::is_directory(path)) {
         filename = "result";
     }
     else {
@@ -98,8 +83,8 @@ auto kdl::target::set_dst_path(const std::string dst_path) -> void
             path.pop_back();
         }
 
-        if (!__exists(path)) {
-            __make_directory(path);
+        if (!kdl::file::exists(path)) {
+            kdl::file::is_directory(path);
         }
     }
 
@@ -110,6 +95,34 @@ auto kdl::target::set_dst_path(const std::string dst_path) -> void
 
     m_dst_root = path;
     m_dst_file = filename;
+}
+
+// MARK: - Scenario Paths
+
+auto kdl::target::set_scenario_root(std::string_view path) -> void
+{
+    m_scenario_root = std::string(path);
+
+    if (m_scenario_root.substr(m_scenario_root.size() - 1) == "/") {
+        m_scenario_root.pop_back();
+    }
+}
+
+auto kdl::target::scenario_manifest(std::string_view scenario_name) -> std::string
+{
+    auto path = kdl::file::resolve_tilde(m_scenario_root) + "/" + std::string(scenario_name);
+    if (!kdl::file::exists(path) && !kdl::file::is_directory(path)) {
+        std::cerr << "Could not find scenario named: '" + std::string(scenario_name) + "'." << std::endl;
+        exit(1);
+    }
+
+    path.append("/manifest.kdl");
+    if (!kdl::file::exists(path)) {
+        std::cerr << "Scenario '" + std::string(scenario_name) + "' is missing a 'manifest.kdl' file." << std::endl;
+        exit(1);
+    }
+
+    return path;
 }
 
 // MARK: - Source Paths
@@ -135,7 +148,10 @@ auto kdl::target::set_src_root(const std::string src_root) -> void
 
 auto kdl::target::resolve_src_path(const std::string path) const -> std::string
 {
-    std::string rpath("@rpath");
+    // TODO: Improve this so it actually makes more sense.
+    std::string rpath("@rpath"); // Root Path (Location of Input File)
+    std::string spath("@spath"); // Scenario Path (Location of Scenario Type Definitions)
+    std::string opath("@opath"); // Output Path (Location of Target Output)
 
     if (path.substr(0, rpath.size()) == rpath) {
         return m_src_root + path.substr(rpath.size());

@@ -41,6 +41,7 @@ namespace kdl
         std::string m_dst_root;
         std::string m_dst_file;
         std::string m_src_root;
+        std::string m_scenario_root;
         graphite::rsrc::file::format m_format { graphite::rsrc::file::format::classic };
         std::vector<build_target::type_container> m_type_containers;
         graphite::rsrc::file m_file;
@@ -51,6 +52,9 @@ namespace kdl
         target();
 
         auto set_dst_path(const std::string dst_path) -> void;
+
+        auto set_scenario_root(std::string_view path) -> void;
+        auto scenario_manifest(std::string_view scenario_name) -> std::string;
 
         auto set_src_root(const std::string src_root) -> void;
         auto resolve_src_path(const std::string path) const -> std::string;

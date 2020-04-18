@@ -22,6 +22,7 @@
 #include "parser/sema/directives/directive_parser.hpp"
 #include "parser/sema/directives/out_directive_parser.hpp"
 #include "parser/sema/directives/import_directive_parser.hpp"
+#include "parser/sema/directives/configuration_directive_parser.hpp"
 
 // MARK: - Constructor
 
@@ -45,6 +46,9 @@ auto kdl::sema::asm_directive::parse() -> void
     }
     else if (directive.text() == "import") {
         import_directive_parser::parse(m_parser, m_target);
+    }
+    else if (directive.text() == "configuration") {
+        configuration_directive_parser::parse(m_parser, m_target);
     }
     else {
         log::fatal_error(directive, 1, "Unrecognised directive '" + directive.text() + "'");
