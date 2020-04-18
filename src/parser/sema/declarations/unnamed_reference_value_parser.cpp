@@ -37,10 +37,20 @@ kdl::sema::unnamed_reference_value_parser::unnamed_reference_value_parser(kdl::s
 
 auto kdl::sema::unnamed_reference_value_parser::parse(kdl::build_target::resource_instance &instance) -> void
 {
-    if (!m_parser.expect({ expectation(lexeme::res_id).be_true() })) {
-        log::fatal_error(m_parser.peek(), 1, "The field '" + m_field.name().text() + "' expects as a resource id.");
+    if (!m_parser.expect_any({ expectation(lexeme::identifier).be_true(), expectation(lexeme::res_id).be_true() })) {
+        log::fatal_error(m_parser.peek(), 1, "The field '" + m_field.name().text() + "' expects a symbol or resource id.");
     }
+
     auto ref = m_parser.read();
+    if (ref.is(lexeme::identifier)) {
+        auto symbol_value = m_field_value.value_for(ref);
+
+        if (!symbol_value.is(lexeme::res_id)) {
+            log::fatal_error(m_parser.peek(), 1, "The field '" + m_field.name().text() + "' expects a resource id valued symbol.");
+        }
+
+        ref = symbol_value;
+    }
 
     // Ensure that the underlying type is correct for a reference.
     switch (m_binary_field.type & ~0xFFF) {
