@@ -80,6 +80,11 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
         else if (test_if(match<'#'>::yes)) {
             // We're looking at a resource id.
             advance();
+            auto negative = test_if(match<'-'>::yes);
+            if (negative) {
+                advance();
+            }
+
             consume_while(decimal_set::contains);
             m_lexemes.emplace_back(kdl::lexeme(m_slice, lexeme::res_id, m_pos, m_offset, m_line, m_source));
         }
