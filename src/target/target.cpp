@@ -20,6 +20,7 @@
 
 #include <sys/stat.h>
 #include <unistd.h>
+#include <iostream>
 #include "target/target.hpp"
 #include "diagnostic/fatal.hpp"
 #include "parser/file.hpp"
@@ -98,9 +99,30 @@ auto kdl::target::set_dst_path(const std::string dst_path) -> void
 
 // MARK: - Scenario Paths
 
-auto kdl::target::set_scenario_root(const std::string path) -> void
+auto kdl::target::set_scenario_root(std::string_view path) -> void
 {
-    m_scenario_root = path;
+    m_scenario_root = std::string(path);
+
+    if (m_scenario_root.substr(m_scenario_root.size() - 1) == "/") {
+        m_scenario_root.pop_back();
+    }
+}
+
+auto kdl::target::scenario_manifest(std::string_view scenario_name) -> std::string
+{
+    auto path = kdl::file::resolve_tilde(m_scenario_root) + "/" + std::string(scenario_name);
+    if (!kdl::file::exists(path) && !kdl::file::is_directory(path)) {
+        std::cerr << "Could not find scenario named: '" + std::string(scenario_name) + "'." << std::endl;
+        exit(1);
+    }
+
+    path.append("/manifest.kdl");
+    if (!kdl::file::exists(path)) {
+        std::cerr << "Scenario '" + std::string(scenario_name) + "' is missing a 'manifest.kdl' file." << std::endl;
+        exit(1);
+    }
+
+    return path;
 }
 
 // MARK: - Source Paths

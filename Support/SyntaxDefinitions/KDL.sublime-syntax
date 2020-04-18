@@ -23,10 +23,9 @@
 #
 
 ---
-name: KDL 2 (Kestrel Development Kit)
+name: KDL (Kestrel Development Kit)
 file_extensions:
   - kdl
-  - kdlconfig
 scope: source.kdl
 
 contexts:

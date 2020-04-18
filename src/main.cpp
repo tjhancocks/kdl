@@ -63,6 +63,16 @@ auto main(int argc, const char **argv) -> int
                 // Make we skip over the parameter.
                 i += 1;
             }
+            else if (arg == "-s" || arg == "--scenario") {
+                // Look up the scenario and load it.
+                std::string scenario_name(argv[i + 1]);
+                i += 1;
+                
+                auto scenario_manifest = target->scenario_manifest(scenario_name);
+                auto manifest_file = std::make_shared<kdl::file>(scenario_manifest);
+                target->set_src_root(manifest_file->path());
+                kdl::sema::parser(target, kdl::lexer(manifest_file).analyze()).parse();
+            }
             else if (arg == "-tmpl" && i + 2 < argc) {
                 // Read in a resource file and build KDL definitions from them.
                 std::string res_in(argv[i + 1]);
