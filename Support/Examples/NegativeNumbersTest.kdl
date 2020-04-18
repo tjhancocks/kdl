@@ -1,0 +1,20 @@
+@type NegativeNumbersTest : "Ntst" {
+    template {
+        DWRD value;
+        DWRD defaultValue;
+    };
+
+    field("value") {
+        value as Range<-1, 63>;
+    };
+
+    field("defaultValue") {
+        defaultValue = -5;
+    };
+};
+
+declare NegativeNumbersTest {
+    new (#128) {
+        value = -1;
+    };
+};

@@ -178,18 +178,20 @@ namespace kdl
         template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
         auto value() const -> T
         {
-           if (m_text.size() >= 3 && (m_text.substr(0, 2) == "0x" || m_text.substr(0, 2) == "0X")) {
+            if (m_text.size() >= 2 && m_text[0] == '-') {
+               // Negative decimal
+               return static_cast<T>(std::stoll(m_text, nullptr, 10));
+            }
+            else if (m_text.size() >= 3 && (m_text.substr(0, 2) == "0x" || m_text.substr(0, 2) == "0X")) {
                // Hex
                return static_cast<T>(std::stoull(m_text.substr(2), nullptr, 16));
-           }
-           else {
+            }
+            else {
                // Decimal
                return static_cast<T>(std::stoull(m_text, nullptr, 10));
            }
         }
-
     };
-
 };
 
 #endif //KDL_LEXEME_HPP
