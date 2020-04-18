@@ -31,9 +31,9 @@ namespace kdl { namespace build_target {
     struct kdl_type
     {
     private:
-        bool m_reference;
-        std::optional<lexeme> m_type_name;
-        std::vector<lexeme> m_type_hints;
+        bool m_reference { false };
+        std::optional<lexeme> m_type_name {};
+        std::vector<lexeme> m_type_hints {};
 
     public:
         kdl_type();

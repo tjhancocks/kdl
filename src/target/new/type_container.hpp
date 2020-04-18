@@ -40,8 +40,8 @@ namespace kdl { namespace build_target {
     class type_container
     {
     private:
-        std::string m_code;
-        std::string m_name;
+        std::string m_code { "NULL" };
+        std::string m_name { "" };
         type_template m_tmpl;
         std::vector<type_field> m_fields;
         std::vector<assertion> m_assertions;
