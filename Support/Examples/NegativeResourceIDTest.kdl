@@ -1,0 +1,48 @@
+@type Engine : "ëngn" {
+    template {
+        DWRD torque;
+        DWRD power;
+    };
+
+    field("torque") {
+        torque;
+    };
+
+    field("power") {
+        power;
+    };
+};
+
+@type Vehicle : "äuto" {
+    template {
+        DWRD engine;
+        PSTR name;
+    };
+
+    field("engine"){
+        engine as Engine&;
+    };
+
+    field("name") {
+        name;
+    };
+};
+
+declare Engine {
+    new (#128) {
+        torque = 320;
+        power = 103;
+    };
+};
+
+declare Vehicle {
+    new (#128, "Car") {
+        name = "Car";
+        engine = #128;
+    };
+
+    new (#129, "Trailer") {
+        name = "Trailer";
+        engine = #-1;
+    };
+};
