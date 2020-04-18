@@ -7,6 +7,9 @@ os:
 osx_image: 
   xcode11.3
 
+dist:
+  bionic
+
 compiler:
   - gcc
   - clang
@@ -16,4 +19,5 @@ before_script:
   - cd build
   - cmake ..
 
-script: make && make test
+script:
+  make && make test
