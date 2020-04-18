@@ -1,0 +1,23 @@
+language: cpp
+
+os:
+  - linux
+  - osx
+
+osx_image: 
+  xcode11.3
+
+dist:
+  bionic
+
+compiler:
+  - gcc
+  - clang
+
+before_script:
+  - mkdir build
+  - cd build
+  - cmake ..
+
+script:
+  make && make test

@@ -36,9 +36,9 @@ namespace kdl { namespace build_target {
     class resource_instance
     {
     private:
-        int64_t m_id;
-        std::string m_code;
-        std::string m_name;
+        int64_t m_id { INT64_MIN };
+        std::string m_code { "NULL" };
+        std::string m_name { "" };
         std::map<std::string, int> m_field_counts;
         type_template m_tmpl;
         std::map<int, std::any> m_values;

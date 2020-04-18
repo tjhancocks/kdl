@@ -18,7 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <filesystem>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "target/target.hpp"
 #include "diagnostic/fatal.hpp"
 
@@ -60,18 +61,35 @@ auto kdl::target::type_container_named(const kdl::lexeme name) const -> build_ta
 
 // MARK: - Destination Paths
 
+static inline auto __exists(const std::string& path) -> bool
+{
+    struct stat buffer;
+    return (stat(path.c_str(), &buffer) == 0);
+}
+
+static inline auto __is_directory(const std::string& path) -> bool
+{
+    struct stat buffer;
+    return (stat(path.c_str(), &buffer) == 0 && S_ISDIR(buffer.st_mode));
+}
+
+static inline auto __make_directory(const std::string& path) -> void
+{
+    mkdir(path.c_str(), 0700);
+}
+
 auto kdl::target::set_dst_path(const std::string dst_path) -> void
 {
     auto path = dst_path;
     std::string filename;
 
-    if (std::filesystem::exists(path) && !std::filesystem::is_directory(path)) {
+    if (__exists(path) && !__is_directory(path)) {
         while (path.substr(path.size() - 1) != "/") {
             filename = path.substr(path.size() - 1) + filename;
             path.pop_back();
         }
     }
-    else if (std::filesystem::exists(path) && std::filesystem::is_directory(path)) {
+    else if (__exists(path) && __is_directory(path)) {
         filename = "result";
     }
     else {
@@ -79,7 +97,10 @@ auto kdl::target::set_dst_path(const std::string dst_path) -> void
             filename = path.substr(path.size() - 1) + filename;
             path.pop_back();
         }
-        std::filesystem::create_directory(path);
+
+        if (!__exists(path)) {
+            __make_directory(path);
+        }
     }
 
     // Make sure the end of the path is a name.
