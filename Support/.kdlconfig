@@ -1,0 +1,6 @@
+` This is an example configuration file for KDL, that can be used to tell it
+` of certain base configuration information such as where scenario definitions
+` are located.
+@configuration {
+	ScenarioBasePath = "~/.kdl";
+};
