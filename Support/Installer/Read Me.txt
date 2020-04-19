@@ -1,0 +1,13 @@
+KDL Installation Read Me
+========================
+
+**WARNING**
+This is a pre-release preview release of the KDL. It is likely that there will
+be bugs, and it is advisable that you do not work with anything critical and
+have back ups.
+
+========================
+
+To complete installation of KDL simply double click the "Install" script, and
+KDL will be installed on to you system. If you have an existing version of KDL
+installed, then it will be upgraded.

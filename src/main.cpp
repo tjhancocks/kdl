@@ -25,6 +25,7 @@
 #include "parser/parser.hpp"
 #include "target/target.hpp"
 #include "analyzer/template_extractor.hpp"
+#include "installer/installer_asset.hpp"
 
 auto main(int argc, const char **argv) -> int
 {
@@ -33,9 +34,11 @@ auto main(int argc, const char **argv) -> int
 
     // Load in the default system configuration.
     // TODO: The configuration file should be located in a different location on Windows.
-    auto configuration_file = std::make_shared<kdl::file>("~/.config.kdl");
-    target->set_src_root(configuration_file->path());
-    kdl::sema::parser(target, kdl::lexer(configuration_file).analyze()).parse();
+    if (kdl::file::exists("~/.config.kdl")) {
+        auto configuration_file = std::make_shared<kdl::file>("~/.config.kdl");
+        target->set_src_root(configuration_file->path());
+        kdl::sema::parser(target, kdl::lexer(configuration_file).analyze()).parse();
+    }
 
     // Parse the arguments supplied to the program.
     for (auto i = 1; i < argc; ++i) {
@@ -45,9 +48,20 @@ auto main(int argc, const char **argv) -> int
 
             if (arg == "--configuration") {
                 // Specify a configuration file to load over the top of the previous configuration.
-                configuration_file = std::make_shared<kdl::file>("~/.config.kdl");
+                std::string configuration_path(argv[i + 1]);
+                auto configuration_file = std::make_shared<kdl::file>(configuration_path);
                 target->set_src_root(configuration_file->path());
                 kdl::sema::parser(target, kdl::lexer(configuration_file).analyze()).parse();
+                i += 1;
+            }
+            else if (arg == "--install") {
+                std::string installer_path(argv[i + 1]);
+                i += 1;
+
+                // TODO: Extract to its own class/method.
+                for (auto asset : kdl::installer::asset::load_assets(installer_path)) {
+                    asset.install();
+                }
             }
             else if (arg == "-v" || arg == "--version") {
                 // Display the version information to the user

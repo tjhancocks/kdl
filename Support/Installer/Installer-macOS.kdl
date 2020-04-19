@@ -1,0 +1,207 @@
+` Copyright (c) 2019-2020 Tom Hancocks
+` 
+` Permission is hereby granted, free of charge, to any person obtaining a copy
+` of this software and associated documentation files (the "Software"), to deal
+` in the Software without restriction, including without limitation the rights
+` to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+` copies of the Software, and to permit persons to whom the Software is
+` furnished to do so, subject to the following conditions:
+` 
+` The above copyright notice and this permission notice shall be included in all
+` copies or substantial portions of the Software.
+` 
+` THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+` IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+` FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+` AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+` LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+` OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+` SOFTWARE.
+
+@out "Building Installation Data Package for KDL";
+
+@type InstallerAsset : "ASET" {
+	template {
+		HBYT Flags;
+		PSTR Path;
+		HEXD Data;
+	};
+
+	field("Flags") {
+		Flags as Bitmask = 0 [
+			Overwrite = 0x01,
+			HiddenFile = 0x02,
+			Directory = 0x04,
+			ConfigurationFile = 0x08,
+			Copy = 0x10,
+			CreateIntermediates = 0x20,
+		];
+	};
+
+	field("InstallDestination") {
+		Path;
+	};
+
+	field("File") {
+		Data as File = "";
+	};
+};
+
+declare InstallerAsset {
+
+	new (#128, "Setting up default kdl configuration: '~/.config.kdl'") {
+		Flags = ConfigurationFile | HiddenFile;
+		InstallDestination = "~/.config.kdl";
+		File = import "@rpath/default.config.kdl";
+	};
+
+	new (#129, "Creating KDL data directory: '~/.kdl'") {
+		Flags = Directory | HiddenFile;
+		InstallDestination = "~/.kdl";
+	};
+
+	new (#130, "Installing EV Nova type definition - Scenario Manifest") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Manifest.kdl";
+		File = import "/tmp/kdl-nova/Manifest.kdl";
+	};
+
+	new (#132, "Installing EV Nova type definition - Explosion") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Explosion.kdl";
+		File = import "/tmp/kdl-nova/Types/Explosion.kdl";
+	};
+
+	new (#133, "Installing EV Nova type definition - PlayerCharacterTemplate") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/PlayerCharacterTemplate.kdl";
+		File = import "/tmp/kdl-nova/Types/PlayerCharacterTemplate.kdl";
+	};
+
+	new (#134, "Installing EV Nova type definition - Description") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Description.kdl";
+		File = import "/tmp/kdl-nova/Types/Description.kdl";
+	};
+
+	new (#135, "Installing EV Nova type definition - Disaster") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Disaster.kdl";
+		File = import "/tmp/kdl-nova/Types/Disaster.kdl";
+	};
+
+	new (#136, "Installing EV Nova type definition - Asteroid") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Asteroid.kdl";
+		File = import "/tmp/kdl-nova/Types/Asteroid.kdl";
+	};
+
+	new (#137, "Installing EV Nova type definition  - Cron") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Cron.kdl";
+		File = import "/tmp/kdl-nova/Types/Cron.kdl";
+	};
+
+	new (#138, "Installing EV Nova type definition - Fleet") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Fleet.kdl";
+		File = import "/tmp/kdl-nova/Types/Fleet.kdl";
+	};
+
+	new (#139, "Installing EV Nova type definition - Government") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Government.kdl";
+		File = import "/tmp/kdl-nova/Types/Government.kdl";
+	};
+
+	new (#140, "Installing EV Nova type definition - Junk") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Junk.kdl";
+		File = import "/tmp/kdl-nova/Types/Junk.kdl";
+	};
+
+	new (#141, "Installing EV Nova type definition - Mission") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Mission.kdl";
+		File = import "/tmp/kdl-nova/Types/Mission.kdl";
+	};
+
+	new (#142, "Installing EV Nova type definition - Nebula") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Nebula.kdl";
+		File = import "/tmp/kdl-nova/Types/Nebula.kdl";
+	};
+
+	new (#143, "Installing EV Nova type definition - Outfit") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Outfit.kdl";
+		File = import "/tmp/kdl-nova/Types/Outfit.kdl";
+	};
+
+	new (#144, "Installing EV Nova type definition - Person") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Person.kdl";
+		File = import "/tmp/kdl-nova/Types/Person.kdl";
+	};
+
+	new (#145, "Installing EV Nova type definition - Rank") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Rank.kdl";
+		File = import "/tmp/kdl-nova/Types/Rank.kdl";
+	};
+
+	new (#146, "Installing EV Nova type definition - Ship") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Ship.kdl";
+		File = import "/tmp/kdl-nova/Types/Ship.kdl";
+	};
+
+	new (#147, "Installing EV Nova type definition - ShipAnimation") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/ShipAnimation.kdl";
+		File = import "/tmp/kdl-nova/Types/ShipAnimation.kdl";
+	};
+
+	new (#148, "Installing EV Nova type definition - ShipClass") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/ShipClass.kdl";
+		File = import "/tmp/kdl-nova/Types/ShipClass.kdl";
+	};
+
+	new (#149, "Installing EV Nova type definition - Sprite") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Sprite.kdl";
+		File = import "/tmp/kdl-nova/Types/Sprite.kdl";
+	};
+
+	new (#150, "Installing EV Nova type definition - StellarObject") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/StellarObject.kdl";
+		File = import "/tmp/kdl-nova/Types/StellarObject.kdl";
+	};
+
+	new (#151, "Installing EV Nova type definition - System") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/System.kdl";
+		File = import "/tmp/kdl-nova/Types/System.kdl";
+	};
+
+	new (#152, "Installing EV Nova type definition - Theme") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Theme.kdl";
+		File = import "/tmp/kdl-nova/Types/Theme.kdl";
+	};
+
+	new (#153, "Installing EV Nova type definition - Weapon") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/evn/Types/Weapon.kdl";
+		File = import "/tmp/kdl-nova/Types/Weapon.kdl";
+	};
+
+	new (#200, "Copying KDL to /usr/local/bin") {
+		Flags = Copy | Overwrite;
+		InstallDestination = "/usr/local/bin";
+		File = "@kdl";
+	};
+
+};

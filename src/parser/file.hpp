@@ -21,7 +21,9 @@ namespace kdl
         static auto exists(std::string_view path) -> bool;
         static auto is_directory(std::string_view path) -> bool;
         static auto create_directory(std::string_view path) -> void;
+        static auto create_intermediate(std::string_view path, bool omit_last = true) -> bool;
         static auto resolve_tilde(std::string_view path) -> std::string;
+        static auto copy_file(std::string_view src, std::string_view dst) -> void;
 
     private:
         std::string m_path;

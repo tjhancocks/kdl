@@ -253,7 +253,11 @@ auto kdl::build_target::resource_instance::assemble() const -> std::shared_ptr<g
                 }
                 break;
             }
-            case build_target::PSTR:
+            case build_target::PSTR:{
+                auto pstr = std::any_cast<std::tuple<std::size_t, std::string>>(wrapped_value);
+                writer.write_pstr(std::get<1>(pstr));
+                break;
+            }
             case build_target::Cnnn:
             case build_target::CSTR: {
                 auto cstr = std::any_cast<std::tuple<std::size_t, std::string>>(wrapped_value);
