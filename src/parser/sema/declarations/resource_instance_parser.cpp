@@ -83,6 +83,7 @@ auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource
     for (auto field : m_type.all_fields()) {
         field_parser(m_parser, m_type, instance, m_target).apply_defaults_for_field(field.name());
     }
+    m_parser.clear_pushed_lexemes();
     instance.reset_acquistion_locks();
 
     m_parser.ensure({ expectation(lexeme::l_brace).be_true() });

@@ -70,7 +70,7 @@ auto kdl::sema::field_parser::parse() -> void
         if (m_parser.expect({ expectation(lexeme::semi).be_true() })) {
             // There are no more values provided for the field, so we need to use default values.
             if (field_value.default_value().has_value()) {
-                m_parser.push(field_value.default_value().value());
+                m_parser.push({ field_value.default_value().value() });
             }
             else {
                 log::fatal_error(m_parser.peek(), 1, "Incorrect number of values provided to field '" + field_name.text() + "'");
@@ -134,8 +134,12 @@ auto kdl::sema::field_parser::apply_defaults_for_field(const lexeme field_name) 
                 binary_fields.emplace_back(m_type.internal_template().binary_field_named(extended_name));
             }
 
-            // Push a default value in preparation for inserting a default value.
-            m_parser.push(field_value.default_value().value());
+            // Push a default value in preparation for inserting a default value. Push a trailing semi colon as well,
+            // due to some values checking for it.
+            m_parser.push({
+                field_value.default_value().value(),
+                lexeme(";", lexeme::semi)
+            });
 
             // Are we looking at an explicitly provided type?
             if (field_value.explicit_type().has_value()) {

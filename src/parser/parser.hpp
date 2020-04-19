@@ -40,7 +40,7 @@ namespace kdl { namespace sema {
         std::weak_ptr<target> m_target;
         std::size_t m_ptr { 0 };
         std::vector<lexeme> m_lexemes;
-        std::optional<lexeme> m_tmp_lexeme;
+        std::vector<lexeme> m_tmp_lexemes;
 
     public:
         /**
@@ -81,7 +81,8 @@ namespace kdl { namespace sema {
          * will be cleared upon advancement of the parser.
          * @param lexeme The lexeme to be pushed.
          */
-        auto push(const lexeme lexeme) -> void;
+        auto push(std::initializer_list<lexeme> lexeme) -> void;
+        auto clear_pushed_lexemes() -> void;
 
         /**
          * Peek a lexeme from the lexeme stream without advancing the current position.
