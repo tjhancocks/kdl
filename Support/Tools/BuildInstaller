@@ -52,6 +52,7 @@ cp "${DIR}/bin/kdl" "${DIR}/bin/${OS}/kdl"
 # Build the installer package - make sure to use the newly build KDL!!
 KDL="${DIR}/bin/kdl"
 ${KDL} -o "${DIR}/bin/${OS}/InstallationData" "${DIR}/Support/Installer/${INSTALLER}"
+mv "${DIR}/bin/${OS}/InstallationData.ndat" "${DIR}/bin/${OS}/InstallationData.kdl"
 
 # Create README
 cp "${DIR}/Support/Installer/Read Me.txt" "${DIR}/bin/${OS}/Read Me.txt"
@@ -65,7 +66,7 @@ cd "\${DIR}"
 
 ./kdl --install InstallationData.kdl
 
-echo "Please ensure that you have /usr/local/bin in your \$PATH in order to use KDL"
+echo "Please ensure that you have /usr/local/bin in your \\\$PATH in order to use KDL"
 EOF
 chmod 0755 "${DIR}/bin/${OS}/Install"
 
