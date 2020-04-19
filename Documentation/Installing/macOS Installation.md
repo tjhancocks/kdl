@@ -16,12 +16,12 @@ will handle everything that it needs.
 After downloading the latest release, extract the contents of the archive and open
 the resulting macOS directory. The contents of the directory should be as follows...
 
-<center>![macOS Package Directory](https://user-images.githubusercontent.com/681356/79683481-5680c500-8222-11ea-9df4-c838ef623c98.png)</center>
+<div style="text-align:center"><img src="https://user-images.githubusercontent.com/681356/79683481-5680c500-8222-11ea-9df4-c838ef623c98.png" /></div>
 
 When you double click on the _Install_ icon the Terminal will launch and perform
 the installation process. Once it completes, it will look something like this:
 
-<center>![macOS Installer - Terminal](https://user-images.githubusercontent.com/681356/79683577-06eec900-8223-11ea-9c90-fc683e794e4e.png)</center>
+<div style="text-align:center"><img src="https://user-images.githubusercontent.com/681356/79683577-06eec900-8223-11ea-9c90-fc683e794e4e.png" /></div>
 
 The last step is to add the `/usr/local/bin` directory to your path. This can be
 acheived by adding the following to your shell configuration
