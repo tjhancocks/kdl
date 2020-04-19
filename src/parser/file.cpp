@@ -119,8 +119,8 @@ auto kdl::file::resolve_tilde(std::string_view path) -> std::string
 
 auto kdl::file::copy_file(std::string_view src, std::string_view dst) -> void
 {
-    std::ifstream src_file(src, std::ios::binary);
-    std::ofstream dst_file(dst, std::ios::binary);
+    std::ifstream src_file(std::string(src), std::ios::binary);
+    std::ofstream dst_file(std::string(dst), std::ios::binary);
     dst_file << src_file.rdbuf();
 }
 
