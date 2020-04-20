@@ -8,6 +8,7 @@
 #include <fstream>
 #include <streambuf>
 #include <iostream>
+#include <vector>
 #include "parser/file.hpp"
 
 // MARK: - Helpers
@@ -27,6 +28,48 @@ auto kdl::file::is_directory(std::string_view path) -> bool
 auto kdl::file::create_directory(std::string_view path) -> void
 {
     mkdir(std::string(path).c_str(), 0700);
+}
+
+auto kdl::file::create_intermediate(std::string_view path, bool omit_last) -> bool
+{
+    std::string p(path);
+
+    if (exists(p)) {
+        return true;
+    }
+
+    // Build a full list of components of the path
+    std::vector<std::string> components;
+    std::string component;
+    while (!p.empty()) {
+        component.insert(component.begin(), p.back());
+        if (p.back() == '/') {
+            components.insert(components.begin(), component);
+            component.clear();
+        }
+        p.pop_back();
+    }
+
+    if (omit_last) {
+        components.pop_back();
+    }
+
+    std::string dir_path;
+    for (auto component: components) {
+        dir_path.append(component);
+
+        if (is_directory(dir_path)) {
+            continue;
+        }
+        else if (!exists(dir_path)) {
+            create_directory(dir_path);
+            continue;
+        }
+
+        return false;
+    }
+
+    return true;
 }
 
 auto kdl::file::resolve_tilde(std::string_view path) -> std::string
@@ -72,6 +115,13 @@ auto kdl::file::resolve_tilde(std::string_view path) -> std::string
 
     result.append(path.substr(pos + 1));
     return result;
+}
+
+auto kdl::file::copy_file(std::string_view src, std::string_view dst) -> void
+{
+    std::ifstream src_file(std::string(src), std::ios::binary);
+    std::ofstream dst_file(std::string(dst), std::ios::binary);
+    dst_file << src_file.rdbuf();
 }
 
 // MARK: - Constructors

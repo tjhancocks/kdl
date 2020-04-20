@@ -31,59 +31,56 @@ fi
 # Create an intermediate directories in ./bin
 if [[ "$(uname -s)" == "Darwin" ]]; then
 	OS="macOS"
+	INSTALLER="Installer-macOS.kdl"
 elif [[ "$(uname -s)" == "Linux" ]]; then
 	OS="Linux"
+	INSTALLER="Installer-Linux.kdl" # Use the macOS installer package for now.
 else
 	echo "Unable to construct release package."
 	exit 1
 fi
 
 rm -rf "${DIR}/bin/${OS}" "${DIR}/cmake-build-debug"
-mkdir -p "${DIR}/bin/${OS}/data/evn/Types"
+mkdir -p "${DIR}/bin/${OS}"
 mkdir -p "${DIR}/cmake-build-debug"
 
 # Trigger a build of KDL, and copy in the resulting binary
 cmake -B "${DIR}/cmake-build-debug"
-cmake --build "${DIR}/cmake-build-debug" -- -j3
+cmake --build "${DIR}/cmake-build-debug" -- -j4
 cp "${DIR}/bin/kdl" "${DIR}/bin/${OS}/kdl"
 
-# Check out the KDL-Nova repository.
-if [[ -d "/tmp/kdl-nova" ]]; then
-	git --git-dir=/tmp/kdl-nova/.git --work-tree=/tmp/kdl-nova pull
-else
-	git clone git@github.com:tjhancocks/kdl-nova.git /tmp/kdl-nova
-fi
-cp -v /tmp/kdl-nova/Manifest.kdl "${DIR}/bin/${OS}/data/evn/Manifest.kdl"
-cp -v /tmp/kdl-nova/Types/*.kdl "${DIR}/bin/${OS}/data/evn/Types/"
+# Build the installer package - make sure to use the newly build KDL!!
+KDL="${DIR}/bin/kdl"
+${KDL} -o "${DIR}/bin/${OS}/InstallationData" "${DIR}/Support/Installer/${INSTALLER}"
+mv "${DIR}/bin/${OS}/InstallationData.ndat" "${DIR}/bin/${OS}/InstallationData.kdl"
 
-# Setup a default configuration file for KDL
-cp -v "${DIR}/Support/example.config.kdl" "${DIR}/bin/${OS}/default.config.kdl"
+# Create README
+cp "${DIR}/Support/Installer/Read Me.txt" "${DIR}/bin/${OS}/Read Me.txt"
 
-# Produce an installer script.
-cat <<EOF >> "${DIR}/bin/${OS}/Install"
+# Create Installer
+if [[ "${OS}" == "macOS" ]]; then
+  cat <<EOF >> "${DIR}/bin/${OS}/Install"
 #!/bin/sh
-# Automatically Generated
+
 DIR=\$(dirname "\${BASH_SOURCE[0]}")
 cd "\${DIR}"
 
-rm "/usr/local/bin/kdl"
-cp "\${DIR}/kdl" "/usr/local/bin/kdl"
+./kdl --install InstallationData.kdl
 
-if [[ ! -f "\${HOME}/.config.kdl" ]]; then
-	cp "\${DIR}/default.config.kdl" "\${HOME}/.config.kdl"
-fi
-
-if [[ ! -d "\${HOME}/.kdl" ]]; then
-	mkdir -p "\${HOME}/.kdl"
-fi
-
-cp -rf "\${DIR}/data/evn" "\${HOME}/.kdl"
-
-echo "You need to make sure that /usr/local/bin is in your PATH"
+echo "Please ensure that you have /usr/local/bin in your \\\$PATH in order to use KDL"
 EOF
+elif [[ "${OS}" == "Linux" ]]; then
+    cat <<EOF >> "${DIR}/bin/${OS}/Install"
+#!/bin/sh
+./kdl --install InstallationData.kdl
+sudo install -o root -g root -m u=rxs,g=rx,o=x -t /usr/local/bin kdl
+
+echo "Please ensure that you have /usr/local/bin in your \\\$PATH in order to use KDL"
+EOF
+fi
 chmod 0755 "${DIR}/bin/${OS}/Install"
 
-# Create a zip archive
+# Package as Zip Archive for distribution
 VERSION=$(git describe --tags --dirty --match "v*")
 cd "${DIR}/bin"
 zip -r "${DIR}/bin/KDL-${VERSION}-${OS}.zip" "${OS}"
