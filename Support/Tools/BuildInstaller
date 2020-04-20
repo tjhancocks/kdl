@@ -34,7 +34,7 @@ if [[ "$(uname -s)" == "Darwin" ]]; then
 	INSTALLER="Installer-macOS.kdl"
 elif [[ "$(uname -s)" == "Linux" ]]; then
 	OS="Linux"
-	INSTALLER="Installer-macOS.kdl" # Use the macOS installer package for now.
+	INSTALLER="Installer-Linux.kdl" # Use the macOS installer package for now.
 else
 	echo "Unable to construct release package."
 	exit 1
@@ -46,7 +46,7 @@ mkdir -p "${DIR}/cmake-build-debug"
 
 # Trigger a build of KDL, and copy in the resulting binary
 cmake -B "${DIR}/cmake-build-debug"
-cmake --build "${DIR}/cmake-build-debug" -- -j3
+cmake --build "${DIR}/cmake-build-debug" -- -j4
 cp "${DIR}/bin/kdl" "${DIR}/bin/${OS}/kdl"
 
 # Build the installer package - make sure to use the newly build KDL!!
@@ -58,7 +58,8 @@ mv "${DIR}/bin/${OS}/InstallationData.ndat" "${DIR}/bin/${OS}/InstallationData.k
 cp "${DIR}/Support/Installer/Read Me.txt" "${DIR}/bin/${OS}/Read Me.txt"
 
 # Create Installer
-cat <<EOF >> "${DIR}/bin/${OS}/Install"
+if [[ "${OS}" == "macOS" ]]; then
+  cat <<EOF >> "${DIR}/bin/${OS}/Install"
 #!/bin/sh
 
 DIR=\$(dirname "\${BASH_SOURCE[0]}")
@@ -68,6 +69,15 @@ cd "\${DIR}"
 
 echo "Please ensure that you have /usr/local/bin in your \\\$PATH in order to use KDL"
 EOF
+elif [[ "${OS}" == "Linux" ]]; then
+    cat <<EOF >> "${DIR}/bin/${OS}/Install"
+#!/bin/sh
+./kdl --install InstallationData.kdl
+sudo install -o root -g root -m u=rxs,g=rx,o=x -t /usr/local/bin kdl
+
+echo "Please ensure that you have /usr/local/bin in your \\\$PATH in order to use KDL"
+EOF
+fi
 chmod 0755 "${DIR}/bin/${OS}/Install"
 
 # Package as Zip Archive for distribution
