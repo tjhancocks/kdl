@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Tom Hancocks
+// Copyright (c) 2019-2020 Tom Hancocks
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,32 +18,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_CONVERSION_HPP)
-#define KDL_CONVERSION_HPP
+#if !defined(KDL_PNG_HPP)
+#define KDL_PNG_HPP
 
 #include <vector>
-#include "parser/lexeme.hpp"
+#include "libGraphite/quickdraw/internal/surface.hpp"
+#include "libGraphite/data/data.hpp"
 
-namespace kdl { namespace media {
+namespace kdl { namespace media { namespace image {
 
-    class conversion
+    /**
+     * The `kdl::media::image::png` class allows reading/writing and working with PNG
+     * images.
+     */
+    class png
     {
     private:
-        std::shared_ptr<std::vector<char>> m_input_file_contents;
-        lexeme m_input_file_format;
-        lexeme m_output_file_format;
+        std::shared_ptr<graphite::qd::surface> m_surface;
 
-        auto __tga_to_pict() const -> std::vector<char>;
-        auto __tga_to_cicn() const -> std::vector<char>;
-        auto __png_to_pict() const -> std::vector<char>;
-        auto __png_to_cicn() const -> std::vector<char>;
+        auto decode(graphite::data::reader& reader) -> bool;
 
     public:
-        conversion(const std::string m_input_file_contents, const lexeme input, const lexeme output);
+        png(const std::string path);
+        png(std::shared_ptr<std::vector<char>> data);
 
-        auto perform_conversion() const -> std::vector<char>;
+        auto surface() -> std::weak_ptr<graphite::qd::surface>;
     };
 
-}}
+}}};
 
-#endif //KDL_CONVERSION_HPP
+#endif //KDL_PNG_HPP

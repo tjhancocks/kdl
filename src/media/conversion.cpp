@@ -20,6 +20,7 @@
 
 #include "media/conversion.hpp"
 #include "media/image/tga.hpp"
+#include "media/image/png.hpp"
 #include "libGraphite/quickdraw/pict.hpp"
 #include "libGraphite/quickdraw/cicn.hpp"
 #include "libGraphite/quickdraw/rle.hpp"
@@ -46,6 +47,14 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
     else if (m_input_file_format.is("TGA") && m_output_file_format.is("cicn")) {
         return __tga_to_cicn();
     }
+    // PNG -> PICT
+    else if (m_input_file_format.is("PNG") && m_output_file_format.is("PICT")) {
+        return __png_to_pict();
+    }
+    // PNG -> cicn
+    else if (m_input_file_format.is("PNG") && m_output_file_format.is("cicn")) {
+        return __png_to_cicn();
+    }
 
     log::fatal_error(m_input_file_format, 1, "Unable to perform conversion between '" + m_input_file_format.text() + "' and '" + m_output_file_format.text() + "'");
 }
@@ -69,6 +78,28 @@ auto kdl::media::conversion::__tga_to_cicn() const -> std::vector<char>
     auto tga_surface = tga.surface().lock();
 
     graphite::qd::cicn cicn(tga_surface);
+    auto cicn_data = cicn.data();
+
+    return std::vector<char>(cicn_data->get()->begin(), cicn_data->get()->end());
+}
+
+auto kdl::media::conversion::__png_to_pict() const -> std::vector<char>
+{
+    image::png png(m_input_file_contents);
+    auto png_surface = png.surface().lock();
+
+    graphite::qd::pict pict(png_surface);
+    auto pict_data = pict.data();
+
+    return std::vector<char>(pict_data->get()->begin(), pict_data->get()->end());
+}
+
+auto kdl::media::conversion::__png_to_cicn() const -> std::vector<char>
+{
+    image::png png(m_input_file_contents);
+    auto png_surface = png.surface().lock();
+
+    graphite::qd::cicn cicn(png_surface);
     auto cicn_data = cicn.data();
 
     return std::vector<char>(cicn_data->get()->begin(), cicn_data->get()->end());
