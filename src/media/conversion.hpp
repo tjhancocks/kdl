@@ -33,11 +33,6 @@ namespace kdl { namespace media {
         lexeme m_input_file_format;
         lexeme m_output_file_format;
 
-        auto __tga_to_pict() const -> std::vector<char>;
-        auto __tga_to_cicn() const -> std::vector<char>;
-        auto __png_to_pict() const -> std::vector<char>;
-        auto __png_to_cicn() const -> std::vector<char>;
-
     public:
         conversion(const std::string m_input_file_contents, const lexeme input, const lexeme output);
 
