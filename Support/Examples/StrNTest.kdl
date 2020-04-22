@@ -1,0 +1,18 @@
+@type StringList : "STR#" {
+    template {
+        OCNT stringcount;
+        PSTR string;
+    };
+
+    field("String") repeatable<0, 65535> {
+        string;
+    };
+};
+
+declare StringList {
+    new(#128) {
+        String = "a";
+        String = "b";
+        String = "c";
+    };
+};

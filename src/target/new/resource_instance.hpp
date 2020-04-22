@@ -29,7 +29,9 @@
 #include "parser/lexeme.hpp"
 #include "target/new/type_template.hpp"
 #include "target/new/type_field.hpp"
+#include "target/new/binary_type.hpp"
 #include "libGraphite/data/data.hpp"
+#include "libGraphite/data/writer.hpp"
 
 namespace kdl { namespace build_target {
 
@@ -41,8 +43,9 @@ namespace kdl { namespace build_target {
         std::string m_name { "" };
         std::map<std::string, int> m_field_counts;
         type_template m_tmpl;
-        std::map<int, std::any> m_values;
+        std::map<int, std::vector<std::any>> m_values;
 
+        auto assemble_field(graphite::data::writer& writer, const enum binary_type type, std::any wrapped_value) const -> void;
         auto write(const std::string field, std::any value) -> void;
         auto index_of(const std::string field) const -> int;
         auto available_name_extensions(const type_field field) const -> std::map<std::string, lexeme>;

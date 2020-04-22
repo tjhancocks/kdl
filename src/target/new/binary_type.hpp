@@ -76,6 +76,15 @@ namespace kdl { namespace build_target {
         RECT = 0x001E0000,
 //        Hnnn = 0x001F0000,
 //        P0nn = 0x00200000,
+
+        // List support
+        OCNT = 0x00210000,
+//        LSTZ = 0x00220000,
+//        LSTE = 0x00230000,
+//        ZCNT = 0x00240000,
+//        LSTC = 0x00250000,
+//        LSTB = 0x00260000,
+
     };
 
     auto binary_type_for_name(const std::string name) -> enum binary_type;
