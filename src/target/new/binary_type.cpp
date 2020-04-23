@@ -121,6 +121,24 @@ auto kdl::build_target::binary_type_for_name(const std::string name) -> enum bin
 //        auto width = static_cast<uint32_t>(std::stoul(name.substr(1), nullptr, 16));
 //        return static_cast<binary_type>(static_cast<uint32_t>(P0nn) | width);
 //    }
+    else if (name == "OCNT") {
+        return binary_type::OCNT;
+    }
+//    else if (name == "LSTZ") {
+//        return binary_type::LSTZ;
+//    }
+//    else if (name == "LSTE") {
+//        return binary_type::LSTE;
+//    }
+//    else if (name == "ZCNT") {
+//        return binary_type::ZCNT;
+//    }
+//    else if (name == "LSTC") {
+//        return binary_type::LSTC;
+//    }
+//    else if (name == "LSTB") {
+//        return binary_type::LSTB;
+//    }
 
     return binary_type::INVALID;
 };
@@ -135,7 +153,8 @@ auto kdl::build_target::binary_type_base_size(enum binary_type type) -> std::siz
             return 1;
         }
         case binary_type::HWRD:
-        case binary_type::DWRD: {
+        case binary_type::DWRD:
+        case binary_type::OCNT: {
             return 2;
         }
         case binary_type::HLNG:
