@@ -21,6 +21,7 @@
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/named_types/file_type_parser.hpp"
 #include "media/conversion.hpp"
+#include "parser/file.hpp"
 
 // MARK: - Constructor
 
@@ -43,23 +44,44 @@ kdl::sema::file_type_parser::file_type_parser(kdl::sema::parser &parser, kdl::bu
 
 auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &instance) -> void
 {
+    std::vector<lexeme> file_lx;
+    std::vector<std::string> file_contents;
     auto target = m_target.lock();
     auto import_file = false;
-    if (m_parser.expect({ expectation(lexeme::identifier).be_true() })) {
+
+    if (m_parser.expect({ expectation(lexeme::identifier, "import").be_true() })) {
         m_parser.advance();
         import_file = true;
     }
 
-    if (!m_parser.expect({ expectation(lexeme::string).be_true() })) {
+    // Build a list of file contents, or file paths if import was specified
+    while (m_parser.expect({ expectation(lexeme::string).be_true() })) {
+        auto string_lx = m_parser.read();
+        auto string_value = string_lx.text();
+
+        if (import_file) {
+            // Pass the resolved paths through glob to expand wildcards
+            auto path = target->resolve_src_path(string_value);
+            auto paths = file::glob(path);
+
+            for (auto p : *paths) {
+                string_value = kdl::file(p).contents();
+                file_lx.emplace_back(lexeme(p, lexeme::string));
+                file_contents.emplace_back(string_value);
+            }
+        }
+        else {
+            file_lx.emplace_back(string_lx);
+            file_contents.emplace_back(string_value);
+        }
+    }
+
+    if (!file_contents.size()) {
         log::fatal_error(m_parser.peek(), 1, "Fields with the 'File' type expect a string.");
     }
-    auto string_lx = m_parser.read();
-    auto string_value = string_lx.text();
 
-    if (import_file) {
-        auto path = target->resolve_src_path(string_value);
-        string_value = kdl::file(path).contents();
-    }
+    auto string_lx = file_lx.back();
+    auto string_value = file_contents.back();
 
     // Check if we need to perform a conversion on the file data.
     if (m_field_value.has_conversion_defined()) {
@@ -82,8 +104,19 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
         // Perform the conversion
         auto input_format = valid_input_formats.at(0);
         auto output_format = m_field_value.conversion_output();
-        auto output = kdl::media::conversion(string_value, input_format, output_format).perform_conversion();
-        string_value = std::string(output.begin(), output.end());
+
+        if (file_contents.size() != 1) {
+            auto conversion = kdl::media::conversion(input_format, output_format);
+            for (auto f : file_contents) {
+                conversion.add_input_file(f);
+            }
+            auto output = conversion.perform_conversion();
+            string_value = std::string(output.begin(), output.end());
+        }
+        else {
+            auto output = kdl::media::conversion(string_value, input_format, output_format).perform_conversion();
+            string_value = std::string(output.begin(), output.end());
+        }
     }
 
     // Get the value type for the field, and the set it.

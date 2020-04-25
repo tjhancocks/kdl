@@ -29,12 +29,15 @@ namespace kdl { namespace media {
     class conversion
     {
     private:
-        std::shared_ptr<std::vector<char>> m_input_file_contents;
+        std::vector<std::shared_ptr<std::vector<char>>> m_input_file_contents;
         lexeme m_input_file_format;
         lexeme m_output_file_format;
 
     public:
         conversion(const std::string m_input_file_contents, const lexeme input, const lexeme output);
+        conversion(const lexeme input, const lexeme output);
+
+        auto add_input_file(const std::string contents) -> void;
 
         auto perform_conversion() const -> std::vector<char>;
     };

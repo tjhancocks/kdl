@@ -28,13 +28,25 @@
 #include "libGraphite/resources/sound.hpp"
 #include "diagnostic/fatal.hpp"
 
-// MARK: - Constructor
+// MARK: - Constructors
 
 kdl::media::conversion::conversion(const std::string m_input_file_contents, const kdl::lexeme input,
                                           const kdl::lexeme output)
     : m_input_file_format(input), m_output_file_format(output),
-      m_input_file_contents(std::make_shared<std::vector<char>>(m_input_file_contents.begin(), m_input_file_contents.end()))
+      m_input_file_contents({ std::make_shared<std::vector<char>>(m_input_file_contents.begin(), m_input_file_contents.end()) })
 {
+}
+
+kdl::media::conversion::conversion(const kdl::lexeme input, const kdl::lexeme output)
+    : m_input_file_format(input), m_output_file_format(output)
+{
+}
+
+// MARK: - Adding input files
+
+auto kdl::media::conversion::add_input_file(const std::string contents) -> void
+{
+    m_input_file_contents.emplace_back(std::make_shared<std::vector<char>>(contents.begin(), contents.end()));
 }
 
 // MARK: - Conversion
@@ -43,14 +55,18 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
 {
     if ((m_input_file_format.is("TGA") || m_input_file_format.is("PNG")) &&
             (m_output_file_format.is("PICT") || m_output_file_format.is("cicn"))) {
+        if (m_input_file_contents.size() != 1) {
+            log::fatal_error(m_output_file_format, 1, "Unable to process more than one input file for format '" + m_output_file_format.text() + "'");
+        }
+
         // Handle image-to-image conversions
         std::shared_ptr<graphite::qd::surface> surface;
         if (m_input_file_format.is("TGA")) {
-            image::tga tga(m_input_file_contents);
+            image::tga tga(m_input_file_contents[0]);
             surface = tga.surface().lock();
         }
         else if (m_input_file_format.is("PNG")) {
-            image::png png(m_input_file_contents);
+            image::png png(m_input_file_contents[0]);
             surface = png.surface().lock();
         }
         else {
@@ -74,11 +90,43 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
         }
     }
     else if (m_input_file_format.is("WAV") && m_output_file_format.is("snd")) {
-        sound::wav wav(m_input_file_contents);
+        if (m_input_file_contents.size() != 1) {
+            log::fatal_error(m_output_file_format, 1, "Unable to process more than one input file for format '" + m_output_file_format.text() + "'");
+        }
+
+        sound::wav wav(m_input_file_contents[0]);
         graphite::resources::sound snd(wav.sample_rate(), wav.sample_bits(), wav.samples());
         auto snd_data = snd.data();
 
         return std::vector<char>(snd_data->get()->begin(), snd_data->get()->end());
+    }
+    else if ((m_input_file_format.is("TGA") || m_input_file_format.is("PNG")) && m_output_file_format.is("rleD")) {
+        if (m_input_file_contents.size() == 0) {
+            log::fatal_error(m_output_file_format, 1, "Must have at least one input file for format '" + m_output_file_format.text() + "'");
+        }
+
+        // Load the first PNG to determine the frame size
+        media::image::png first_png(m_input_file_contents[0]);
+        auto first_png_surface = first_png.surface().lock();
+        graphite::qd::rle rle(first_png_surface->size(), m_input_file_contents.size());
+        rle.write_frame(0, first_png_surface);
+
+        // Load subsequent frames and make sure they're the same size as the first
+        for (auto i = 1; i <  m_input_file_contents.size(); i++) {
+            media::image::png png(m_input_file_contents[i]);
+            auto png_surface = png.surface().lock();
+
+            if (png_surface->size().width() != first_png_surface->size().width() ||
+                    png_surface->size().height() != first_png_surface->size().height()) {
+                log::fatal_error(m_output_file_format, 1, "Frame " + std::to_string(i) + " has incorrect size");
+            }
+
+            rle.write_frame(i, png_surface);
+        }
+
+        // Encode the rleD resource
+        auto rled_data = rle.data();
+        return std::vector<char>(rled_data->get()->begin(), rled_data->get()->end());
     }
     else {
         log::fatal_error(m_output_file_format, 1, "Unable to convert from '" + m_input_file_format.text() +
