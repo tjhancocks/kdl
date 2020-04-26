@@ -28,6 +28,12 @@ elif [[ "${DIR}" =~ Support/Tools$ ]]; then
 	DIR=$(echo ${DIR} | rev | cut -d '/' -f3- | rev)
 fi
 
+# Clone the latest version of KDL-Nova
+if [[ -d "/tmp/kdl-nova" ]]; then
+	rm -rf "/tmp/kdl-nova";
+fi
+git clone https://github.com/tjhancocks/kdl-nova.git /tmp/kdl-nova
+
 # Create an intermediate directories in ./bin
 if [[ "$(uname -s)" == "Darwin" ]]; then
 	OS="macOS"

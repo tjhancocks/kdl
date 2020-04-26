@@ -5,27 +5,6 @@
 	ScenarioBasePath = "~/.kdl";
 };
 
-` Provide some baked in types.
-@type MachintoshPicture : "PICT" {
-	template {
-		HEXD Data;
-	};
-
-	field("TGA") {
-		` The data should be imported from an image file and converted to a 
-		` PICT format. The
-		Data as File<TGA> __conversion($InputFormat, PICT);
-	};
-};
-
-@type MachintoshColorIcon : "cicn" {
-	template {
-		HEXD Data;
-	};
-
-	field("TGA") {
-		` The data should be imported from an image file and converted to a 
-		` PICT format. The
-		Data as File<TGA> __conversion($InputFormat, cicn);
-	};
-};
+` The following should be imported by default.
+@import "~/.kdl/toolbox/Manifest.kdl";
+@import "~/.kdl/sw/Manifest.kdl";
