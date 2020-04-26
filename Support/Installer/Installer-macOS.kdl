@@ -198,7 +198,49 @@ declare InstallerAsset {
 		File = import "/tmp/kdl-nova/Types/Weapon.kdl";
 	};
 
-	new (#200, "Copying KDL to /usr/local/bin") {
+	new (#200, "Installing Macintosh Toolbox type definitions") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/toolbox/Manifest.kdl";
+		File = import "@rpath/../KDLTypes/Toolbox/Manifest.kdl";
+	};
+
+	new (#201, "Installing Macintosh Toolbox type definition - Picture") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/toolbox/Types/Picture.kdl";
+		File = import "@rpath/../KDLTypes/Toolbox/Picture.kdl";
+	};
+
+	new (#202, "Installing Macintosh Toolbox type definition - Color Icon") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/toolbox/Types/ColorIcon.kdl";
+		File = import "@rpath/../KDLTypes/Toolbox/ColorIcon.kdl";
+	};
+
+	new (#203, "Installing Macintosh Toolbox type definition - Sound") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/toolbox/Types/Sound.kdl";
+		File = import "@rpath/../KDLTypes/Toolbox/Sound.kdl";
+	};
+
+	new (#204, "Installing Macintosh Toolbox type definition - Strings") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/toolbox/Types/Strings.kdl";
+		File = import "@rpath/../KDLTypes/Toolbox/Strings.kdl";
+	};
+
+	new (#250, "Installing Sprite World type definitions") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/sw/Manifest.kdl";
+		File = import "@rpath/../KDLTypes/SpriteWorld/Manifest.kdl";
+	};
+
+	new (#201, "Installing Sprite World type definition - Sprite") {
+		Flags = Overwrite | CreateIntermediates;
+		InstallDestination = "~/.kdl/sw/Types/Sprite.kdl";
+		File = import "@rpath/../KDLTypes/SpriteWorld/RLESprite.kdl";
+	};
+
+	new (#300, "Copying KDL to /usr/local/bin") {
 		Flags = Copy | Overwrite;
 		InstallDestination = "/usr/local/bin";
 		File = "@kdl";
