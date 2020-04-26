@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/tjhancocks/kdl.svg?branch=master)](https://travis-ci.org/tjhancocks/kdl) 
-[![Version](https://img.shields.io/badge/version-v0.2-orange.svg)](#) [![Version](https://img.shields.io/badge/licennse-MIT-blue.svg)](#)
+[![Version](https://img.shields.io/badge/version-v0.2.1-orange.svg)](#) [![Version](https://img.shields.io/badge/licennse-MIT-blue.svg)](#)
 
 # KDL (Kestrel Development Language)
 This is an ancillary project of Kestrel, and acts as the primary development kit
