@@ -26,6 +26,7 @@
 #include "target/target.hpp"
 #include "analyzer/template_extractor.hpp"
 #include "installer/installer_asset.hpp"
+#include "libGraphite/rsrc/manager.hpp"
 
 auto main(int argc, const char **argv) -> int
 {
@@ -86,6 +87,13 @@ auto main(int argc, const char **argv) -> int
                 auto manifest_file = std::make_shared<kdl::file>(scenario_manifest);
                 target->set_src_root(manifest_file->path());
                 kdl::sema::parser(target, kdl::lexer(manifest_file).analyze()).parse();
+            }
+            else if (arg == "-i" || arg == "--include") {
+                // Look up the data file referenced and read it into the resource manager.
+                auto file = std::make_shared<graphite::rsrc::file>(kdl::file::resolve_tilde(std::string(argv[i + 1])));
+                i += 1;
+                
+                graphite::rsrc::manager::shared_manager().import_file(file);
             }
             else if (arg == "-tmpl" && i + 2 < argc) {
                 // Read in a resource file and build KDL definitions from them.
