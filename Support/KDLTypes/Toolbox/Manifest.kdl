@@ -18,7 +18,7 @@
 ` OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ` SOFTWARE.
 
-@import "@rpath/Types/Sound.kdl";
-@import "@rpath/Types/Picture.kdl";
-@import "@rpath/Types/ColorIcon.kdl";
-@import "@rpath/Types/Strings.kdl";
+@import "@rpath/.kdl/toolbox/Types/Sound.kdl";
+@import "@rpath/.kdl/toolbox/Types/Picture.kdl";
+@import "@rpath/.kdl/toolbox/Types/ColorIcon.kdl";
+@import "@rpath/.kdl/toolbox/Types/Strings.kdl";

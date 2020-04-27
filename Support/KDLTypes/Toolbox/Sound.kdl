@@ -24,6 +24,6 @@
 	};
 
 	field("File") {
-		Data as File<WAV> __conversion($InputFile, snd);
+		Data as File<WAV> __conversion($InputFormat, snd);
 	};
 };

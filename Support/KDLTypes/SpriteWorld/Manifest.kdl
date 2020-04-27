@@ -18,4 +18,4 @@
 ` OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ` SOFTWARE.
 
-@import "@rpath/Types/RLESprite.kdl";
+@import "@rpath/.kdl/sw/Types/RLESprite.kdl";

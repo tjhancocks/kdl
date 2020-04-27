@@ -24,10 +24,10 @@
 	};
 
 	field("PNG") {
-		Data as File<PNG> __conversion($InputFile, PICT);
+		Data as File<PNG> __conversion($InputFormat, PICT);
 	};
 
 	`field("TGA") {
-	`	Data as File<TGA> __conversion($InputFile, PICT);
+	`	Data as File<TGA> __conversion($InputFormat, PICT);
 	`};
 };
