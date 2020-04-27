@@ -30,6 +30,7 @@
 
 auto main(int argc, const char **argv) -> int
 {
+    std::optional<std::string> disassembly_root;
     auto target = std::make_shared<kdl::target>();
     std::vector<std::shared_ptr<kdl::file>> files;
 
@@ -92,8 +93,12 @@ auto main(int argc, const char **argv) -> int
                 // Look up the data file referenced and read it into the resource manager.
                 auto file = std::make_shared<graphite::rsrc::file>(kdl::file::resolve_tilde(std::string(argv[i + 1])));
                 i += 1;
-                
+
                 graphite::rsrc::manager::shared_manager().import_file(file);
+            }
+            else if (arg == "-d" || arg == "--disassemble") {
+                disassembly_root = kdl::file::resolve_tilde(std::string(argv[i + 1]));
+                i += 1;
             }
             else if (arg == "-tmpl" && i + 2 < argc) {
                 // Read in a resource file and build KDL definitions from them.
