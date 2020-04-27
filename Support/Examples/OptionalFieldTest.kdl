@@ -1,0 +1,23 @@
+@type MacintoshPicture : "PICT" {
+    template {
+        HEXD Data;
+    };
+
+    field("PNG") {
+        Data as File<PNG> __conversion($InputFormat, PICT);
+    };
+
+    field("TGA") {
+        Data as File<TGA> __conversion($InputFormat, PICT);
+    };
+};
+
+declare MacintoshPicture {
+    new(#128) {
+        TGA = import "@rpath/TestImage.tga";
+    };
+
+    new(#129) {
+        PNG = import "@rpath/TestImage.png";
+    };
+};
