@@ -105,23 +105,38 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
             log::fatal_error(m_output_file_format, 1, "Must have at least one input file for format '" + m_output_file_format.text() + "'");
         }
 
-        // Load the first PNG to determine the frame size
-        media::image::png first_png(m_input_file_contents[0]);
-        auto first_png_surface = first_png.surface().lock();
-        graphite::qd::rle rle(first_png_surface->size(), m_input_file_contents.size());
-        rle.write_frame(0, first_png_surface);
+        std::shared_ptr<graphite::qd::surface> surface;
+
+        // Load the first image to determine the frame size
+        if (m_input_file_format.is("TGA")) {
+            image::tga tga(m_input_file_contents[0]);
+            surface = tga.surface().lock();
+        }
+        else if (m_input_file_format.is("PNG")) {
+            image::png png(m_input_file_contents[0]);
+            surface = png.surface().lock();
+        }
+        auto frame_size = surface->size();
+        graphite::qd::rle rle(frame_size, m_input_file_contents.size());
+        rle.write_frame(0, surface);
 
         // Load subsequent frames and make sure they're the same size as the first
         for (auto i = 1; i <  m_input_file_contents.size(); i++) {
-            media::image::png png(m_input_file_contents[i]);
-            auto png_surface = png.surface().lock();
+            if (m_input_file_format.is("TGA")) {
+                image::tga tga(m_input_file_contents[i]);
+                surface = tga.surface().lock();
+            }
+            else if (m_input_file_format.is("PNG")) {
+                image::png png(m_input_file_contents[i]);
+                surface = png.surface().lock();
+            }
 
-            if (png_surface->size().width() != first_png_surface->size().width() ||
-                    png_surface->size().height() != first_png_surface->size().height()) {
+            if (surface->size().width() != frame_size.width() ||
+                    surface->size().height() != frame_size.height()) {
                 log::fatal_error(m_output_file_format, 1, "Frame " + std::to_string(i) + " has incorrect size");
             }
 
-            rle.write_frame(i, png_surface);
+            rle.write_frame(i, surface);
         }
 
         // Encode the rleD resource

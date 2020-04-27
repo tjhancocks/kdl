@@ -37,12 +37,15 @@ namespace kdl { namespace media { namespace image {
         std::shared_ptr<graphite::qd::surface> m_surface;
 
         auto decode(graphite::data::reader& reader) -> bool;
+        auto encode(graphite::data::writer& writer) -> void;
 
     public:
         png(const std::string path);
         png(std::shared_ptr<std::vector<char>> data);
+        png(std::shared_ptr<graphite::qd::surface> surface);
 
         auto surface() -> std::weak_ptr<graphite::qd::surface>;
+        auto data() -> std::shared_ptr<graphite::data::data>;
     };
 
 }}};
