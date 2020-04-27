@@ -20,11 +20,11 @@
 ` Resource Fork. The Resource Fork is obsolete as of the time of this writing,
 ` but it still plays a role for many. Older Macintosh software and games relied
 ` on the Resource Fork, and games such as the Escape Velocity series are built
-` upon them and depend on the availability of it for their Plugin development
+` upon them and depend on the availability of it for their plug-in development
 ` communities.
 `
 ` Due to the difficulties in accessing and editing resources, specialized tools
-` commonly sprang up to assist developers and plugin creators. For the Escape
+` commonly sprang up to assist developers and plug-in creators. For the Escape
 ` Velocity series, generic tools such as ResEdit were used, or even specialized
 ` tools as NovaTools, MissionComputer or EVNEW.
 `
@@ -268,7 +268,7 @@
 ` ------------------------------------------------------------------------------
 ` $3 : TYPE DEFINITIONS ========================================================
 ` This section is relevent to anyone who has an interest in defining custom
-` resource types for inclusion in their plugins (Lua Scripting will provide a
+` resource types for inclusion in their plug-ins (Lua Scripting will provide a
 ` way of decoding and using these resources in Kestrel), who wishes to work on
 ` Kestrel itself and needs to add a new type to the engine, or is just curious
 ` about how it works.
