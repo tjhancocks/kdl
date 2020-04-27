@@ -27,6 +27,7 @@
 #include "analyzer/template_extractor.hpp"
 #include "installer/installer_asset.hpp"
 #include "libGraphite/rsrc/manager.hpp"
+#include "disassembler/task.hpp"
 
 auto main(int argc, const char **argv) -> int
 {
@@ -139,6 +140,12 @@ auto main(int argc, const char **argv) -> int
     // Finally save the target to disk, if there are resources present in it.
     if (target->type_container_count() > 0) {
         target->save();
+    }
+
+    // Perform disassembly if a disassembly option has been specified.
+    if (disassembly_root.has_value()) {
+        kdl::disassembler::task d(disassembly_root.value(), target);
+        d.disassemble_resources();
     }
 
     return 0;
