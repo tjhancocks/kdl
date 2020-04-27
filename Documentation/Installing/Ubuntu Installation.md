@@ -3,7 +3,7 @@
 ## Preliminary information
 This guide covers installing KDL on macOS. At present KDL has only been tested
 on Ubuntu 16.04 and later. If you are using an earlier system, then we can
-not guaruntee everything to be fully working or compatible. Please be sure to report 
+not guarantee everything to be fully working or compatible. Please be sure to report 
 any issues with compatibility on other distros and earlier versions.
 
 Before installing make sure you head over to the [releases page](https://github.com/tjhancocks/kdl/releases) and download the latest version for your operating system.
@@ -32,7 +32,7 @@ will look something like this:
 ![Ubuntu-Terminal](https://user-images.githubusercontent.com/681356/79710237-49181900-82bc-11ea-8858-a400cf9de2ca.png)
 
 The last step is to add the `/usr/local/bin` directory to your path. This can be
-acheived by adding the following to your shell configuration
+achieved by adding the following to your shell configuration
 
 ```sh
 export PATH=/usr/local/bin:$PATH
