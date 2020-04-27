@@ -40,13 +40,13 @@ struct alphanum_less : public std::binary_function<Ty, Ty, bool>
 auto kdl::file::exists(std::string_view path) -> bool
 {
     struct stat buffer {};
-    return (stat(std::string(path).c_str(), &buffer) == 0);
+    return (stat(resolve_tilde(path).c_str(), &buffer) == 0);
 }
 
 auto kdl::file::is_directory(std::string_view path) -> bool
 {
     struct stat buffer {};
-    return (stat(std::string(path).c_str(), &buffer) == 0 && S_ISDIR(buffer.st_mode));
+    return (stat(resolve_tilde(path).c_str(), &buffer) == 0 && S_ISDIR(buffer.st_mode));
 }
 
 auto kdl::file::create_directory(std::string_view path) -> void
