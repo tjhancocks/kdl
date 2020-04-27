@@ -23,18 +23,18 @@
 ` upon them and depend on the availability of it for their Plugin development
 ` communities.
 `
-` Due to the difficulties in accessing and editing resources, specialised tools
+` Due to the difficulties in accessing and editing resources, specialized tools
 ` commonly sprang up to assist developers and plugin creators. For the Escape
-` Velocity series, generic tools such as ResEdit were used, or even specialised
+` Velocity series, generic tools such as ResEdit were used, or even specialized
 ` tools as NovaTools, MissionComputer or EVNEW.
 `
 ` ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ` NOTE: The name ResourceFork actually refers to a specific File Fork in the
 `       file system, not the binary format that holds resources. Prior to 
-`		Mac OS X there was no distinction between the format and the fork in
-` 		which it was held. Apple began packaging resources inside the DataFork
-`		of a file with the introduction of Mac OS X. These files can be 
-`		recognised by their .rsrc file extension and are called ResourceFiles.
+`       Mac OS X there was no distinction between the format and the fork in
+`       which it was held. Apple began packaging resources inside the DataFork
+`       of a file with the introduction of Mac OS X. These files can be 
+`       recognized by their .rsrc file extension and are called ResourceFiles.
 ` ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 `
 ` Kestrel will rely upon the Resource format, but not expect people to actually
@@ -99,7 +99,7 @@
 ` ------------------------------------------------------------------------------
 ` $1.2 : STRING LITERAL ========================================================
 ` Strings are the basic means of representing text. They are a sequence of 
-` characters, and can be recognised as such:
+` characters, and can be recognized as such:
 
 	"This is a string."
 	"Strings are encapsulated inside double quotes."
@@ -199,7 +199,7 @@
 
 	declare ResourceType {
 
-` Within the declaration block, we can then create a new resources. When 
+` Within the declaration block, we can then create new resources. When 
 ` creating a resource we need to specify a resource id, and optionally a 
 ` resource name. The 'new' keyword here denotes that we are creating a new
 ` resource.
@@ -240,7 +240,7 @@
 
 	};
 
-` Resource construction is straight forward are relatively simple by design. The
+` Resource construction is straight forward and relatively simple by design. The
 ` intention is that the complexity should be handled by KDL and the Type 
 ` Definition itself.
 `
@@ -257,7 +257,7 @@
 ` Examples are useful when debugging or illustrating how to use a resource type
 ` that you have just defined/created.
 `
-` Examples declarations can be recognised as so:
+` Examples declarations can be recognized as so:
 
 	@example declare ResourceType {
 		new (#128) {
@@ -267,11 +267,11 @@
 
 ` ------------------------------------------------------------------------------
 ` $3 : TYPE DEFINITIONS ========================================================
-` This section is relavent to anyone has an interest in defining custom resource
-` types for inclusion in their plugins (Lua Scripting will provide a way of
-` decoding and using these resources in Kestrel), who wishes to work on Kestrel
-` itself and needs to add a new type to the engine, or is just curious about how
-` it works.
+` This section is relevent to anyone who has an interest in defining custom
+` resource types for inclusion in their plugins (Lua Scripting will provide a
+` way of decoding and using these resources in Kestrel), who wishes to work on
+` Kestrel itself and needs to add a new type to the engine, or is just curious
+` about how it works.
 ` 
 ` Let's take a quick look at a type definition before diving in to the mechanics
 ` behind it.
@@ -347,11 +347,11 @@
 			PSTR PascalString;      ` 1 Byte Length + String.
 			CSTR CString;           ` String + NUL Terminator.
 			C000 FixedLengthString; ` 000 - Hex Value representing length of str
-			HEXD RawBinaryData;		` All remaining bytes in resource.
-			RECT RectangleStruct;	` 4(2) Bytes: Top Left Bottom Right
+			HEXD RawBinaryData;     ` All remaining bytes in resource.
+			RECT RectangleStruct;   ` 4(2) Bytes: Top Left Bottom Right
 		};
 
-` Overtime additional data types may be added to KDL, depending on the required
+` Over time additional data types may be added to KDL, depending on the required
 ` resources to be represented.
 `
 ` Each template field automatically becomes a variable within the scope of the
@@ -362,7 +362,7 @@
 ` '$name'.
 `
 ` These variables can be used in specific locations, and are not able to be used
-` where ever. As of the time of writing this document (Version 0.2) variables
+` wherever. As of the time of writing this document (Version 0.2) variables
 ` can be used within assertions.
 `
 ` ------------------------------------------------------------------------------
@@ -384,7 +384,7 @@
 ` the resources through the use of fields. These differ from the fields of the
 ` template, but are related.
 `
-` These fields are the public facing element of the type, where as the fields in
+` These fields are the public facing element of the type, whereas the fields in
 ` the template can be thought of as the private internals and mechanics.
 `
 ` To start creating a field is simple, simply provide the name of the field:
