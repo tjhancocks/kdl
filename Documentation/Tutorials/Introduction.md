@@ -1,9 +1,9 @@
 # Introduction to KDL
-This tutorial is intended to give a basic overview of creating plugins and content for the Escape Velocity Nova. Ultimately the KDL tooling will be used for developing content for Kestrel, however given that Kestrel is not yet ready for such use cases, we'll be using EV Nova as our target.
+This tutorial is intended to give a basic overview of creating plug-ins and content for the Escape Velocity Nova. Ultimately the KDL tooling will be used for developing content for Kestrel, however given that Kestrel is not yet ready for such use cases, we'll be using EV Nova as our target.
 
-KDL is unlike most plugin editors that have historically been encountered for the Escape Velocity games. It is a text based assembler, taking in _KDL Code_ and assembling it in to a plugin. This approach has a number of advantages to the older method of plugin development:
+KDL is unlike most plug-in editors that have historically been encountered for the Escape Velocity games. It is a text based assembler, taking in _KDL Code_ and assembling it into a plug-in. This approach has a number of advantages to the older method of plug-in development:
 
-1. It is easier to divide up sections of your plugin into seperate files and directories.
+1. It is easier to divide up sections of your plug-in into separate files and directories.
 2. You can use version control systems to manage changes to your code.
 3. The workflow is flexible, adapting to how _you_ want to work.
 
@@ -21,13 +21,13 @@ We'll start out with a fairly traditional example... _Hello, World_. This exampl
 @out "Hello, World!";
 ```
 
-This is probably about as simple of a script you can get in KDL, without just having an empty file. This example illustrates two seperate things in KDL, a comment and the `@out` directive.
+This is probably about as simple of a script you can get in KDL, without just having an empty file. This example illustrates two separate things in KDL, a comment and the `@out` directive.
 
 First of all, comments in KDL are denoted by the backtick character and run from it until the end of the line. This is similar to how comments in many languages work.
 
 The second thing to examine here is the concept of a _directive_. Directives are instructions to the KDL assembler itself to do something. They are always prefixed by the `@` character, and thus easily identifiable. These instructions might be to import the contents of another file as additional KDL code, or to define a new resource type. 
 
-In this case the directive in use is `@out`. The `@out` directive is used to print a message to the assemblers standard output.
+In this case the directive in use is `@out`. The `@out` directive is used to print a message to the assembler's standard output.
 
 The final thing to note about KDL is that **all** commands must be terminated by a semi-colon `;`.
 
@@ -47,11 +47,11 @@ Let's get on to something more interesting though!
 ## Creating Resources
 So what we did before is useful for understanding how KDL is used, but no particularly useful for much else. 
 
-So let's create a simple plugin!
+So let's create a simple plug-in!
 
-We'll make a small plugin to add an additional character type to the game. Let's start by creating a new directory for our new plugin. I've created a directory at `~/Documents/AuroranPilot`.
+We'll make a small plug-in to add an additional character type to the game. Let's start by creating a new directory for our new plug-in. I've created a directory at `~/Documents/AuroranPilot`.
 
-As the name of the directory implies, our plugin will introduce a new character template into the game that has us start our journey in the heart of the Auroran empire, rather than in Federation space.
+As the name of the directory implies, our plug-in will introduce a new character template into the game that has us start our journey in the heart of the Auroran empire, rather than in Federation space.
 
 Let's get started...
 
@@ -124,7 +124,7 @@ declare PlayerCharacterTemplate {
 };
 ```
 
-In this example we encounter something slightly different. The starting system field has _3_ seperate values assigned to it. The `chär` resource type as seen by EV Nova has 4 seperate fields `System1`, `System2`, `System3` and `System4` for defining the potential starting systems. KDL offers the ability to condense these down in to a single field. The `System` field can take up to 4 different values and will automatically substitute missing values with a default value `#-1`, which EV Nova will pick up as meaning unused.
+In this example we encounter something slightly different. The starting system field has _3_ separate values assigned to it. The `chär` resource type as seen by EV Nova has 4 separate fields `System1`, `System2`, `System3` and `System4` for defining the potential starting systems. KDL offers the ability to condense these down in to a single field. The `System` field can take up to 4 different values and will automatically substitute missing values with a default value `#-1`, which EV Nova will pick up as meaning unused.
 
 Let's continue on and fill out the rest of the resource.
 
@@ -147,9 +147,9 @@ declare PlayerCharacterTemplate {
 };
 ```
 
-There is one new type of field to mention here. The `AddIntroSequenceFrame` is repreated 3 times. Each instance of the field represents a picture to be shown to the player and the duration in which it should be shown, before the game begins. These "repeatable" fields help to cut down on the amount of code being written, and to make field naming less tedious.
+There is one new type of field to mention here. The `AddIntroSequenceFrame` is repeated 3 times. Each instance of the field represents a picture to be shown to the player and the duration in which it should be shown, before the game begins. These "repeatable" fields help to cut down on the amount of code being written, and to make field naming less tedious.
 
-Now that we have our charater template declared, let's build our plugin.
+Now that we have our character template declared, let's build our plug-in.
 
 Once again we need to be in the terminal, and navigated to the appropriate directory.
 
@@ -162,7 +162,7 @@ $ kdl --scenario evn -o AuroranPilot Character.kdl
 
 You may have noticed a few extra options being present in the command. These are:
 
-- `--scenario evn`: This tells KDL what game scenario we are assembling a plugin for. By default KDL only comes with the `evn` (EV Nova) scenario type definitions.
+- `--scenario evn`: This tells KDL what game scenario we are assembling a plug-in for. By default KDL only comes with the `evn` (EV Nova) scenario type definitions.
 - `-o AuroranPilot`: This tells KDL where the output of the assembly should be saved. In this case the `AuroranPilot` file. KDL will automatically determine what extension is appropriate.
 
-And there you have it. You have built a simple plugin using KDL. From here on, the process of adding the plugin to EV Nova is just the same as it has always been.
+And there you have it. You have built a simple plug-in using KDL. From here on, the process of adding the plug-in to EV Nova is just the same as it has always been.
