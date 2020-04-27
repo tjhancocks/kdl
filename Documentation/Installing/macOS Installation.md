@@ -3,7 +3,7 @@
 ## Preliminary information
 This guide covers installing KDL on macOS. At present KDL has only been tested
 on macOS 10.14 Mojave and later. If you are using an earlier system, then we can
-not guaruntee everything to be fully working or compatible. We do however plan to
+not guarantee everything to be fully working or compatible. We do however plan to
 support back to macOS 10.12.
 
 Before installing make sure you head over to the [releases page](https://github.com/tjhancocks/kdl/releases) and download the latest version for your operating system.
@@ -24,7 +24,7 @@ the installation process. Once it completes, it will look something like this:
 <div style="text-align:center"><img src="https://user-images.githubusercontent.com/681356/79683577-06eec900-8223-11ea-9c90-fc683e794e4e.png" /></div>
 
 The last step is to add the `/usr/local/bin` directory to your path. This can be
-acheived by adding the following to your shell configuration
+achieved by adding the following to your shell configuration
 
 ```sh
 export PATH=/usr/local/bin:$PATH
