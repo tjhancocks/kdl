@@ -126,8 +126,10 @@ auto main(int argc, const char **argv) -> int
         parser.parse();
     }
 
-    // Finally save the target to disk.
-    target->save();
+    // Finally save the target to disk, if there are resources present in it.
+    if (target->type_container_count() > 0) {
+        target->save();
+    }
 
     return 0;
 }
