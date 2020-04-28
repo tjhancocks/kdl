@@ -88,7 +88,7 @@ auto kdl::disassembler::kdl_exporter::begin_resource(int64_t id, const std::stri
         insert_line("new (#" + std::to_string(id) + ") {", 1);
     }
     else {
-        insert_line("new (#" + std::to_string(id) + ", \"" + name + "\") {", 1);
+        insert_line("new (#" + std::to_string(id) + ", \"" + escape_strings(name) + "\") {", 1);
     }
 }
 

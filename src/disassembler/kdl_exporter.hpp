@@ -56,4 +56,18 @@ namespace kdl { namespace disassembler {
 
 }};
 
+// MARK: - Helpers
+
+static auto escape_strings(const std::string& str) -> std::string
+{
+    std::string out;
+    for (auto i = str.begin(); i != str.end(); ++i) {
+        if ((*i) == '"') {
+            out.append("\\");
+        }
+        out.insert(out.end(), i, i + 1);
+    }
+    return out;
+}
+
 #endif //KDL_KDL_EXPORTER_HPP

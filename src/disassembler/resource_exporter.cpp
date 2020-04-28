@@ -166,6 +166,8 @@ auto kdl::disassembler::resource_exporter::disassemble(std::shared_ptr<graphite:
 
                     auto file_name = m_container.name() + "-" + std::to_string(resource->id()) + ".png";
                     m_exporter.export_file(file_name, data);
+                    formatted_values.emplace_back("import \"" + file_name + "\"");
+                    continue;
                 }
 
                 if (expected_value.explicit_type().has_value()) {
@@ -207,7 +209,7 @@ auto kdl::disassembler::resource_exporter::disassemble_value(kdl::build_target::
         case build_target::CSTR:
         case build_target::Cnnn:
         case build_target::PSTR: {
-            return "\"" + std::any_cast<std::string>(disasm_value) + "\"";
+            return "\"" + escape_strings(std::any_cast<std::string>(disasm_value)) + "\"";
         }
         case build_target::RECT: {
             auto rect = std::any_cast<std::tuple<int16_t, int16_t, int16_t, int16_t>>(disasm_value);
