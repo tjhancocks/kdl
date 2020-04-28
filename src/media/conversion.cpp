@@ -42,6 +42,13 @@ kdl::media::conversion::conversion(const kdl::lexeme input, const kdl::lexeme ou
 {
 }
 
+// MARK: - Adding input data
+
+auto kdl::media::conversion::add_input_data(std::vector<char> data) -> void
+{
+    m_input_file_contents.emplace_back(std::make_shared<std::vector<char>>(data));
+}
+
 // MARK: - Adding input files
 
 auto kdl::media::conversion::add_input_file(const std::string contents) -> void
@@ -51,10 +58,14 @@ auto kdl::media::conversion::add_input_file(const std::string contents) -> void
 
 // MARK: - Conversion
 
+static inline auto is_image_type(const kdl::lexeme& type) -> bool
+{
+    return type.is("PICT") || type.is("cicn") || type.is("PNG") || type.is("TGA");
+}
+
 auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
 {
-    if ((m_input_file_format.is("TGA") || m_input_file_format.is("PNG")) &&
-            (m_output_file_format.is("PICT") || m_output_file_format.is("cicn"))) {
+    if (is_image_type(m_input_file_format) && is_image_type(m_output_file_format)) {
         if (m_input_file_contents.size() != 1) {
             log::fatal_error(m_output_file_format, 1, "Unable to process more than one input file for format '" + m_output_file_format.text() + "'");
         }
@@ -68,6 +79,18 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
         else if (m_input_file_format.is("PNG")) {
             image::png png(m_input_file_contents[0]);
             surface = png.surface().lock();
+        }
+        else if (m_input_file_format.is("PICT")) {
+            auto data = m_input_file_contents[0];
+            auto data_ptr = std::make_shared<graphite::data::data>(data, data->size());
+            graphite::qd::pict pict(data_ptr);
+            surface = pict.image_surface().lock();
+        }
+        else if (m_input_file_format.is("cicn")) {
+            auto data = m_input_file_contents[0];
+            auto data_ptr = std::make_shared<graphite::data::data>(data, data->size());
+            graphite::qd::cicn cicn(data_ptr);
+            surface = cicn.surface().lock();
         }
         else {
             log::fatal_error(m_input_file_format, 1, "Unable to handle input format '" + m_input_file_format.text() + "'");
@@ -85,6 +108,11 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
 
             return std::vector<char>(cicn_data->get()->begin(), cicn_data->get()->end());
         }
+        else if (m_output_file_format.is("PNG")) {
+            image::png png(surface);
+            auto png_data = png.data();
+            return std::vector<char>(png_data->get()->begin(), png_data->get()->end());
+        }
         else {
             log::fatal_error(m_output_file_format, 1, "Unable to handle output format '" + m_output_file_format.text() + "'");
         }
@@ -100,7 +128,7 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
 
         return std::vector<char>(snd_data->get()->begin(), snd_data->get()->end());
     }
-    else if ((m_input_file_format.is("TGA") || m_input_file_format.is("PNG")) && m_output_file_format.is("rleD")) {
+    else if (is_image_type(m_input_file_format) && m_output_file_format.is("rleD")) {
         if (m_input_file_contents.size() == 0) {
             log::fatal_error(m_output_file_format, 1, "Must have at least one input file for format '" + m_output_file_format.text() + "'");
         }
@@ -144,6 +172,7 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
         return std::vector<char>(rled_data->get()->begin(), rled_data->get()->end());
     }
     else {
+        return {};
         log::fatal_error(m_output_file_format, 1, "Unable to convert from '" + m_input_file_format.text() +
                          "' to '" + m_output_file_format.text() + "'");
     }

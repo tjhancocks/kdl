@@ -41,6 +41,7 @@ namespace kdl { namespace disassembler {
 
         auto save() -> void;
         auto export_file(const std::string& name, const std::string& contents) -> void;
+        auto export_file(const std::string &name, const std::vector<char>& contents) -> void;
 
         auto insert_comment(const std::string& text) -> void;
 

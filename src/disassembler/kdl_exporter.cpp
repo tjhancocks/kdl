@@ -43,10 +43,18 @@ auto kdl::disassembler::kdl_exporter::save() -> void
     std::ofstream out(m_path);
     out << m_code;
 }
+
 auto kdl::disassembler::kdl_exporter::export_file(const std::string &name, const std::string& contents) -> void
 {
     std::ofstream out(m_dir + "/" + name);
     out << contents;
+}
+
+auto kdl::disassembler::kdl_exporter::export_file(const std::string &name, const std::vector<char>& contents) -> void
+{
+    std::ofstream out(m_dir + "/" + name, std::ios::out | std::ios::binary);
+    out.write((char*)&contents[0], contents.size());
+    out.close();
 }
 
 // MARK: - Code Generation

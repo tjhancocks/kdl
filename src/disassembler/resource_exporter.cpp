@@ -19,8 +19,10 @@
 // SOFTWARE.
 
 #include <map>
+#include <fstream>
 #include "disassembler/resource_exporter.hpp"
 #include "libGraphite/data/reader.hpp"
+#include "media/conversion.hpp"
 
 // MARK: - Construction
 
@@ -90,7 +92,7 @@ static auto extract_value(graphite::data::reader& r, kdl::build_target::type_tem
             break;
         }
         case kdl::build_target::HEXD: {
-            disassembled_values.emplace_back(r.read_data(r.size() - r.position()));
+            disassembled_values.emplace_back(r.read_bytes(r.size() - r.position()));
             break;
         }
         case kdl::build_target::OCNT: {
@@ -153,6 +155,17 @@ auto kdl::disassembler::resource_exporter::disassemble(std::shared_ptr<graphite:
                         m_exporter.add_field(field.name().text(), { v_str });
                     }
                     return;
+                }
+
+                // Check if the field has a conversion applied for it. If it does then ask the conversion
+                // module to perform the conversion.
+                if (expected_value.has_conversion_defined()) {
+                    media::conversion conv(expected_value.conversion_output(), lexeme("PNG", lexeme::identifier));
+                    conv.add_input_data(std::any_cast<std::vector<char>>(disasm_value));
+                    auto data = conv.perform_conversion();
+
+                    auto file_name = m_container.name() + "-" + std::to_string(resource->id()) + ".png";
+                    m_exporter.export_file(file_name, data);
                 }
 
                 if (expected_value.explicit_type().has_value()) {

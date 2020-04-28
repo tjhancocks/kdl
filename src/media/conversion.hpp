@@ -22,7 +22,9 @@
 #define KDL_CONVERSION_HPP
 
 #include <vector>
+#include <memory>
 #include "parser/lexeme.hpp"
+#include "libGraphite/data/reader.hpp"
 
 namespace kdl { namespace media {
 
@@ -38,6 +40,7 @@ namespace kdl { namespace media {
         conversion(const lexeme input, const lexeme output);
 
         auto add_input_file(const std::string contents) -> void;
+        auto add_input_data(std::vector<char>) -> void;
 
         auto perform_conversion() const -> std::vector<char>;
     };
