@@ -171,6 +171,21 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
         auto rled_data = rle.data();
         return std::vector<char>(rled_data->get()->begin(), rled_data->get()->end());
     }
+    else if (m_input_file_format.is("rleD") && is_image_type(m_output_file_format)) {
+        auto data = m_input_file_contents[0];
+        auto data_ptr = std::make_shared<graphite::data::data>(data, data->size());
+        graphite::qd::rle rle(data_ptr);
+        if (auto surface = rle.surface().lock()) {
+
+            if (m_output_file_format.is("PNG")) {
+                image::png png(surface);
+                auto png_data = png.data();
+                return std::vector<char>(png_data->get()->begin(), png_data->get()->end());
+            }
+
+            return {};
+        }
+    }
     else {
         return {};
         log::fatal_error(m_output_file_format, 1, "Unable to convert from '" + m_input_file_format.text() +

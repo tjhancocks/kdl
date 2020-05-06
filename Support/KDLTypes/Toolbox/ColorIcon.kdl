@@ -27,7 +27,7 @@
 		Data as File<PNG> __conversion($InputFormat, cicn);
 	};
 
-	`field("TGA") {
-	`	Data as File<TGA> __conversion($InputFormat, cicn);
-	`};
+	field("TGA") {
+		Data as File<TGA> __conversion($InputFormat, cicn);
+	};
 };

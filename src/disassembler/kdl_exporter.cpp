@@ -99,9 +99,9 @@ auto kdl::disassembler::kdl_exporter::end_resource() -> void
 
 auto kdl::disassembler::kdl_exporter::add_field(const std::string &name, std::vector<std::string> values) -> void
 {
-    std::string line { name + " = " };
+    std::string line { name + " =" };
     for (auto value : values) {
-        line.append(value + " ");
+        line.append(" " + value);
     }
     insert_line(line + ";", 2);
 }

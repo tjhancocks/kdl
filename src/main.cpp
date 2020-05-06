@@ -31,7 +31,6 @@
 
 auto main(int argc, const char **argv) -> int
 {
-    std::optional<std::string> disassembly_root;
     auto target = std::make_shared<kdl::target>();
     std::vector<std::shared_ptr<kdl::file>> files;
 
@@ -98,8 +97,7 @@ auto main(int argc, const char **argv) -> int
                 graphite::rsrc::manager::shared_manager().import_file(file);
             }
             else if (arg == "-d" || arg == "--disassemble") {
-                disassembly_root = kdl::file::resolve_tilde(std::string(argv[i + 1]));
-                i += 1;
+                target->initialise_disassembler(kdl::file::resolve_tilde(std::string(argv[++i])));
             }
             else if (arg == "-tmpl" && i + 2 < argc) {
                 // Read in a resource file and build KDL definitions from them.
@@ -143,9 +141,8 @@ auto main(int argc, const char **argv) -> int
     }
 
     // Perform disassembly if a disassembly option has been specified.
-    if (disassembly_root.has_value()) {
-        kdl::disassembler::task d(disassembly_root.value(), target);
-        d.disassemble_resources();
+    if (target->disassembler().has_value()) {;
+        target->disassembler()->disassemble_resources();
     }
 
     return 0;

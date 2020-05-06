@@ -47,6 +47,23 @@ auto kdl::sema::configuration_directive_parser::parse(parser &parser, std::weak_
             }
             t->set_scenario_root(parser.read().text());
         }
+        else if (key == "ExportImageFormat") {
+            if (!parser.expect_any({
+                expectation(lexeme::identifier, "PNG").be_true(),
+                expectation(lexeme::identifier, "TGA").be_true()
+            })) {
+                log::fatal_error(parser.peek(), 1, "ExportImageFormat requires an identifier value.");
+            }
+            t->set_disassembler_image_format({ parser.read() });
+        }
+        else if (key == "ExportSoundFormat") {
+            if (!parser.expect_any({
+                expectation(lexeme::identifier, "WAV").be_true()
+            })) {
+                log::fatal_error(parser.peek(), 1, "ExportSoundFormat requires an identifier value.");
+            }
+            t->set_disassembler_sound_format({ parser.read() });
+        }
         else {
             log::fatal_error(parser.peek(), 1, "Unrecognised configuration key '" + key + "'.");
         }

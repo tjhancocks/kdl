@@ -23,9 +23,9 @@
         HEXD Data;
     };
 
-    `field("TGA") {
-    `   Data as File<TGA> __conversion($InputFormat, rleD);
-    `};
+    field("TGA") {
+       Data as File<TGA> __conversion($InputFormat, rleD);
+    };
 
     field("PNG") {
         Data as File<PNG> __conversion($InputFormat, rleD);

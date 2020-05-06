@@ -1,15 +1,15 @@
 // Copyright (c) 2020 Tom Hancocks
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,39 +18,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TASK_HPP)
-#define KDL_TASK_HPP
 
-#include <string>
-#include <memory>
-#include <optional>
-#include "parser/lexeme.hpp"
+#if !defined(KDL_BINARY_PARSER_HPP)
+#define KDL_BINARY_PARSER_HPP
 
-namespace kdl { class target; }
+#include <map>
+#include <any>
+#include "target/new/type_template.hpp"
+#include "libGraphite/data/reader.hpp"
 
 namespace kdl { namespace disassembler {
 
-    class task
+    class binary_parser
     {
     private:
-        std::string m_destination_dir;
-        std::vector<lexeme> m_preferred_image_export_format {};
-        std::vector<lexeme> m_preferred_sound_export_format {};
-        std::shared_ptr<target> m_target;
+        build_target::type_template& m_tmpl;
+        int m_index { 0 };
+
+        auto extract_value(graphite::data::reader& reader) -> std::any;
 
     public:
-        task(const std::string& destination_dir, std::shared_ptr<target>);
+        binary_parser(build_target::type_template& tmpl);
 
-        auto set_preferred_image_formats(std::vector<lexeme> formats) -> void;
-        auto set_preferred_sound_formats(std::vector<lexeme> formats) -> void;
-
-        auto format_priority(const lexeme& format) const -> int;
-        auto appropriate_conversion_format(const lexeme& input, int priority) const -> std::optional<lexeme>;
-        auto format_extension(const lexeme& format) const -> std::string;
-
-        auto disassemble_resources() -> void;
+        auto parse(graphite::data::reader& reader) -> std::map<int, std::any>;
     };
 
-}};
+}}
 
-#endif //KDL_TASK_HPP
+#endif //KDL_BINARY_PARSER_HPP

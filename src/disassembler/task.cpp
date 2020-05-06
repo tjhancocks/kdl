@@ -19,11 +19,13 @@
 // SOFTWARE.
 
 #include <iostream>
+#include <algorithm>
 #include "disassembler/task.hpp"
 #include "disassembler/kdl_exporter.hpp"
 #include "disassembler/resource_exporter.hpp"
 #include "libGraphite/rsrc/manager.hpp"
 #include "parser/file.hpp"
+#include "target/target.hpp"
 
 // MARK: - Construction
 
@@ -31,6 +33,88 @@ kdl::disassembler::task::task(const std::string &destination_dir, std::shared_pt
     : m_destination_dir(destination_dir), m_target(target)
 {
 
+}
+
+// MARK: - Accessors
+
+auto kdl::disassembler::task::set_preferred_image_formats(std::vector<lexeme> formats) -> void
+{
+    m_preferred_image_export_format = formats;
+}
+
+auto kdl::disassembler::task::set_preferred_sound_formats(std::vector<lexeme> formats) -> void
+{
+    m_preferred_sound_export_format = formats;
+}
+
+auto kdl::disassembler::task::format_priority(const lexeme& format) const -> int
+{
+    // Check the image formats first...
+    for (auto i = 0; i < m_preferred_image_export_format.size(); ++i) {
+        if (m_preferred_image_export_format.at(i).is(format.text())) {
+            return i;
+        }
+    }
+
+    // Check the sound formats next...
+    for (auto i = 0; i < m_preferred_sound_export_format.size(); ++i) {
+        if (m_preferred_sound_export_format.at(i).is(format.text())) {
+            return i;
+        }
+    }
+
+    // ... the format is not in the users preference, so lowest priority.
+    return INT_MAX;
+}
+
+auto kdl::disassembler::task::appropriate_conversion_format(const kdl::lexeme &input, int priority) const -> std::optional<kdl::lexeme>
+{
+    if (input.is("PNG") || input.is("TGA") || input.is("PICT") || input.is("cicn") || input.is("rleD") || input.is("ppat")) {
+        if (priority >= m_preferred_image_export_format.size()) {
+            return {};
+        }
+        return m_preferred_image_export_format.at(priority);
+    }
+    else if (input.is("snd") || input.is("WAV")) {
+        if (priority >= m_preferred_image_export_format.size()) {
+            return {};
+        }
+        return m_preferred_sound_export_format.at(priority);
+    }
+    else {
+        throw std::logic_error("Unknown Conversion Type: " + input.text());
+    }
+}
+
+auto kdl::disassembler::task::format_extension(const lexeme& format) const -> std::string
+{
+    if (format.is("PNG")) {
+        return "png";
+    }
+    else if (format.is("TGA")) {
+        return "tga";
+    }
+    else if (format.is("PICT")) {
+        return "pict";
+    }
+    else if (format.is("cicn")) {
+        return "cicn";
+    }
+    else if (format.is("rleD")) {
+        return "rled";
+    }
+    else if (format.is("ppat")) {
+        return "ppat";
+    }
+    else if (format.is("snd")) {
+        return "snd";
+    }
+    else if (format.is("WAV")) {
+        return "wav";
+    }
+    else {
+        return "bin";
+    }
 }
 
 // MARK: - Root Tasks
@@ -63,10 +147,9 @@ auto kdl::disassembler::task::disassemble_resources() -> void
                 exporter.insert_comment("Resource Type Code '" + type_container.code() + "', " + std::to_string(type->count()) + " resources");
                 exporter.begin_declaration(type_container.name());
 
-                resource_exporter disassembler(exporter, type_container);
                 for (auto resource : type->resources()) {
                     exporter.begin_resource(resource->id(), resource->name());
-                    disassembler.disassemble(resource);
+                    resource_exporter(*this, exporter, type_container).disassemble(resource);
                     exporter.end_resource();
                 }
 

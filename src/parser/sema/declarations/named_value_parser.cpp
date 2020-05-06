@@ -23,6 +23,7 @@
 #include "parser/sema/declarations/named_types/file_type_parser.hpp"
 #include "parser/sema/declarations/named_types/bitmask_parser.hpp"
 #include "parser/sema/declarations/named_types/range_parser.hpp"
+#include "parser/sema/declarations/named_types/color_parser.hpp"
 
 // MARK: - Constructor
 
@@ -60,7 +61,8 @@ auto kdl::sema::named_value_parser::parse(kdl::build_target::resource_instance &
                 .parse(instance);
     }
     else if (type_name.is("Color")) {
-
+        color_parser(m_parser, m_field, m_field_value, m_binary_fields.back(), m_explicit_type)
+                .parse(instance);
     }
     else {
         log::fatal_error(type_name, 1, "Unrecognised type name '" + type_name.text() + "'");

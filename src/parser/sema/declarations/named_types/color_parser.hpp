@@ -18,39 +18,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TASK_HPP)
-#define KDL_TASK_HPP
+#if !defined(KDL_COLOR_PARSER_HPP)
+#define KDL_COLOR_PARSER_HPP
 
-#include <string>
-#include <memory>
-#include <optional>
-#include "parser/lexeme.hpp"
+#include "parser/parser.hpp"
 
-namespace kdl { class target; }
+namespace kdl { namespace sema {
 
-namespace kdl { namespace disassembler {
-
-    class task
+    class color_parser
     {
     private:
-        std::string m_destination_dir;
-        std::vector<lexeme> m_preferred_image_export_format {};
-        std::vector<lexeme> m_preferred_sound_export_format {};
-        std::shared_ptr<target> m_target;
-
+        parser& m_parser;
+        build_target::kdl_type& m_explicit_type;
+        build_target::type_field& m_field;
+        build_target::type_field_value& m_field_value;
+        build_target::type_template::binary_field m_binary_field;
     public:
-        task(const std::string& destination_dir, std::shared_ptr<target>);
+        color_parser(parser& parser, build_target::type_field& field,
+                     build_target::type_field_value& field_value,
+                     build_target::type_template::binary_field binary_field,
+                     build_target::kdl_type& type);
 
-        auto set_preferred_image_formats(std::vector<lexeme> formats) -> void;
-        auto set_preferred_sound_formats(std::vector<lexeme> formats) -> void;
-
-        auto format_priority(const lexeme& format) const -> int;
-        auto appropriate_conversion_format(const lexeme& input, int priority) const -> std::optional<lexeme>;
-        auto format_extension(const lexeme& format) const -> std::string;
-
-        auto disassemble_resources() -> void;
+        auto parse(build_target::resource_instance& instance) -> void;
     };
 
 }};
 
-#endif //KDL_TASK_HPP
+#endif //KDL_COLOR_PARSER_HPP
