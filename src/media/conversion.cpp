@@ -24,6 +24,7 @@
 #include "media/sound/wav.hpp"
 #include "libGraphite/quickdraw/pict.hpp"
 #include "libGraphite/quickdraw/cicn.hpp"
+#include "libGraphite/quickdraw/ppat.hpp"
 #include "libGraphite/quickdraw/rle.hpp"
 #include "libGraphite/resources/sound.hpp"
 #include "diagnostic/fatal.hpp"
@@ -54,7 +55,7 @@ auto kdl::media::conversion::add_input_file(const std::string contents) -> void
 auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
 {
     if ((m_input_file_format.is("TGA") || m_input_file_format.is("PNG")) &&
-            (m_output_file_format.is("PICT") || m_output_file_format.is("cicn"))) {
+            (m_output_file_format.is("PICT") || m_output_file_format.is("cicn") || m_output_file_format.is("ppat"))) {
         if (m_input_file_contents.size() != 1) {
             log::fatal_error(m_output_file_format, 1, "Unable to process more than one input file for format '" + m_output_file_format.text() + "'");
         }
@@ -84,6 +85,12 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
             auto cicn_data = cicn.data();
 
             return std::vector<char>(cicn_data->get()->begin(), cicn_data->get()->end());
+        }
+        else if (m_output_file_format.is("ppat")) {
+            graphite::qd::ppat ppat(surface);
+            auto ppat_data = ppat.data();
+
+            return std::vector<char>(ppat_data->get()->begin(), ppat_data->get()->end());
         }
         else {
             log::fatal_error(m_output_file_format, 1, "Unable to handle output format '" + m_output_file_format.text() + "'");
