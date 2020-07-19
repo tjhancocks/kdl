@@ -1,4 +1,4 @@
-@type MacintoshPicture : "PICT" {
+@type MacintoshPictureTest : "PICT" {
 	template {
 		HEXD Data;
 	};
@@ -10,7 +10,7 @@
 	};
 };
 
-declare MacintoshPicture {
+declare MacintoshPictureTest {
 	new(#128) {
 		File = import "@rpath/TestImage.tga";
 	};

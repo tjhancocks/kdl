@@ -21,6 +21,7 @@
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/named_types/file_type_parser.hpp"
 #include "media/conversion.hpp"
+#include "media/sprite_sheet_assembler.hpp"
 #include "parser/file.hpp"
 
 // MARK: - Constructor
@@ -117,6 +118,13 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
             auto output = kdl::media::conversion(string_value, input_format, output_format).perform_conversion();
             string_value = std::string(output.begin(), output.end());
         }
+    }
+
+    // Check if we're assembling a sprite sheet (this involves taking multiple input files and putting them
+    // into a single image and export it as TGA data)
+    else if (m_field_value.assemble_sprite_sheet()) {
+        auto output = kdl::media::sprite_sheet_assembler(file_contents, m_explicit_type.type_hints()[0]).assemble();
+        string_value = std::string(output.begin(), output.end());
     }
 
     // Get the value type for the field, and the set it.

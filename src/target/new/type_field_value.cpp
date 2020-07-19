@@ -176,3 +176,15 @@ auto kdl::build_target::type_field_value::joined_value_at(const int i) -> kdl::b
 {
     return m_joined_values.at(i);
 }
+
+// MARK: - Sprite Sheet Assembling
+
+auto kdl::build_target::type_field_value::set_assemble_sprite_sheet() -> void
+{
+    m_assemble_sprite_sheet = true;
+}
+
+auto kdl::build_target::type_field_value::assemble_sprite_sheet() const -> bool
+{
+    return m_assemble_sprite_sheet;
+}
