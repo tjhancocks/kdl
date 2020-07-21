@@ -91,49 +91,41 @@ auto kdl::media::sprite_sheet_assembler::assemble() const -> std::vector<char>
         // Calculate the bounding box of the sprite
         graphite::qd::rect edges(0, 0, sprite->size().width(), sprite->size().height());
 
-        // left edge
+        // left/right edge
+        auto x_inset = 0;
         for (auto x = 0; x < edges.width() / 2; ++x) {
             for (auto y = 0; y < edges.height(); ++y) {
                 if (sprite->at(x, y).alpha_component() != 0) {
-                    edges.set_x(x);
-                    goto LEFT_EDGE_FOUND;
+                    x_inset = x;
+                    goto X_EDGE_FOUND;
+                }
+                if (sprite->at(edges.width() - 1 - x, y).alpha_component() != 0) {
+                    x_inset = x;
+                    goto X_EDGE_FOUND;
                 }
             }
         }
-        LEFT_EDGE_FOUND:
+        X_EDGE_FOUND:
+        edges.set_x(x_inset);
+        edges.set_width(edges.width() - (x_inset * 2));
 
-        // right edge
-        for (auto x = edges.width() - 1; x > edges.width() / 2; --x) {
-            for (auto y = 0; y < edges.height(); ++y) {
-                if (sprite->at(x, y).alpha_component() != 0) {
-                    edges.set_width(x - edges.x());
-                    goto RIGHT_EDGE_FOUND;
-                }
-            }
-        }
-        RIGHT_EDGE_FOUND:
-
-        // top edge
+        // top/bottom edge
+        auto y_inset = 0;
         for (auto y = 0; y < edges.height() / 2; ++y) {
             for (auto x = 0; x < edges.width(); ++x) {
-                if (sprite->at(x + edges.x(), y).alpha_component() != 0) {
-                    edges.set_y(y);
-                    goto TOP_EDGE_FOUND;
+                if (sprite->at(x, y).alpha_component() != 0) {
+                    y_inset = y;
+                    goto Y_EDGE_FOUND;
+                }
+                if (sprite->at(x, edges.height() - 1 - y).alpha_component() != 0) {
+                    y_inset = y;
+                    goto Y_EDGE_FOUND;
                 }
             }
         }
-        TOP_EDGE_FOUND:
-
-        // bottom edge
-        for (auto y = edges.height() - 1; y > edges.height() / 2; --y) {
-            for (auto x = 0; x < edges.width(); ++x) {
-                if (sprite->at(x + edges.x(), y).alpha_component() != 0) {
-                    edges.set_height(y - edges.y());
-                    goto BOTTOM_EDGE_FOUND;
-                }
-            }
-        }
-        BOTTOM_EDGE_FOUND:
+        Y_EDGE_FOUND:
+        edges.set_y(y_inset);
+        edges.set_height(edges.height() - (y_inset * 2));
 
         sprite_rects.emplace_back(edges);
 
