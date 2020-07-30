@@ -68,6 +68,12 @@ auto kdl::sema::value_reference_parser::parse() -> kdl::build_target::type_field
         ref.set_conversion_map(conversion_parser(m_parser).parse());
     }
 
+    // Check for the sprite sheet assembler function
+    if (m_parser.expect({ expectation(lexeme::identifier, "__assemble_sprite_sheet").be_true() })) {
+        ref.set_assemble_sprite_sheet();
+        m_parser.advance();
+    }
+
     // Check for a symbol list.
     if (m_parser.expect({ expectation(lexeme::l_bracket).be_true() })) {
         ref.set_symbols(symbol_list_parser::parse(m_parser));

@@ -65,11 +65,15 @@ namespace kdl { namespace media { namespace image {
         auto decode(graphite::data::reader& reader) -> bool;
         auto merge_bytes(const int position, const std::vector<char> bytes, const int offset, const int size) -> void;
 
+        auto encode(graphite::data::writer& writer) -> void;
+
     public:
         tga(const std::string path);
         tga(std::shared_ptr<std::vector<char>> data);
+        tga(std::shared_ptr<graphite::qd::surface> surface);
 
         auto surface() -> std::weak_ptr<graphite::qd::surface>;
+        auto data() -> std::vector<char>;
     };
 
 }}};

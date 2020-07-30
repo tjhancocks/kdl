@@ -42,6 +42,7 @@ namespace kdl { namespace build_target {
         std::vector<lexeme> m_name_extensions;
         std::optional<std::tuple<lexeme, lexeme>> m_conversion_map;
         std::vector<type_field_value> m_joined_values;
+        bool m_assemble_sprite_sheet;
 
     public:
         type_field_value(const lexeme base_name);
@@ -73,6 +74,9 @@ namespace kdl { namespace build_target {
         auto joined_value_count() const -> std::size_t;
         auto joined_value_at(const int i) -> type_field_value;
         auto joined_value_for(const lexeme symbol) const -> std::optional<std::tuple<int, lexeme>>;
+
+        auto set_assemble_sprite_sheet() -> void;
+        auto assemble_sprite_sheet() const -> bool;
     };
 
 }};

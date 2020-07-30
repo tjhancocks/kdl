@@ -79,7 +79,7 @@ auto kdl::sema::list_parser::parse() -> std::vector<lexeme>
     m_parser.ensure({ expectation(m_list_start).be_true() });
     while (m_parser.expect({ expectation(m_list_end).be_false() })) {
         if (!m_parser.expect_any(expectations)) {
-            log::fatal_error(m_parser.peek(), 1, "Unexpected type encountered in list.");
+            log::fatal_error(m_parser.peek(), 1, "Unexpected type '" + m_parser.peek().text() + "' encountered in list.");
         }
         out.emplace_back(m_parser.read());
 

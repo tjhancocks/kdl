@@ -40,6 +40,12 @@ kdl::media::image::tga::tga(std::shared_ptr<std::vector<char>> data)
     decode(reader);
 }
 
+kdl::media::image::tga::tga(std::shared_ptr<graphite::qd::surface> surface)
+    : m_surface(surface)
+{
+
+}
+
 // MARK: - Decoding
 
 auto kdl::media::image::tga::decode(graphite::data::reader &reader) -> bool
@@ -142,9 +148,109 @@ auto kdl::media::image::tga::merge_bytes(const int position, const std::vector<c
     }
 }
 
+// MARK: - Encoding
+
+auto kdl::media::image::tga::encode(graphite::data::writer &writer) -> void
+{
+    // Formulate a TGA header
+    tga::header header;
+    header.id_length = 0;
+    header.color_map_type = 0;
+    header.data_type_code = 10;
+    header.color_map_origin = 0;
+    header.color_map_length = 0;
+    header.color_map_depth = 0;
+    header.x_origin = 0;
+    header.y_origin = 0;
+    header.width = m_surface->size().width();
+    header.height = m_surface->size().height();
+    header.bits_per_pixel = 32;
+    header.image_descriptor = 0;
+
+    writer.write_byte(header.id_length);
+    writer.write_byte(header.color_map_type);
+    writer.write_byte(header.data_type_code);
+    writer.write_short(header.color_map_origin);
+    writer.write_short(header.color_map_length);
+    writer.write_byte(header.color_map_depth);
+    writer.write_short(header.x_origin);
+    writer.write_short(header.y_origin);
+    writer.write_short(header.width);
+    writer.write_short(header.height);
+    writer.write_byte(header.bits_per_pixel);
+    writer.write_byte(header.image_descriptor);
+
+    // Start compressing and writing the image data.
+    int run = 0;
+    bool dirty = false;
+    std::vector<graphite::qd::color> buffer;
+
+    for (auto y = 0; y < header.height; ++y) {
+        for (auto x = 0; x < header.width; ++x) {
+            auto picker = m_surface->at(x, header.height - 1 - y);
+
+            if (buffer.size() == 128 || (buffer.size() > 1 && buffer.back() == picker)) {
+                auto n = buffer.size() - 1;
+                if (buffer.back() == picker) {
+                    n--;
+                }
+
+                writer.write_byte(n);
+                for (auto i = 0; i < n; ++i) {
+                    writer.write_byte(buffer[i].blue_component());
+                    writer.write_byte(buffer[i].green_component());
+                    writer.write_byte(buffer[i].red_component());
+                    writer.write_byte(buffer[i].alpha_component());
+                }
+
+                if (buffer.back() == picker) {
+                    buffer.clear();
+                    buffer.emplace_back(picker);
+                    run = 2;
+                }
+            }
+            else if (!buffer.empty() && buffer.back() == picker) {
+                ++run;
+
+                if (run == 128) {
+                    writer.write_byte(0x80 | (run - 1));
+                    writer.write_byte(buffer.back().blue_component());
+                    writer.write_byte(buffer.back().green_component());
+                    writer.write_byte(buffer.back().red_component());
+                    writer.write_byte(buffer.back().alpha_component());
+                    buffer.clear();
+                    run = 0;
+                }
+            }
+            else {
+                if (run > 0) {
+                    writer.write_byte(0x80 | (run - 1));
+                    writer.write_byte(buffer.back().blue_component());
+                    writer.write_byte(buffer.back().green_component());
+                    writer.write_byte(buffer.back().red_component());
+                    writer.write_byte(buffer.back().alpha_component());
+                    buffer.clear();
+                    run = 0;
+                }
+                buffer.emplace_back(picker);
+                run = 1;
+            }
+
+        }
+    }
+}
+
 // MARK: - Accessors
 
 auto kdl::media::image::tga::surface() -> std::weak_ptr<graphite::qd::surface>
 {
     return m_surface;
+}
+
+auto kdl::media::image::tga::data() -> std::vector<char>
+{
+    auto data = std::make_shared<graphite::data::data>(graphite::data::data::byte_order::lsb);
+    graphite::data::writer writer(data);
+    encode(writer);
+    return *data->get();
 }

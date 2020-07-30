@@ -24,6 +24,7 @@
 #include "media/sound/wav.hpp"
 #include "libGraphite/quickdraw/pict.hpp"
 #include "libGraphite/quickdraw/cicn.hpp"
+#include "libGraphite/quickdraw/ppat.hpp"
 #include "libGraphite/quickdraw/rle.hpp"
 #include "libGraphite/resources/sound.hpp"
 #include "diagnostic/fatal.hpp"
@@ -60,7 +61,7 @@ auto kdl::media::conversion::add_input_file(const std::string contents) -> void
 
 static inline auto is_image_type(const kdl::lexeme& type) -> bool
 {
-    return type.is("PICT") || type.is("cicn") || type.is("PNG") || type.is("TGA");
+    return type.is("PICT") || type.is("cicn") || type.is("PNG") || type.is("TGA") || type.is("ppat");
 }
 
 auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
@@ -111,7 +112,14 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
         else if (m_output_file_format.is("PNG")) {
             image::png png(surface);
             auto png_data = png.data();
+
             return std::vector<char>(png_data->get()->begin(), png_data->get()->end());
+        }
+        else if (m_output_file_format.is("ppat")) {
+            graphite::qd::ppat ppat(surface);
+            auto ppat_data = ppat.data();
+
+            return std::vector<char>(ppat_data->get()->begin(), ppat_data->get()->end());
         }
         else {
             log::fatal_error(m_output_file_format, 1, "Unable to handle output format '" + m_output_file_format.text() + "'");
