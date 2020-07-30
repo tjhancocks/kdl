@@ -191,4 +191,5 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
         log::fatal_error(m_output_file_format, 1, "Unable to convert from '" + m_input_file_format.text() +
                          "' to '" + m_output_file_format.text() + "'");
     }
+    return {};
 }
