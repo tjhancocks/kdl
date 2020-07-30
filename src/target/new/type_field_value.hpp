@@ -42,7 +42,7 @@ namespace kdl { namespace build_target {
         std::vector<lexeme> m_name_extensions;
         std::optional<std::tuple<lexeme, lexeme>> m_conversion_map;
         std::vector<type_field_value> m_joined_values;
-        bool m_assemble_sprite_sheet;
+        bool m_assemble_sprite_sheet { false };
 
     public:
         type_field_value(const lexeme base_name);
