@@ -18,33 +18,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_CONVERSION_HPP)
-#define KDL_CONVERSION_HPP
+#if !defined(KDL_COLOR_PARSER_HPP)
+#define KDL_COLOR_PARSER_HPP
 
-#include <vector>
-#include <memory>
-#include "parser/lexeme.hpp"
-#include "libGraphite/data/reader.hpp"
+#include "parser/parser.hpp"
 
-namespace kdl { namespace media {
+namespace kdl { namespace sema {
 
-    class conversion
+    class color_parser
     {
     private:
-        std::vector<std::shared_ptr<std::vector<char>>> m_input_file_contents;
-        lexeme m_input_file_format;
-        lexeme m_output_file_format;
-
+        parser& m_parser;
+        build_target::kdl_type& m_explicit_type;
+        build_target::type_field& m_field;
+        build_target::type_field_value& m_field_value;
+        build_target::type_template::binary_field m_binary_field;
     public:
-        conversion(const std::string m_input_file_contents, const lexeme input, const lexeme output);
-        conversion(const lexeme input, const lexeme output);
+        color_parser(parser& parser, build_target::type_field& field,
+                     build_target::type_field_value& field_value,
+                     build_target::type_template::binary_field binary_field,
+                     build_target::kdl_type& type);
 
-        auto add_input_file(const std::string contents) -> void;
-        auto add_input_data(std::vector<char>) -> void;
-
-        auto perform_conversion() const -> std::vector<char>;
+        auto parse(build_target::resource_instance& instance) -> void;
     };
 
-}}
+}};
 
-#endif //KDL_CONVERSION_HPP
+#endif //KDL_COLOR_PARSER_HPP

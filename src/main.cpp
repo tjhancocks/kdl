@@ -26,6 +26,8 @@
 #include "target/target.hpp"
 #include "analyzer/template_extractor.hpp"
 #include "installer/installer_asset.hpp"
+#include "libGraphite/rsrc/manager.hpp"
+#include "disassembler/task.hpp"
 
 auto main(int argc, const char **argv) -> int
 {
@@ -87,6 +89,16 @@ auto main(int argc, const char **argv) -> int
                 target->set_src_root(manifest_file->path());
                 kdl::sema::parser(target, kdl::lexer(manifest_file).analyze()).parse();
             }
+            else if (arg == "-i" || arg == "--include") {
+                // Look up the data file referenced and read it into the resource manager.
+                auto file = std::make_shared<graphite::rsrc::file>(kdl::file::resolve_tilde(std::string(argv[i + 1])));
+                i += 1;
+
+                graphite::rsrc::manager::shared_manager().import_file(file);
+            }
+            else if (arg == "-d" || arg == "--disassemble") {
+                target->initialise_disassembler(kdl::file::resolve_tilde(std::string(argv[++i])));
+            }
             else if (arg == "-tmpl" && i + 2 < argc) {
                 // Read in a resource file and build KDL definitions from them.
                 std::string res_in(argv[i + 1]);
@@ -107,28 +119,30 @@ auto main(int argc, const char **argv) -> int
         }
     }
 
-    // If there are no input files then end here.
-    if (files.empty()) {
-        return 0;
-    }
+    if (!files.empty()) {
+        // Loop through each of the files and parse them.
+        for (auto file : files) {
+            // 0. Configure the target.
+            target->set_src_root(file->path());
 
-    // Loop through each of the files and parse them.
-    for (auto file : files) {
-        // 0. Configure the target.
-        target->set_src_root(file->path());
+            // 1. Perform lexical analysis.
+            kdl::lexer lexer(file);
+            auto lexemes = lexer.analyze();
 
-        // 1. Perform lexical analysis.
-        kdl::lexer lexer(file);
-        auto lexemes = lexer.analyze();
-
-        // 2. Parse the lexical analysis result.
-        kdl::sema::parser parser(target, lexemes);
-        parser.parse();
+            // 2. Parse the lexical analysis result.
+            kdl::sema::parser parser(target, lexemes);
+            parser.parse();
+        }
     }
 
     // Finally save the target to disk, if there are resources present in it.
     if (target->type_container_count() > 0) {
         target->save();
+    }
+
+    // Perform disassembly if a disassembly option has been specified.
+    if (target->disassembler().has_value()) {;
+        target->disassembler()->disassemble_resources();
     }
 
     return 0;

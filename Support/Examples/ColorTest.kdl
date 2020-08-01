@@ -1,0 +1,15 @@
+@type ColorTest : "colr" {
+	template {
+		HLNG Color;
+	};
+
+	field("Color") {
+		Color as Color;
+	};
+};
+
+@example declare ColorTest {
+	new (#128) {
+		Color = rgb(255, 0, 0);
+	};
+};

@@ -23,6 +23,9 @@
 
 #include <string>
 #include <vector>
+#include <optional>
+#include <memory>
+#include "disassembler/task.hpp"
 #include "target/new/type_container.hpp"
 #include "target/new/resource_instance.hpp"
 #include "libGraphite/rsrc/file.hpp"
@@ -35,7 +38,7 @@ namespace kdl
      *
      * All resources will ultimately be written to this target.
      */
-    class target
+    class target : public std::enable_shared_from_this<target>
     {
     private:
         std::string m_dst_root;
@@ -45,6 +48,10 @@ namespace kdl
         graphite::rsrc::file::format m_format { graphite::rsrc::file::format::classic };
         std::vector<build_target::type_container> m_type_containers;
         graphite::rsrc::file m_file;
+
+        std::optional<disassembler::task> m_disassembler;
+        std::vector<lexeme> m_disassembler_image_format { lexeme("PNG", lexeme::identifier) };
+        std::vector<lexeme> m_disassembler_sound_format { lexeme("WAV", lexeme::identifier) };
 
         auto target_file_path() const -> std::string;
 
@@ -67,6 +74,11 @@ namespace kdl
         auto type_container_named(const kdl::lexeme name) const -> build_target::type_container;
 
         auto add_resource(const build_target::resource_instance resource) -> void;
+
+        auto set_disassembler_image_format(std::vector<lexeme> formats) -> void;
+        auto set_disassembler_sound_format(std::vector<lexeme> formats) -> void;
+        auto initialise_disassembler(const std::string& output_dir) -> void;
+        auto disassembler() const -> std::optional<disassembler::task>;
 
         auto save() -> void;
     };

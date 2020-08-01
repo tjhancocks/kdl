@@ -18,33 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_CONVERSION_HPP)
-#define KDL_CONVERSION_HPP
+#if !defined(KDL_TASK_HPP)
+#define KDL_TASK_HPP
 
-#include <vector>
+#include <string>
 #include <memory>
+#include <optional>
 #include "parser/lexeme.hpp"
-#include "libGraphite/data/reader.hpp"
 
-namespace kdl { namespace media {
+namespace kdl { class target; }
 
-    class conversion
+namespace kdl { namespace disassembler {
+
+    class task
     {
     private:
-        std::vector<std::shared_ptr<std::vector<char>>> m_input_file_contents;
-        lexeme m_input_file_format;
-        lexeme m_output_file_format;
+        std::string m_destination_dir;
+        std::vector<lexeme> m_preferred_image_export_format {};
+        std::vector<lexeme> m_preferred_sound_export_format {};
+        std::shared_ptr<target> m_target;
 
     public:
-        conversion(const std::string m_input_file_contents, const lexeme input, const lexeme output);
-        conversion(const lexeme input, const lexeme output);
+        task(const std::string& destination_dir, std::shared_ptr<target>);
 
-        auto add_input_file(const std::string contents) -> void;
-        auto add_input_data(std::vector<char>) -> void;
+        auto set_preferred_image_formats(std::vector<lexeme> formats) -> void;
+        auto set_preferred_sound_formats(std::vector<lexeme> formats) -> void;
 
-        auto perform_conversion() const -> std::vector<char>;
+        auto format_priority(const lexeme& format) const -> int;
+        auto appropriate_conversion_format(const lexeme& input, int priority) const -> std::optional<lexeme>;
+        auto format_extension(const lexeme& format) const -> std::string;
+
+        auto disassemble_resources() -> void;
     };
 
-}}
+}};
 
-#endif //KDL_CONVERSION_HPP
+#endif //KDL_TASK_HPP

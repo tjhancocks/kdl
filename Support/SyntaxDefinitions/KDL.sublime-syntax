@@ -213,7 +213,7 @@ contexts:
             - include: resource-instance
 
   resource-instance:
-    - match: '(new|override)[ \t]*(\([ \t]*((#)[0-9]+)[ \t]*(,[ \t]*("[^"]*")[ \t]*)?\))'
+    - match: '(new|override)[ \t]*(\([ \t]*((#)[0-9]+)[ \t]*(,[ \t]*("([^"]|\\")*")[ \t]*)?\))'
       captures:
         1: keyword.other.kdl
         3: constant.numeric.integer.decimal.kdl
@@ -263,6 +263,7 @@ contexts:
       scope: punctuation.definition.string.begin.kdl
       push:
         - meta_scope: string.quoted.double.kdl
+        - match: '\\"'
         - match: '"|(\n)'
           scope: punctuation.definition.string.end.kdl
           pop: true

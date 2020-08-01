@@ -202,3 +202,27 @@ auto kdl::target::save() -> void
 {
     m_file.write(target_file_path(), m_format);
 }
+
+// MARK: - Disassembler
+
+auto kdl::target::set_disassembler_image_format(std::vector<lexeme> formats) -> void
+{
+    m_disassembler_image_format = formats;
+}
+
+auto kdl::target::set_disassembler_sound_format(std::vector<lexeme> formats) -> void
+{
+    m_disassembler_sound_format = formats;
+}
+
+auto kdl::target::initialise_disassembler(const std::string& output_dir) -> void
+{
+    m_disassembler = kdl::disassembler::task(output_dir, shared_from_this());
+    m_disassembler->set_preferred_image_formats(m_disassembler_image_format);
+    m_disassembler->set_preferred_sound_formats(m_disassembler_sound_format);
+}
+
+auto kdl::target::disassembler() const -> std::optional<disassembler::task>
+{
+    return m_disassembler;
+}
