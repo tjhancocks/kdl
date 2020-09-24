@@ -61,7 +61,7 @@ auto main(int argc, const char **argv) -> int
                 i += 1;
 
                 // TODO: Extract to its own class/method.
-                for (auto asset : kdl::installer::asset::load_assets(installer_path)) {
+                for (const auto& asset : kdl::installer::asset::load_assets(installer_path)) {
                     asset.install();
                 }
             }
@@ -111,6 +111,10 @@ auto main(int argc, const char **argv) -> int
                 // Make sure we skip over the parameters.
                 i += 2;
             }
+            else if (arg == "-f" || arg == "--format") {
+                target->set_format(argv[i + 1]);
+                i += 1;
+            }
         }
 
         // Anything else should be treated as an input file.
@@ -121,7 +125,7 @@ auto main(int argc, const char **argv) -> int
 
     if (!files.empty()) {
         // Loop through each of the files and parse them.
-        for (auto file : files) {
+        for (const auto& file : files) {
             // 0. Configure the target.
             target->set_src_root(file->path());
 

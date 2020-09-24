@@ -160,6 +160,25 @@ auto kdl::target::resolve_src_path(const std::string path) const -> std::string
     return path;
 }
 
+// MARK: - Resource Formats
+
+auto kdl::target::set_format(const std::string &format) -> void
+{
+    if (format == "extended") {
+        m_format = graphite::rsrc::file::extended;
+    }
+    else if (format == "classic") {
+        m_format = graphite::rsrc::file::classic;
+    }
+    else if (format == "rez") {
+        m_format = graphite::rsrc::file::rez;
+    }
+    else {
+        std::cerr << "Unrecognised resource file format specified: " << format << std::endl;
+        exit(2);
+    }
+}
+
 // MARK: - Resource Management
 
 auto kdl::target::add_resource(const build_target::resource_instance resource) -> void
@@ -226,3 +245,4 @@ auto kdl::target::disassembler() const -> std::optional<disassembler::task>
 {
     return m_disassembler;
 }
+

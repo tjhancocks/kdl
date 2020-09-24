@@ -63,6 +63,8 @@ namespace kdl
         auto set_scenario_root(std::string_view path) -> void;
         auto scenario_manifest(std::string_view scenario_name) -> std::string;
 
+        auto set_format(const std::string& format) -> void;
+
         auto set_src_root(const std::string src_root) -> void;
         auto resolve_src_path(const std::string path) const -> std::string;
 
