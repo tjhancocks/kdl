@@ -28,6 +28,7 @@
 #include "installer/installer_asset.hpp"
 #include "libGraphite/rsrc/manager.hpp"
 #include "disassembler/task.hpp"
+#include "generation/lua/lua_generator.hpp"
 
 auto main(int argc, const char **argv) -> int
 {
@@ -109,6 +110,24 @@ auto main(int argc, const char **argv) -> int
                 extractor.build_type_definitions();
 
                 // Make sure we skip over the parameters.
+                i += 2;
+            }
+            else if (arg == "--generate-lua") {
+                // Generate Lua code files with classes/definitions for use in Kestrel that are based upon the
+                // type definitions.
+                // The first argument is the name of the type that we want to generate lua for.
+                // The second argument is the output directory.
+                std::string type_name(argv[i + 1]);
+                std::string dir_out(kdl::file::resolve_tilde(std::string(argv[i + 2])));
+
+                std::cout << "Generating Lua Definition for '" << type_name << "'" << std::endl;
+
+                // Find the type.
+                auto container = target->type_container_named({ type_name, kdl::lexeme::identifier });
+                kdl::generator::lua_type generator(container, dir_out);
+                generator.generate();
+
+                // Make sure we advance over the parameters
                 i += 2;
             }
         }
