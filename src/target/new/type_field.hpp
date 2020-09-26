@@ -29,7 +29,7 @@
 #include "target/new/type_field_value.hpp"
 #include "parser/lexeme.hpp"
 
-namespace kdl { namespace build_target {
+namespace kdl::build_target {
 
     struct type_field
     {
@@ -41,21 +41,21 @@ namespace kdl { namespace build_target {
         int m_repeatable_upper { 0 };
 
     public:
-        type_field(const lexeme name);
-        type_field(const std::string name);
+        explicit type_field(lexeme name);
+        explicit type_field(const std::string& name);
 
-        auto name() const -> lexeme;
+        [[nodiscard]] auto name() const -> lexeme;
 
-        auto add_value(const type_field_value value) -> void;
-        auto expected_values() const -> std::size_t;
-        auto value_at(const int n) const -> type_field_value;
+        auto add_value(const type_field_value& value) -> void;
+        [[nodiscard]] auto expected_values() const -> std::size_t;
+        [[nodiscard]] auto value_at(const int& n) const -> type_field_value;
 
-        auto make_repeatable(const int lower, const int upper) -> void;
-        auto lower_repeat_bound() const -> int;
-        auto upper_repeat_bound() const -> int;
-        auto is_repeatable() const -> bool;
+        auto make_repeatable(const int& lower, const int& upper) -> void;
+        [[nodiscard]] auto lower_repeat_bound() const -> int;
+        [[nodiscard]] auto upper_repeat_bound() const -> int;
+        [[nodiscard]] auto is_repeatable() const -> bool;
     };
 
-}};
+};
 
 #endif //KDL_TYPE_FIELD_HPP

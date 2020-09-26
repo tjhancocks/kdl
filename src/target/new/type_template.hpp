@@ -27,7 +27,7 @@
 #include "target/new/binary_type.hpp"
 #include "parser/lexeme.hpp"
 
-namespace kdl { namespace build_target {
+namespace kdl::build_target {
 
     /**
      * The type template is a structure that defines what the binary layout and structure of a resource
@@ -49,7 +49,7 @@ namespace kdl { namespace build_target {
             lexeme label;
             binary_type type;
 
-            binary_field(const lexeme label, const binary_type type);
+            binary_field(lexeme label, const binary_type& type);
         };
 
     private:
@@ -58,17 +58,16 @@ namespace kdl { namespace build_target {
     public:
         type_template() = default;
 
-        auto add_binary_field(const binary_field field) -> void;
-        auto add_binary_field(const lexeme label, const binary_type type) -> void;
+        auto add_binary_field(const binary_field& field) -> void;
 
-        auto binary_field_count() const -> std::size_t;
-        auto binary_field_at(const std::size_t index) const -> binary_field;
-        auto binary_field_named(const std::string name) const -> binary_field;
-        auto binary_field_named(const lexeme lx) const -> binary_field;
-        auto binary_field_index(const std::string name) const -> int;
-        auto binary_field_index(const lexeme lx) const -> int;
+        [[nodiscard]] auto binary_field_count() const -> std::size_t;
+        [[nodiscard]] auto binary_field_at(const std::size_t& index) const -> binary_field;
+        [[nodiscard]] auto binary_field_named(const std::string& name) const -> binary_field;
+        [[nodiscard]] auto binary_field_named(const lexeme& lx) const -> binary_field;
+        [[nodiscard]] auto binary_field_index(const std::string& name) const -> int;
+        [[nodiscard]] auto binary_field_index(const lexeme& lx) const -> int;
     };
 
-}};
+}
 
 #endif //KDL_TYPE_TEMPLATE_HPP

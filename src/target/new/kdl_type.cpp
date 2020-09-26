@@ -22,12 +22,7 @@
 
 // MARK: - Constructors
 
-kdl::build_target::kdl_type::kdl_type()
-{
-
-}
-
-kdl::build_target::kdl_type::kdl_type(const bool is_reference, const kdl::lexeme name)
+kdl::build_target::kdl_type::kdl_type(const bool& is_reference, const kdl::lexeme& name)
     : m_reference(is_reference), m_type_name(name)
 {
 
@@ -35,7 +30,7 @@ kdl::build_target::kdl_type::kdl_type(const bool is_reference, const kdl::lexeme
 
 // MARK: - Reference Type : '&'
 
-auto kdl::build_target::kdl_type::set_reference(const bool reference) -> void
+auto kdl::build_target::kdl_type::set_reference(const bool& reference) -> void
 {
     m_reference = reference;
 }
@@ -47,7 +42,7 @@ auto kdl::build_target::kdl_type::is_reference() const -> bool
 
 // MARK: - Name
 
-auto kdl::build_target::kdl_type::set_name(const kdl::lexeme name) -> void
+auto kdl::build_target::kdl_type::set_name(const kdl::lexeme& name) -> void
 {
     m_type_name = name;
 }
@@ -59,7 +54,7 @@ auto kdl::build_target::kdl_type::name() const -> std::optional<kdl::lexeme>
 
 // MARK: - Type Hint Management
 
-auto kdl::build_target::kdl_type::set_type_hints(const std::vector<lexeme> hints) -> void
+auto kdl::build_target::kdl_type::set_type_hints(const std::vector<lexeme>& hints) -> void
 {
     m_type_hints = hints;
 }

@@ -21,8 +21,8 @@
 #include "diagnostic/fatal.hpp"
 #include "type_field_value.hpp"
 
-kdl::build_target::type_field_value::type_field_value(const kdl::lexeme base_name)
-    : m_base_name(base_name)
+kdl::build_target::type_field_value::type_field_value(kdl::lexeme base_name)
+    : m_base_name(std::move(base_name))
 {
 
 }
@@ -34,10 +34,10 @@ auto kdl::build_target::type_field_value::base_name() const -> lexeme
     return m_base_name;
 }
 
-auto kdl::build_target::type_field_value::extended_name(const std::map<std::string, lexeme> vars) const -> lexeme
+auto kdl::build_target::type_field_value::extended_name(const std::map<std::string, lexeme>& vars) const -> lexeme
 {
     std::string name(m_base_name.text());
-    for (auto ext : m_name_extensions) {
+    for (const auto& ext : m_name_extensions) {
         if (vars.find(ext.text()) != vars.end()) {
             name.append(vars.at(ext.text()).text());
         }
@@ -47,7 +47,7 @@ auto kdl::build_target::type_field_value::extended_name(const std::map<std::stri
 
 // MARK: - Explicit Types
 
-auto kdl::build_target::type_field_value::set_explicit_type(const kdl::build_target::kdl_type type) -> void
+auto kdl::build_target::type_field_value::set_explicit_type(const kdl::build_target::kdl_type& type) -> void
 {
     m_explicit_type = type;
 }
@@ -59,7 +59,7 @@ auto kdl::build_target::type_field_value::explicit_type() const -> std::optional
 
 // MARK: - Default Value
 
-auto kdl::build_target::type_field_value::set_default_value(const kdl::lexeme default_value) -> void
+auto kdl::build_target::type_field_value::set_default_value(const kdl::lexeme& default_value) -> void
 {
     m_default_value = default_value;
 }
@@ -71,26 +71,16 @@ auto kdl::build_target::type_field_value::default_value() const -> std::optional
 
 // MARK: - Name Extensions
 
-auto kdl::build_target::type_field_value::add_name_extension(const kdl::lexeme ext) -> void
-{
-    m_name_extensions.emplace_back(ext);
-}
-
-auto kdl::build_target::type_field_value::set_name_extensions(const std::vector<lexeme> name_extensions) -> void
+auto kdl::build_target::type_field_value::set_name_extensions(const std::vector<lexeme>& name_extensions) -> void
 {
     m_name_extensions = name_extensions;
 }
 
 // MARK: - Symbols
 
-auto kdl::build_target::type_field_value::set_symbols(const std::vector<std::tuple<lexeme, lexeme>> symbols) -> void
+auto kdl::build_target::type_field_value::set_symbols(const std::vector<std::tuple<lexeme, lexeme>>& symbols) -> void
 {
     m_symbols = symbols;
-}
-
-auto kdl::build_target::type_field_value::add_symbol(const kdl::lexeme symbol, const kdl::lexeme value) -> void
-{
-    m_symbols.emplace_back(std::make_tuple(symbol, value));
 }
 
 auto kdl::build_target::type_field_value::symbols() const -> std::vector<std::tuple<lexeme, lexeme>>
@@ -98,7 +88,7 @@ auto kdl::build_target::type_field_value::symbols() const -> std::vector<std::tu
     return m_symbols;
 }
 
-auto kdl::build_target::type_field_value::value_for(const lexeme symbol) const -> kdl::lexeme
+auto kdl::build_target::type_field_value::value_for(const lexeme& symbol) const -> kdl::lexeme
 {
     for (auto value : m_symbols) {
         if (std::get<0>(value).is(symbol.text())) {
@@ -110,14 +100,9 @@ auto kdl::build_target::type_field_value::value_for(const lexeme symbol) const -
 
 // MARK: - Conversions
 
-auto kdl::build_target::type_field_value::set_conversion_map(const std::tuple<lexeme, lexeme> map) -> void
+auto kdl::build_target::type_field_value::set_conversion_map(const std::tuple<lexeme, lexeme>& map) -> void
 {
     m_conversion_map = map;
-}
-
-auto kdl::build_target::type_field_value::set_conversion_map(const kdl::lexeme input, const kdl::lexeme output) -> void
-{
-    m_conversion_map = std::make_tuple(input, output);
 }
 
 auto kdl::build_target::type_field_value::has_conversion_defined() const -> bool
@@ -137,7 +122,7 @@ auto kdl::build_target::type_field_value::conversion_output() const -> lexeme
 
 // MARK: - Joined Values
 
-auto kdl::build_target::type_field_value::join_value(const kdl::build_target::type_field_value value) -> void
+auto kdl::build_target::type_field_value::join_value(const kdl::build_target::type_field_value& value) -> void
 {
     m_joined_values.emplace_back(value);
 }
@@ -147,8 +132,7 @@ auto kdl::build_target::type_field_value::joined_value_count() const -> std::siz
     return m_joined_values.size();
 }
 
-auto kdl::build_target::type_field_value::joined_value_for(
-        const kdl::lexeme symbol) const -> std::optional<std::tuple<int, lexeme>>
+auto kdl::build_target::type_field_value::joined_value_for(const kdl::lexeme& symbol) const -> std::optional<std::tuple<int, lexeme>>
 {
     // Check if the symbol is in this. If it is return an empty optional.
     for (auto value : m_symbols) {
@@ -160,7 +144,7 @@ auto kdl::build_target::type_field_value::joined_value_for(
     // Now check through each of the joined values for the symbol, return the type_field_value instance and the value
     // of the symbol, if it is found.
     int i = 0;
-    for (auto field_value : m_joined_values) {
+    for (const auto& field_value : m_joined_values) {
         for (auto value : field_value.m_symbols) {
             if (std::get<0>(value).is(symbol.text())) {
                 return std::tuple(i, std::get<1>(value));
@@ -172,7 +156,7 @@ auto kdl::build_target::type_field_value::joined_value_for(
     log::fatal_error(symbol, 1, "Unrecognised symbol name '" + symbol.text() + "'");
 }
 
-auto kdl::build_target::type_field_value::joined_value_at(const int i) -> kdl::build_target::type_field_value
+auto kdl::build_target::type_field_value::joined_value_at(const int& i) -> kdl::build_target::type_field_value
 {
     return m_joined_values.at(i);
 }

@@ -20,7 +20,7 @@
 
 #include "target/new/binary_type.hpp"
 
-auto kdl::build_target::binary_type_for_name(const std::string name) -> enum binary_type
+auto kdl::build_target::binary_type_for_name(const std::string& name) -> enum binary_type
 {
     if (name == "HBYT") {
         return binary_type::HBYT;
@@ -143,7 +143,7 @@ auto kdl::build_target::binary_type_for_name(const std::string name) -> enum bin
     return binary_type::INVALID;
 };
 
-auto kdl::build_target::binary_type_base_size(enum binary_type type) -> std::size_t
+auto kdl::build_target::binary_type_base_size(const enum kdl::build_target::binary_type& type) -> std::size_t
 {
     switch (type & ~0xFFF) {
         case binary_type::CSTR:

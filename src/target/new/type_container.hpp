@@ -31,7 +31,7 @@
 #include "target/new/resource_instance.hpp"
 #include "target/assertion.hpp"
 
-namespace kdl { namespace build_target {
+namespace kdl::build_target {
 
     /**
      * The type_container represents a resource type. It contains all of the meta data/information
@@ -41,34 +41,33 @@ namespace kdl { namespace build_target {
     {
     private:
         std::string m_code { "NULL" };
-        std::string m_name { "" };
+        std::string m_name;
         type_template m_tmpl;
         std::vector<type_field> m_fields;
         std::vector<assertion> m_assertions;
 
     public:
-        type_container(const std::string code);
-        type_container(const lexeme name, const std::string code);
-        type_container(const std::string name, const std::string code);
+        explicit type_container(const std::string& code);
+        type_container(const lexeme& name, std::string code);
+        type_container(std::string name, std::string code);
 
-        auto name() const -> std::string;
-        auto code() const -> std::string;
+        [[nodiscard]] auto name() const -> std::string;
+        [[nodiscard]] auto code() const -> std::string;
 
         auto internal_template() -> type_template&;
-        auto set_internal_template(const type_template tmpl) -> void;
+        auto set_internal_template(const type_template& tmpl) -> void;
 
-        auto add_field(const lexeme name) -> type_field&;
-        auto add_field(const type_field field) -> void;
-        auto field_named(const lexeme name) -> type_field;
-        auto all_fields() const -> std::vector<type_field>;
+        auto add_field(const lexeme& name) -> type_field&;
+        auto add_field(const type_field& field) -> void;
+        auto field_named(const lexeme& name) -> type_field;
+        [[nodiscard]] auto all_fields() const -> std::vector<type_field>;
 
-        auto assertions() const -> std::vector<assertion>;
-        auto add_assertion(const assertion assertion) -> void;
-        auto add_assertions(const std::vector<assertion> assertions) -> void;
+        [[nodiscard]] auto assertions() const -> std::vector<assertion>;
+        auto add_assertions(const std::vector<assertion>& assertions) -> void;
 
-        auto new_instance(const int64_t id, std::optional<std::string> name = {}) -> resource_instance;
+        auto new_instance(const int64_t& id, std::optional<std::string> name = {}) -> resource_instance;
     };
 
-}};
+}
 
 #endif //KDL_TYPE_CONTAINER_HPP

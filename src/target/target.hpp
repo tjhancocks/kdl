@@ -59,28 +59,26 @@ namespace kdl
     public:
         target();
 
-        auto set_dst_path(const std::string dst_path) -> void;
+        auto set_dst_path(const std::string& dst_path) -> void;
 
-        auto set_scenario_root(std::string_view path) -> void;
+        auto set_scenario_root(const std::string& path) -> void;
         auto scenario_manifest(std::string_view scenario_name) -> std::string;
 
         auto set_format(const std::string& format) -> void;
         auto set_required_format(const graphite::rsrc::file::format& format) -> bool;
 
-        auto set_src_root(const std::string src_root) -> void;
-        auto resolve_src_path(const std::string path) const -> std::string;
+        auto set_src_root(const std::string& src_root) -> void;
+        auto resolve_src_path(const std::string& path) const -> std::string;
 
-        auto set_output_file(const std::string file) -> void;
-
-        auto add_type_container(const build_target::type_container container) -> void;
+        auto add_type_container(const build_target::type_container& container) -> void;
         auto type_container_count() const -> std::size_t;
-        auto type_container_at(const int i) const -> build_target::type_container;
-        auto type_container_named(const kdl::lexeme name) const -> build_target::type_container;
+        auto type_container_at(const int& i) const -> build_target::type_container;
+        auto type_container_named(const kdl::lexeme& name) const -> build_target::type_container;
 
-        auto add_resource(const build_target::resource_instance resource) -> void;
+        auto add_resource(const build_target::resource_instance& resource) -> void;
 
-        auto set_disassembler_image_format(std::vector<lexeme> formats) -> void;
-        auto set_disassembler_sound_format(std::vector<lexeme> formats) -> void;
+        auto set_disassembler_image_format(const std::vector<lexeme>& formats) -> void;
+        auto set_disassembler_sound_format(const std::vector<lexeme>& formats) -> void;
         auto initialise_disassembler(const std::string& output_dir) -> void;
         auto disassembler() const -> std::optional<disassembler::task>;
 
