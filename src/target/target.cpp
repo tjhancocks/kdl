@@ -191,6 +191,7 @@ auto kdl::target::set_required_format(const graphite::rsrc::file::format &format
         return false;
     }
     m_required_format = format;
+
     return true;
 }
 
@@ -212,7 +213,7 @@ auto kdl::target::target_file_path() const -> std::string
     }
     path += m_dst_file;
 
-    switch (m_format) {
+    switch (m_required_format.has_value() ? m_required_format.value() : m_format) {
         case graphite::rsrc::file::format::classic:
             path += ".ndat";
             break;
@@ -234,6 +235,7 @@ auto kdl::target::set_output_file(const std::string file) -> void
 
 auto kdl::target::save() -> void
 {
+    std::cout << "saving to " << target_file_path() << std::endl;
     m_file.write(target_file_path(), m_format);
 }
 

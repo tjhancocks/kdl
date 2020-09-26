@@ -1,0 +1,17 @@
+@require extended;
+
+@type Test : "test" {
+    template {
+        DWRD number;
+    };
+
+    field("Number") {
+        number;
+    };
+};
+
+declare Test {
+    new(#128) {
+        Number = 5;
+    };
+};
