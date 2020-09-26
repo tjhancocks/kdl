@@ -160,6 +160,41 @@ auto kdl::target::resolve_src_path(const std::string path) const -> std::string
     return path;
 }
 
+// MARK: - Resource Formats
+
+auto kdl::target::set_format(const std::string &format) -> void
+{
+    if (format == "extended") {
+        m_format = graphite::rsrc::file::extended;
+    }
+    else if (format == "classic") {
+        m_format = graphite::rsrc::file::classic;
+    }
+    else if (format == "rez") {
+        m_format = graphite::rsrc::file::rez;
+    }
+    else {
+        std::cerr << "Unrecognised resource file format specified: " << format << std::endl;
+        exit(2);
+    }
+
+    if (!set_required_format(m_format)) {
+        std::cerr << "Unable to use the '" << format << "' resource format. One or more KDL files require a different format." << std::endl;
+        exit(3);
+    }
+}
+
+auto kdl::target::set_required_format(const graphite::rsrc::file::format &format) -> bool
+{
+    // If there is already a required resource format then check if it matches the new format.
+    if (m_required_format.has_value() && m_required_format.value() != format) {
+        return false;
+    }
+    m_required_format = format;
+
+    return true;
+}
+
 // MARK: - Resource Management
 
 auto kdl::target::add_resource(const build_target::resource_instance resource) -> void
@@ -178,7 +213,7 @@ auto kdl::target::target_file_path() const -> std::string
     }
     path += m_dst_file;
 
-    switch (m_format) {
+    switch (m_required_format.has_value() ? m_required_format.value() : m_format) {
         case graphite::rsrc::file::format::classic:
             path += ".ndat";
             break;
@@ -200,6 +235,7 @@ auto kdl::target::set_output_file(const std::string file) -> void
 
 auto kdl::target::save() -> void
 {
+    std::cout << "saving to " << target_file_path() << std::endl;
     m_file.write(target_file_path(), m_format);
 }
 
@@ -226,3 +262,4 @@ auto kdl::target::disassembler() const -> std::optional<disassembler::task>
 {
     return m_disassembler;
 }
+

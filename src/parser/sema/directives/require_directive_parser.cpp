@@ -19,42 +19,32 @@
 // SOFTWARE.
 
 #include "diagnostic/fatal.hpp"
-#include "parser/sema/directives/directive_parser.hpp"
-#include "parser/sema/directives/out_directive_parser.hpp"
-#include "parser/sema/directives/import_directive_parser.hpp"
-#include "parser/sema/directives/configuration_directive_parser.hpp"
+#include "parser/lexer.hpp"
 #include "parser/sema/directives/require_directive_parser.hpp"
 
-// MARK: - Constructor
-
-kdl::sema::asm_directive::asm_directive(kdl::sema::parser &parser, std::weak_ptr<target> target)
-    : m_parser(parser), m_target(target)
+auto kdl::sema::require_directive_parser::parse(kdl::sema::parser &parser, std::weak_ptr<target> target) -> void
 {
+    if (target.expired()) {
+        throw std::logic_error("Build target has expired. This is a bug!");
+    }
+    auto t = target.lock();
 
-}
+    if (!parser.expect_any({
+        expectation(lexeme::identifier, "classic").be_true(),
+        expectation(lexeme::identifier, "extended").be_true(),
+        expectation(lexeme::identifier, "rez").be_true()
+    })) {
+        log::fatal_error(parser.peek(), 1, "Expected either `classic`, `extended` or `rez` for format requirement.");
+    }
+    auto format = parser.read();
 
-// MARK: - Parser
-
-auto kdl::sema::asm_directive::parse() -> void
-{
-    if (!m_parser.expect({ expectation(lexeme::directive).be_true() })) {
-        log::fatal_error(m_parser.peek(), 1, "A '@' (directive) identifier expected");
+    if (format.is("classic")) {
+        t->set_required_format(graphite::rsrc::file::classic);
     }
-    auto directive = m_parser.read();
-
-    if (directive.text() == "out") {
-        out_directive_parser::parse(m_parser);
+    else if (format.is("extended")) {
+        t->set_required_format(graphite::rsrc::file::extended);
     }
-    else if (directive.text() == "import") {
-        import_directive_parser::parse(m_parser, m_target);
-    }
-    else if (directive.text() == "configuration") {
-        configuration_directive_parser::parse(m_parser, m_target);
-    }
-    else if (directive.text() == "require") {
-        require_directive_parser::parse(m_parser, m_target);
-    }
-    else {
-        log::fatal_error(directive, 1, "Unrecognised directive '" + directive.text() + "'");
+    else if (format.is("rez")) {
+        t->set_required_format(graphite::rsrc::file::rez);
     }
 }
