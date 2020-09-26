@@ -177,6 +177,21 @@ auto kdl::target::set_format(const std::string &format) -> void
         std::cerr << "Unrecognised resource file format specified: " << format << std::endl;
         exit(2);
     }
+
+    if (!set_required_format(m_format)) {
+        std::cerr << "Unable to use the '" << format << "' resource format. One or more KDL files require a different format." << std::endl;
+        exit(3);
+    }
+}
+
+auto kdl::target::set_required_format(const graphite::rsrc::file::format &format) -> bool
+{
+    // If there is already a required resource format then check if it matches the new format.
+    if (m_required_format.has_value() && m_required_format.value() != format) {
+        return false;
+    }
+    m_required_format = format;
+    return true;
 }
 
 // MARK: - Resource Management

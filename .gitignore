@@ -6,7 +6,14 @@
 
 # Build Artefacts
 cmake-build-debug
+cmake-build-release
 bin/
 build/
 *.o
 *.bin
+*.ndat
+*.kdat
+*.rez
+
+# Misc
+Support/Flags.txt
