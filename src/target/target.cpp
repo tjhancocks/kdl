@@ -27,7 +27,7 @@
 // MARK: - Constructors
 
 kdl::target::target()
-    : m_dst_root("."), m_dst_file("result")
+    : m_dst_root("."), m_dst_file("result"), m_resource_tracking_table(std::make_shared<kdl::resource_tracking::table>())
 {
 
 }
@@ -204,6 +204,7 @@ auto kdl::target::set_required_format(const graphite::rsrc::file::format &format
 
 auto kdl::target::add_resource(const build_target::resource_instance& resource) -> void
 {
+    m_resource_tracking_table->add_instance(m_file.name(), resource.type_code(), resource.id(), resource.name());
     m_file.add_resource(resource.type_code(), resource.id(), resource.name(), resource.assemble());
 }
 
@@ -261,5 +262,12 @@ auto kdl::target::initialise_disassembler(const std::string& output_dir) -> void
 auto kdl::target::disassembler() const -> std::optional<disassembler::task>
 {
     return m_disassembler;
+}
+
+// MARK: - Resource Tracker
+
+auto kdl::target::resource_tracker() const -> std::shared_ptr<kdl::resource_tracking::table>
+{
+    return m_resource_tracking_table;
 }
 

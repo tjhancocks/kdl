@@ -29,6 +29,7 @@
 #include "target/new/type_container.hpp"
 #include "target/new/resource_instance.hpp"
 #include "libGraphite/rsrc/file.hpp"
+#include "target/track/resource_tracking.hpp"
 
 namespace kdl
 {
@@ -49,6 +50,7 @@ namespace kdl
         std::optional<graphite::rsrc::file::format> m_required_format{};
         std::vector<build_target::type_container> m_type_containers;
         graphite::rsrc::file m_file;
+        std::shared_ptr<kdl::resource_tracking::table> m_resource_tracking_table {};
 
         std::optional<disassembler::task> m_disassembler;
         std::vector<lexeme> m_disassembler_image_format { lexeme("PNG", lexeme::identifier) };
@@ -81,6 +83,8 @@ namespace kdl
         auto set_disassembler_sound_format(const std::vector<lexeme>& formats) -> void;
         auto initialise_disassembler(const std::string& output_dir) -> void;
         auto disassembler() const -> std::optional<disassembler::task>;
+
+        auto resource_tracker() const -> std::shared_ptr<kdl::resource_tracking::table>;
 
         auto save() -> void;
     };
