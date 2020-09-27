@@ -51,13 +51,13 @@ namespace kdl::build_target {
         [[nodiscard]] auto available_name_extensions(const type_field& field) const -> std::map<std::string, lexeme>;
 
     public:
-        resource_instance(const int64_t& id, std::string code, std::string name, type_template tmpl);
+        resource_instance(const int64_t& id, std::string code, std::string name, class type_template tmpl);
 
         [[nodiscard]] auto type_code() const -> std::string;
         [[nodiscard]] auto id() const -> int64_t;
         [[nodiscard]] auto name() const -> std::string;
 
-        [[nodiscard]] auto type_template() const -> type_template;
+        [[nodiscard]] auto type_template() const -> class type_template;
 
         [[nodiscard]] auto field_use_count(const lexeme& field) const -> int;
         [[nodiscard]] auto acquire_field(const lexeme& field, const int& initial_count = 0) -> int;
