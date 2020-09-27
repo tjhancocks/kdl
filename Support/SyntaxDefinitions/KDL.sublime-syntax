@@ -64,6 +64,15 @@ contexts:
         - include: string-literal
         - match: ';'
           pop: true
+    - match: '((@)(require))'
+      captures:
+        1: keyword.kdl
+      set:
+        - match: '(extended|classic|rez)'
+          captures:
+            1: constant.language
+        - match: ';'
+          pop: true
     - match: '((@)(configuration))'
       captures:
         1: keyword.kdl
@@ -197,12 +206,14 @@ contexts:
 # RESOURCE DECLARATION #########################################################
 
   resource-declaration:
-    - match: '((@)example[ \t]+)?(declare)[ \t]+([A-Za-z0-9_]+)'
+    - match: '((@)example[ \t]+)?(declare)[ \t]+([A-Za-z0-9_]+)([ \t]*(\:[A-Za-z0-9_]+)\=([A-Za-z0-9_]+))*'
       scope: meta.impl.kdl
       captures:
         1: keyword.kdl
         3: keyword.declaration.impl.kdl
         4: entity.name.type.kdl
+        6: entity.other.attribute-name.kdl
+        7: string.unquoted.kdl
       set:
         - match: '\{'
           scope: punctuation.definition.begin.kdl
@@ -213,11 +224,11 @@ contexts:
             - include: resource-instance
 
   resource-instance:
-    - match: '(new|override)[ \t]*(\([ \t]*((#)[0-9]+)[ \t]*(,[ \t]*("([^"]|\\")*")[ \t]*)?\))'
+    - match: '(new|override)[ \t]*(\([ \t]*((#)([0-9]+|auto))[ \t]*(,[ \t]*("[^"]*")[ \t]*)?\))'
       captures:
         1: keyword.other.kdl
         3: constant.numeric.integer.decimal.kdl
-        5: string.quoted.kdl
+        6: string.quoted.kdl
       push:
         - match: '\{'
           scope: punctuation.definition.begin.kdl
@@ -263,7 +274,6 @@ contexts:
       scope: punctuation.definition.string.begin.kdl
       push:
         - meta_scope: string.quoted.double.kdl
-        - match: '\\"'
         - match: '"|(\n)'
           scope: punctuation.definition.string.end.kdl
           pop: true
