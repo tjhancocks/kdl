@@ -18,31 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <iostream>
-#include "target/track/resource_tracking.hpp"
+#if !defined(KDL_RESOURCE_IMPORTER_HPP)
+#define KDL_RESOURCE_IMPORTER_HPP
 
-// MARK: - Instance Construction
+#include <string>
+#include "target/new/resource_instance.hpp"
 
-kdl::resource_tracking::table::instance::instance(std::string file, std::string type, int64_t id, std::string name)
-    : file(std::move(file)), type_code(std::move(type)), id(id), name(std::move(name))
-{
+namespace kdl::resource_tracking {
+
+    struct importer
+    {
+    private:
+        std::string m_code;
+        int64_t m_id;
+
+    public:
+        importer(std::string code, const int64_t& id);
+
+        auto populate(kdl::build_target::resource_instance& instance) -> bool;
+    };
 
 }
 
-
-// MARK: - Instance Management
-
-auto kdl::resource_tracking::table::add_instance(const std::string &file,
-                                                 const std::string &type,
-                                                 const int64_t &id,
-                                                 const std::string &name) -> void
-{
-    m_instances.emplace_back(instance(file, type, id, name));
-}
-
-auto kdl::resource_tracking::table::instance_exists(const std::string &type, const int64_t &id) -> bool
-{
-    return std::any_of(m_instances.begin(), m_instances.end(), [type, id] (const instance& i) {
-        return (i.type_code == type) && (i.id == id);
-    });
-}
+#endif //KDL_RESOURCE_IMPORTER_HPP

@@ -45,17 +45,19 @@ namespace kdl::build_target {
         type_template m_tmpl;
         std::map<int, std::vector<std::any>> m_values;
 
-        static auto assemble_field(graphite::data::writer writer, const enum binary_type& type, const std::any& wrapped_value) -> void;
+        auto assemble_field(graphite::data::writer& writer, const enum binary_type& type, const std::any& wrapped_value) const -> void;
         auto write(const std::string& field, const std::any& value) -> void;
         [[nodiscard]] auto index_of(const std::string& field) const -> int;
         [[nodiscard]] auto available_name_extensions(const type_field& field) const -> std::map<std::string, lexeme>;
 
     public:
-        resource_instance(const int64_t& id, std::string  code, std::string  name, type_template  tmpl);
+        resource_instance(const int64_t& id, std::string code, std::string name, type_template tmpl);
 
         [[nodiscard]] auto type_code() const -> std::string;
         [[nodiscard]] auto id() const -> int64_t;
         [[nodiscard]] auto name() const -> std::string;
+
+        [[nodiscard]] auto type_template() const -> type_template;
 
         [[nodiscard]] auto field_use_count(const lexeme& field) const -> int;
         [[nodiscard]] auto acquire_field(const lexeme& field, const int& initial_count = 0) -> int;
@@ -77,6 +79,8 @@ namespace kdl::build_target {
         auto write_data(const type_field& field, const type_field_value& field_value, const std::vector<char>& data) -> void;
         auto write_data(const type_field& field, const type_field_value& field_value, const std::vector<uint8_t>& data) -> void;
         auto write_rect(const type_field& field, const type_field_value& field_value, const int16_t& t, const int16_t& l, const int16_t &b, const int16_t& r) -> void;
+
+        auto write(const int& field_index, const std::any& value) -> void;
 
         [[nodiscard]] auto assemble() const -> std::shared_ptr<graphite::data::data>;
         [[nodiscard]] auto synthesize_variables() const -> std::map<std::string, lexeme>;

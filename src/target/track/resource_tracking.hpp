@@ -48,6 +48,7 @@ namespace kdl::resource_tracking {
         table() = default;
 
         auto add_instance(const std::string& file, const std::string& type, const int64_t& id, const std::string& name) -> void;
+        [[nodiscard]] auto instance_exists(const std::string& type, const int64_t& id) -> bool;
 
     };
 

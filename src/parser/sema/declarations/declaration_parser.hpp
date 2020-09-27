@@ -25,7 +25,7 @@
 #include "target/new/resource_instance.hpp"
 #include "target/new/type_container.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema {
 
     class declaration_parser
     {
@@ -39,6 +39,6 @@ namespace kdl { namespace sema {
         auto parse() -> std::vector<build_target::resource_instance>;
     };
 
-}};
+};
 
 #endif //KDL_DECLARATION_PARSER_HPP

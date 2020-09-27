@@ -27,7 +27,7 @@
 // MARK: - Constructors
 
 kdl::build_target::resource_instance::resource_instance(const int64_t& id, std::string code,
-                                                        std::string name, type_template tmpl)
+                                                        std::string name, class type_template tmpl)
     : m_id(id), m_name(std::move(name)), m_code(std::move(code)), m_tmpl(std::move(tmpl))
 {
 
@@ -48,6 +48,11 @@ auto kdl::build_target::resource_instance::id() const -> int64_t
 auto kdl::build_target::resource_instance::name() const -> std::string
 {
     return m_name;
+}
+
+auto kdl::build_target::resource_instance::type_template() const -> class type_template
+{
+    return m_tmpl;
 }
 
 // MARK: - Field Usage
@@ -103,13 +108,17 @@ auto kdl::build_target::resource_instance::index_of(const std::string& field) co
 
 auto kdl::build_target::resource_instance::write(const std::string& field, const std::any& value) -> void
 {
-    auto index = index_of(field);
-    if (m_values.find(index) == m_values.end()) {
+    write(index_of(field), value);
+}
+
+auto kdl::build_target::resource_instance::write(const int& field_index, const std::any& value) -> void
+{
+    if (m_values.find(field_index) == m_values.end()) {
         std::vector<std::any> vec({ value });
-        m_values[index] = vec;
+        m_values[field_index] = vec;
     }
     else {
-        m_values[index].emplace_back(value);
+        m_values[field_index].emplace_back(value);
     }
 }
 
@@ -190,7 +199,7 @@ auto kdl::build_target::resource_instance::write_rect(const type_field& field, c
 
 // MARK: - Assembly
 
-auto kdl::build_target::resource_instance::assemble_field(graphite::data::writer writer, const enum binary_type& type, const std::any& wrapped_value) -> void
+auto kdl::build_target::resource_instance::assemble_field(graphite::data::writer& writer, const enum binary_type& type, const std::any& wrapped_value) const -> void
 {
     switch (type & ~0xFFFUL) {
         case build_target::HBYT: {
@@ -368,4 +377,3 @@ auto kdl::build_target::resource_instance::synthesize_variables() const -> std::
 
     return vars;
 }
-

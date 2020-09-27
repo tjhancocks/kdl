@@ -26,7 +26,7 @@
 kdl::sema::implicit_value_parser::implicit_value_parser(kdl::sema::parser &parser, kdl::build_target::type_field &field,
                                                         kdl::build_target::type_field_value &field_value,
                                                         kdl::build_target::type_template::binary_field binary_field)
-    : m_parser(parser), m_field(field), m_field_value(field_value), m_binary_field(binary_field)
+    : m_parser(parser), m_field(field), m_field_value(field_value), m_binary_field(std::move(binary_field))
 {
 
 }
@@ -38,7 +38,7 @@ auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_instanc
     // Validate the type of the next value
     enum lexeme::type field_type;
 
-    switch (m_binary_field.type & ~0xFFF) {
+    switch (m_binary_field.type & ~0xFFFUL) {
         case build_target::DBYT:
         case build_target::DWRD:
         case build_target::DLNG:
@@ -88,7 +88,7 @@ auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_instanc
         }
     }
 
-    if ((m_binary_field.type & ~0xFFF) == build_target::RECT) {
+    if ((m_binary_field.type & ~0xFFFUL) == build_target::RECT) {
         instance.write_rect(m_field, m_field_value,
                             m_parser.read().value<int16_t>(),
                             m_parser.read().value<int16_t>(),
@@ -109,7 +109,7 @@ auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_instanc
         }
 
         // Read the next value and write it to the resource.
-        switch (m_binary_field.type & ~0xFFF) {
+        switch (m_binary_field.type & ~0xFFFUL) {
             case build_target::DBYT: {
                 instance.write_signed_byte(m_field, m_field_value, value.value<int8_t>());
                 break;
@@ -153,7 +153,7 @@ auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_instanc
             }
 
             case build_target::Cnnn: {
-                instance.write_cstr(m_field, m_field_value, value.text(), m_binary_field.type & 0xFFF);
+                instance.write_cstr(m_field, m_field_value, value.text(), m_binary_field.type & 0xFFFUL);
                 break;
             }
         }

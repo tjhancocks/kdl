@@ -23,7 +23,7 @@
 
 #include "parser/parser.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema {
 
     class resource_instance_parser
     {
@@ -38,13 +38,13 @@ namespace kdl { namespace sema {
     public:
         resource_instance_parser(parser& parser, build_target::type_container& type, std::weak_ptr<target> target);
 
-        auto set_keyword(const std::string keyword) -> void;
-        auto set_id(const int64_t id) -> void;
-        auto set_name(const std::string name) -> void;
+        auto set_keyword(const std::string& keyword) -> void;
+        auto set_id(const int64_t& id) -> void;
+        auto set_name(const std::string& name) -> void;
 
         auto parse() -> build_target::resource_instance;
     };
 
-}};
+};
 
 #endif //KDL_RESOURCE_INSTANCE_PARSER_HPP
