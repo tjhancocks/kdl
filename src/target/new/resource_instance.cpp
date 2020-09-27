@@ -27,7 +27,7 @@
 // MARK: - Constructors
 
 kdl::build_target::resource_instance::resource_instance(const int64_t& id, std::string code,
-                                                        std::string name, class type_template tmpl)
+                                                        std::string name, kdl::build_target::type_template tmpl)
     : m_id(id), m_name(std::move(name)), m_code(std::move(code)), m_tmpl(std::move(tmpl))
 {
 
@@ -50,7 +50,7 @@ auto kdl::build_target::resource_instance::name() const -> std::string
     return m_name;
 }
 
-auto kdl::build_target::resource_instance::type_template() const -> class type_template
+auto kdl::build_target::resource_instance::type_template() const -> kdl::build_target::type_template
 {
     return m_tmpl;
 }
