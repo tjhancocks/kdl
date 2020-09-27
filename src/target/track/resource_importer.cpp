@@ -38,7 +38,7 @@ auto kdl::resource_tracking::importer::populate(kdl::build_target::resource_inst
     // Find and load the resource.
     if (auto res = graphite::rsrc::manager::shared_manager().find(m_code, m_id).lock()) {
         // We need the type template of the resource in order to parse out the binary data into the instance.
-        auto tmpl = instance.type_template();
+        auto tmpl = instance.get_type_template();
         graphite::data::reader reader(res->data());
 
         for (auto i = 0; i < tmpl.binary_field_count(); ++i) {

@@ -50,7 +50,7 @@ auto kdl::build_target::resource_instance::name() const -> std::string
     return m_name;
 }
 
-auto kdl::build_target::resource_instance::type_template() const -> kdl::build_target::type_template
+auto kdl::build_target::resource_instance::get_type_template() const -> kdl::build_target::type_template
 {
     return m_tmpl;
 }

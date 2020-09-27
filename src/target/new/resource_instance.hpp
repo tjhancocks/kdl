@@ -57,7 +57,7 @@ namespace kdl::build_target {
         [[nodiscard]] auto id() const -> int64_t;
         [[nodiscard]] auto name() const -> std::string;
 
-        [[nodiscard]] auto type_template() const -> kdl::build_target::type_template;
+        [[nodiscard]] auto get_type_template() const -> kdl::build_target::type_template;
 
         [[nodiscard]] auto field_use_count(const lexeme& field) const -> int;
         [[nodiscard]] auto acquire_field(const lexeme& field, const int& initial_count = 0) -> int;
