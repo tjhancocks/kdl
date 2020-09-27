@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <iostream>
+#include <algorithm>
 #include "target/track/resource_tracking.hpp"
 
 // MARK: - Instance Construction
