@@ -23,6 +23,7 @@
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/field_parser.hpp"
 #include "parser/sema/declarations/unnamed_reference_value_parser.hpp"
+#include "parser/sema/declarations/named_reference_value_parser.hpp"
 #include "parser/sema/declarations/named_value_parser.hpp"
 #include "implicit_value_parser.hpp"
 
@@ -85,16 +86,16 @@ auto kdl::sema::field_parser::parse() -> void
             // There are several forms an explicit type can take.
             if (explicit_type.name().has_value() && explicit_type.is_reference()) {
                 // TODO: This should be a named reference.
-                unnamed_reference_value_parser(m_parser, field, field_value, binary_fields.back(), explicit_type)
-                        .parse(m_instance);
+                named_reference_value_parser(m_parser, field, field_value, binary_fields.back(), explicit_type, m_target)
+                    .parse(m_instance);
             }
             else if (explicit_type.name().has_value()) {
                 named_value_parser(m_parser, field, field_value, binary_fields, explicit_type, m_target)
-                        .parse(m_instance);
+                    .parse(m_instance);
             }
             else if (explicit_type.is_reference()) {
                 unnamed_reference_value_parser(m_parser, field, field_value, binary_fields.back(), explicit_type)
-                        .parse(m_instance);
+                    .parse(m_instance);
             }
             else {
                 throw std::logic_error("Impossible explicit type encountered - Any");

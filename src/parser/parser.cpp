@@ -54,7 +54,7 @@ auto kdl::sema::parser::parse() -> void
         }
         else if (expect({ expectation(lexeme::identifier, "declare").be_true() })) {
             auto declarations = declaration_parser(*this, m_target).parse();
-            for (auto instance : declarations) {
+            for (const auto& instance : declarations) {
                 target->add_resource(instance);
             }
         }

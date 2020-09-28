@@ -52,10 +52,9 @@ auto kdl::sema::bitmask_parser::parse(kdl::build_target::resource_instance &inst
     }
 
     uint64_t mask = 0;
-    const auto& count = m_field_value.joined_value_count();
-    std::vector<std::tuple<uint64_t, build_target::type_field_value, build_target::type_template::binary_field>> merged_masks(count);
-    for (auto i = 0; i < count; ++i) {
-        merged_masks[0] = std::tuple(0ULL, m_field_value.joined_value_at(i), m_binary_fields.at(i + 1));
+    std::vector<std::tuple<uint64_t, build_target::type_field_value, build_target::type_template::binary_field>> merged_masks;
+    for (auto i = 0; i < m_field_value.joined_value_count(); ++i) {
+        merged_masks.emplace_back(std::tuple(0ULL, m_field_value.joined_value_at(i), m_binary_fields.at(i + 1)));
     }
 
     while (m_parser.expect({ expectation(lexeme::semi).be_false() })) {
