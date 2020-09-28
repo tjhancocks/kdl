@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <utility>
 #include "parser/sema/type_definition/binary_field.hpp"
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/field_parser.hpp"
@@ -28,7 +29,7 @@
 // MARK: - Constructor
 
 kdl::sema::field_parser::field_parser(kdl::sema::parser &parser, build_target::type_container& type, build_target::resource_instance& instance, std::weak_ptr<target> target)
-    : m_parser(parser), m_instance(instance), m_type(type), m_target(target)
+    : m_parser(parser), m_instance(instance), m_type(type), m_target(std::move(target))
 {
 
 }
@@ -108,7 +109,7 @@ auto kdl::sema::field_parser::parse() -> void
     }
 }
 
-auto kdl::sema::field_parser::apply_defaults_for_field(const lexeme field_name) -> void
+auto kdl::sema::field_parser::apply_defaults_for_field(const lexeme& field_name) -> void
 {
     auto field = m_type.field_named(field_name);
 

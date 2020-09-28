@@ -23,7 +23,7 @@
 
 #include "parser/parser.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema {
 
     class named_value_parser
     {
@@ -44,6 +44,6 @@ namespace kdl { namespace sema {
         auto parse(build_target::resource_instance& instance) -> void;
     };
 
-}};
+}
 
 #endif //KDL_NAMED_VALUE_PARSER_HPP

@@ -39,6 +39,6 @@ namespace kdl::sema {
         auto parse() -> std::vector<build_target::resource_instance>;
     };
 
-};
+}
 
 #endif //KDL_DECLARATION_PARSER_HPP

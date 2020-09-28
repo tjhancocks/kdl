@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <utility>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/named_value_parser.hpp"
 #include "parser/sema/declarations/named_types/file_type_parser.hpp"
@@ -35,9 +36,9 @@ kdl::sema::named_value_parser::named_value_parser(kdl::sema::parser &parser, kdl
     : m_parser(parser),
       m_explicit_type(type),
       m_field(field),
-      m_binary_fields(binary_fields),
+      m_binary_fields(std::move(binary_fields)),
       m_field_value(field_value),
-      m_target(target)
+      m_target(std::move(target))
 {
 
 }

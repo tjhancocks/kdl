@@ -45,6 +45,6 @@ namespace kdl::sema {
         auto parse() -> build_target::resource_instance;
     };
 
-};
+}
 
 #endif //KDL_RESOURCE_INSTANCE_PARSER_HPP

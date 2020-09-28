@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <utility>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/named_types/range_parser.hpp"
 
@@ -30,7 +31,7 @@ kdl::sema::range_parser::range_parser(kdl::sema::parser &parser, kdl::build_targ
         : m_parser(parser),
           m_field(field),
           m_field_value(field_value),
-          m_binary_field(binary_field),
+          m_binary_field(std::move(binary_field)),
           m_explicit_type(type)
 {
 
@@ -38,14 +39,14 @@ kdl::sema::range_parser::range_parser(kdl::sema::parser &parser, kdl::build_targ
 
 // MARK: - Parser
 
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
-static auto __validate_range(const kdl::lexeme value, const kdl::lexeme lower, const kdl::lexeme upper) -> T
+template<typename T>
+static auto validate_range(const kdl::lexeme value, const kdl::lexeme lower, const kdl::lexeme upper) -> T
 {
-    auto __v = value.value<T>();
-    auto __lV = lower.value<T>();
-    auto __uV = upper.value<T>();
-    if ((__v >= __lV) && (__v <= __uV)) {
-        return __v;
+    auto v = value.value<T>();
+    auto lV = lower.value<T>();
+    auto uV = upper.value<T>();
+    if ((v >= lV) && (v <= uV)) {
+        return v;
     }
     else {
         kdl::log::fatal_error(value, 1, "Specified value '" + value.text() + "' is outside of allowed range '" + lower.text() + " ... " + upper.text() + "'");
@@ -77,37 +78,37 @@ auto kdl::sema::range_parser::parse(kdl::build_target::resource_instance &instan
         log::fatal_error(m_parser.peek(), 1, "Incorrect value type provided for field '" + m_field.name().text() + "'");
     }
 
-    switch (m_binary_field.type & ~0xFFF) {
+    switch (m_binary_field.type & ~0xFFFUL) {
         case build_target::DBYT: {
-            instance.write_signed_byte(m_field, m_field_value, __validate_range<int8_t>(m_parser.read(), lower, upper));
+            instance.write_signed_byte(m_field, m_field_value, validate_range<int8_t>(m_parser.read(), lower, upper));
             break;
         }
         case build_target::DWRD: {
-            instance.write_signed_short(m_field, m_field_value, __validate_range<int16_t>(m_parser.read(), lower, upper));
+            instance.write_signed_short(m_field, m_field_value, validate_range<int16_t>(m_parser.read(), lower, upper));
             break;
         }
         case build_target::DLNG: {
-            instance.write_signed_long(m_field, m_field_value, __validate_range<int32_t>(m_parser.read(), lower, upper));
+            instance.write_signed_long(m_field, m_field_value, validate_range<int32_t>(m_parser.read(), lower, upper));
             break;
         }
         case build_target::DQAD: {
-            instance.write_signed_quad(m_field, m_field_value, __validate_range<int64_t>(m_parser.read(), lower, upper));
+            instance.write_signed_quad(m_field, m_field_value, validate_range<int64_t>(m_parser.read(), lower, upper));
             break;
         }
         case build_target::HBYT: {
-            instance.write_byte(m_field, m_field_value, __validate_range<uint8_t>(m_parser.read(), lower, upper));
+            instance.write_byte(m_field, m_field_value, validate_range<uint8_t>(m_parser.read(), lower, upper));
             break;
         }
         case build_target::HWRD: {
-            instance.write_short(m_field, m_field_value, __validate_range<uint16_t>(m_parser.read(), lower, upper));
+            instance.write_short(m_field, m_field_value, validate_range<uint16_t>(m_parser.read(), lower, upper));
             break;
         }
         case build_target::HLNG: {
-            instance.write_long(m_field, m_field_value, __validate_range<uint32_t>(m_parser.read(), lower, upper));
+            instance.write_long(m_field, m_field_value, validate_range<uint32_t>(m_parser.read(), lower, upper));
             break;
         }
         case build_target::HQAD: {
-            instance.write_quad(m_field, m_field_value, __validate_range<uint64_t>(m_parser.read(), lower, upper));
+            instance.write_quad(m_field, m_field_value, validate_range<uint64_t>(m_parser.read(), lower, upper));
             break;
         }
         default: {

@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <utility>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/named_types/file_type_parser.hpp"
 #include "media/conversion.hpp"
@@ -34,9 +35,9 @@ kdl::sema::file_type_parser::file_type_parser(kdl::sema::parser &parser, kdl::bu
     : m_parser(parser),
       m_explicit_type(type),
       m_field(field),
-      m_binary_field(binary_field),
+      m_binary_field(std::move(binary_field)),
       m_field_value(field_value),
-      m_target(target)
+      m_target(std::move(target))
 {
 
 }
@@ -77,7 +78,7 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
         }
     }
 
-    if (!file_contents.size()) {
+    if (file_contents.empty()) {
         log::fatal_error(m_parser.peek(), 1, "Fields with the 'File' type expect a string.");
     }
 
@@ -108,7 +109,7 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
 
         if (file_contents.size() != 1) {
             auto conversion = kdl::media::conversion(input_format, output_format);
-            for (auto f : file_contents) {
+            for (const auto& f : file_contents) {
                 conversion.add_input_file(f);
             }
             auto output = conversion.perform_conversion();
@@ -128,7 +129,7 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
     }
 
     // Get the value type for the field, and the set it.
-    switch (m_binary_field.type & ~0xFFF) {
+    switch (m_binary_field.type & ~0xFFFUL) {
         case build_target::PSTR: {
             if (string_value.size() > 255) {
                 log::fatal_error(string_lx, 1, "String too large for value type.");
@@ -141,7 +142,7 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
             break;
         }
         case build_target::Cnnn: {
-            auto size = static_cast<std::size_t>(m_binary_field.type) & 0xFFF;
+            auto size = static_cast<std::size_t>(m_binary_field.type) & 0xFFFUL;
             if (string_value.size() > size) {
                 log::fatal_error(string_lx, 1, "String too large for value type.");
             }
