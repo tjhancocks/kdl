@@ -30,7 +30,7 @@
 #include "target/new/binary_type.hpp"
 #include "target/new/type_template.hpp"
 
-namespace kdl { namespace build_target {
+namespace kdl::build_target {
 
     struct type_field_value
     {
@@ -45,40 +45,37 @@ namespace kdl { namespace build_target {
         bool m_assemble_sprite_sheet { false };
 
     public:
-        type_field_value(const lexeme base_name);
+        explicit type_field_value(lexeme base_name);
 
-        auto base_name() const -> lexeme;
-        auto extended_name(const std::map<std::string, lexeme> vars) const -> lexeme;
+        [[nodiscard]] auto base_name() const -> lexeme;
+        [[nodiscard]] auto extended_name(const std::map<std::string, lexeme>& vars) const -> lexeme;
 
-        auto set_explicit_type(const kdl_type type) -> void;
-        auto explicit_type() const -> std::optional<kdl::build_target::kdl_type>;
+        auto set_explicit_type(const kdl_type& type) -> void;
+        [[nodiscard]] auto explicit_type() const -> std::optional<kdl::build_target::kdl_type>;
 
-        auto set_default_value(const lexeme default_value) -> void;
-        auto default_value() const -> std::optional<lexeme>;
+        auto set_default_value(const lexeme& default_value) -> void;
+        [[nodiscard]] auto default_value() const -> std::optional<lexeme>;
 
-        auto set_symbols(const std::vector<std::tuple<lexeme, lexeme>> symbols) -> void;
-        auto add_symbol(const lexeme symbol, const lexeme value) -> void;
-        auto symbols() const -> std::vector<std::tuple<lexeme, lexeme>>;
-        auto value_for(const lexeme symbol) const -> lexeme;
+        auto set_symbols(const std::vector<std::tuple<lexeme, lexeme>>& symbols) -> void;
+        [[nodiscard]] auto symbols() const -> std::vector<std::tuple<lexeme, lexeme>>;
+        [[nodiscard]] auto value_for(const lexeme& symbol) const -> lexeme;
 
-        auto set_name_extensions(const std::vector<lexeme> name_extensions) -> void;
-        auto add_name_extension(const lexeme ext) -> void;
+        auto set_name_extensions(const std::vector<lexeme>& name_extensions) -> void;
 
-        auto set_conversion_map(const std::tuple<lexeme, lexeme> map) -> void;
-        auto set_conversion_map(const lexeme input, const lexeme output) -> void;
-        auto has_conversion_defined() const -> bool;
-        auto conversion_input() const -> lexeme;
-        auto conversion_output() const -> lexeme;
+        auto set_conversion_map(const std::tuple<lexeme, lexeme>& map) -> void;
+        [[nodiscard]] auto has_conversion_defined() const -> bool;
+        [[nodiscard]] auto conversion_input() const -> lexeme;
+        [[nodiscard]] auto conversion_output() const -> lexeme;
 
-        auto join_value(const type_field_value value) -> void;
-        auto joined_value_count() const -> std::size_t;
-        auto joined_value_at(const int i) -> type_field_value;
-        auto joined_value_for(const lexeme symbol) const -> std::optional<std::tuple<int, lexeme>>;
+        auto join_value(const type_field_value& value) -> void;
+        [[nodiscard]] auto joined_value_count() const -> std::size_t;
+        [[nodiscard]] auto joined_value_at(const int& i) -> type_field_value;
+        [[nodiscard]] auto joined_value_for(const lexeme& symbol) const -> std::optional<std::tuple<int, lexeme>>;
 
         auto set_assemble_sprite_sheet() -> void;
-        auto assemble_sprite_sheet() const -> bool;
+        [[nodiscard]] auto assemble_sprite_sheet() const -> bool;
     };
 
-}};
+}
 
 #endif //KDL_TYPE_FIELD_VALUE_HPP

@@ -53,7 +53,7 @@ auto kdl::sema::unnamed_reference_value_parser::parse(kdl::build_target::resourc
     }
 
     // Ensure that the underlying type is correct for a reference.
-    switch (m_binary_field.type & ~0xFFF) {
+    switch (m_binary_field.type & ~0xFFFUL) {
         case build_target::DWRD: {
             instance.write_signed_short(m_field, m_field_value, ref.value<int16_t>());
             break;

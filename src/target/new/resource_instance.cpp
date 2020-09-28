@@ -19,15 +19,16 @@
 // SOFTWARE.
 
 #include <string>
+#include <utility>
 #include "diagnostic/fatal.hpp"
 #include "target/new/resource_instance.hpp"
 #include "libGraphite/data/writer.hpp"
 
 // MARK: - Constructors
 
-kdl::build_target::resource_instance::resource_instance(const int64_t id, const std::string code,
-                                                        const std::string name, type_template tmpl)
-    : m_id(id), m_name(name), m_code(code), m_tmpl(tmpl)
+kdl::build_target::resource_instance::resource_instance(const int64_t& id, std::string code,
+                                                        std::string name, kdl::build_target::type_template tmpl)
+    : m_id(id), m_name(std::move(name)), m_code(std::move(code)), m_tmpl(std::move(tmpl))
 {
 
 }
@@ -49,9 +50,14 @@ auto kdl::build_target::resource_instance::name() const -> std::string
     return m_name;
 }
 
+auto kdl::build_target::resource_instance::get_type_template() const -> kdl::build_target::type_template
+{
+    return m_tmpl;
+}
+
 // MARK: - Field Usage
 
-auto kdl::build_target::resource_instance::field_use_count(const kdl::lexeme field) const -> int
+auto kdl::build_target::resource_instance::field_use_count(const kdl::lexeme& field) const -> int
 {
     if (m_field_counts.find(field.text()) == m_field_counts.end()) {
         return 0;
@@ -59,7 +65,7 @@ auto kdl::build_target::resource_instance::field_use_count(const kdl::lexeme fie
     return m_field_counts.at(field.text());
 }
 
-auto kdl::build_target::resource_instance::acquire_field(const kdl::lexeme field, const int initial_count) -> int
+auto kdl::build_target::resource_instance::acquire_field(const kdl::lexeme& field, const int& initial_count) -> int
 {
     if (m_field_counts.find(field.text()) == m_field_counts.end()) {
         m_field_counts[field.text()] = initial_count - 1;
@@ -70,14 +76,14 @@ auto kdl::build_target::resource_instance::acquire_field(const kdl::lexeme field
     return n;
 }
 
-auto kdl::build_target::resource_instance::reset_acquistion_locks() -> void
+auto kdl::build_target::resource_instance::reset_acquisition_locks() -> void
 {
     m_field_counts.clear();
 }
 
 // MARK: - Name Extensions
 
-auto kdl::build_target::resource_instance::available_name_extensions(const type_field field) const -> std::map<std::string, lexeme>
+auto kdl::build_target::resource_instance::available_name_extensions(const type_field& field) const -> std::map<std::string, lexeme>
 {
     std::map<std::string, lexeme> vars;
 
@@ -90,7 +96,7 @@ auto kdl::build_target::resource_instance::available_name_extensions(const type_
 
 // MARK: - Values
 
-auto kdl::build_target::resource_instance::index_of(const std::string field) const -> int
+auto kdl::build_target::resource_instance::index_of(const std::string& field) const -> int
 {
     for (auto i = 0; i < m_tmpl.binary_field_count(); ++i) {
         if (m_tmpl.binary_field_at(i).label.is(field)) {
@@ -100,98 +106,102 @@ auto kdl::build_target::resource_instance::index_of(const std::string field) con
     throw std::logic_error("Attempting to write value for binary field '" + field + "' that does not exist.");
 }
 
-auto kdl::build_target::resource_instance::write(const std::string field, std::any value) -> void
+auto kdl::build_target::resource_instance::write(const std::string& field, const std::any& value) -> void
 {
-    auto index = index_of(field);
-    if (m_values.find(index) == m_values.end()) {
+    write(index_of(field), value);
+}
+
+auto kdl::build_target::resource_instance::write(const int& field_index, const std::any& value) -> void
+{
+    if (m_values.find(field_index) == m_values.end()) {
         std::vector<std::any> vec({ value });
-        m_values[index] = vec;
+        m_values[field_index] = vec;
     }
     else {
-        m_values[index].emplace_back(value);
+        m_values[field_index].emplace_back(value);
     }
 }
 
-auto kdl::build_target::resource_instance::write_byte(const type_field field, const type_field_value field_value, const uint8_t value) -> void
+auto kdl::build_target::resource_instance::write_byte(const type_field& field, const type_field_value& field_value, const uint8_t& value) -> void
 {
     write(field_value.extended_name(available_name_extensions(field)).text(), value);
 }
 
-auto kdl::build_target::resource_instance::write_short(const type_field field, const type_field_value field_value, const uint16_t value) -> void
+auto kdl::build_target::resource_instance::write_short(const type_field& field, const type_field_value& field_value, const uint16_t& value) -> void
 {
     write(field_value.extended_name(available_name_extensions(field)).text(), value);
 }
 
-auto kdl::build_target::resource_instance::write_long(const type_field field, const type_field_value field_value, const uint32_t value) -> void
+auto kdl::build_target::resource_instance::write_long(const type_field& field, const type_field_value& field_value, const uint32_t& value) -> void
 {
     write(field_value.extended_name(available_name_extensions(field)).text(), value);
 }
 
-auto kdl::build_target::resource_instance::write_quad(const type_field field, const type_field_value field_value, const uint64_t value) -> void
+auto kdl::build_target::resource_instance::write_quad(const type_field& field, const type_field_value& field_value, const uint64_t& value) -> void
 {
     write(field_value.extended_name(available_name_extensions(field)).text(), value);
 }
 
-auto kdl::build_target::resource_instance::write_signed_byte(const type_field field, const type_field_value field_value, const int8_t value) -> void
+auto kdl::build_target::resource_instance::write_signed_byte(const type_field& field, const type_field_value& field_value, const int8_t& value) -> void
 {
     write(field_value.extended_name(available_name_extensions(field)).text(), value);
 }
 
-auto kdl::build_target::resource_instance::write_signed_short(const type_field field, const type_field_value field_value, const int16_t value) -> void
+auto kdl::build_target::resource_instance::write_signed_short(const type_field& field, const type_field_value& field_value, const int16_t& value) -> void
 {
     write(field_value.extended_name(available_name_extensions(field)).text(), value);
 }
 
-auto kdl::build_target::resource_instance::write_signed_long(const type_field field, const type_field_value field_value, const int32_t value) -> void
+auto kdl::build_target::resource_instance::write_signed_long(const type_field& field, const type_field_value& field_value, const int32_t& value) -> void
 {
     write(field_value.extended_name(available_name_extensions(field)).text(), value);
 }
 
-auto kdl::build_target::resource_instance::write_signed_quad(const type_field field, const type_field_value field_value, const int64_t value) -> void
+auto kdl::build_target::resource_instance::write_signed_quad(const type_field& field, const type_field_value& field_value, const int64_t& value) -> void
 {
     write(field_value.extended_name(available_name_extensions(field)).text(), value);
 }
 
-auto kdl::build_target::resource_instance::write_pstr(const type_field field, const type_field_value field_value, const std::string value, const std::size_t len) -> void
+auto kdl::build_target::resource_instance::write_pstr(const type_field& field, const type_field_value& field_value, const std::string& value, const std::size_t& len) -> void
 {
     write(field_value.extended_name(available_name_extensions(field)).text(), std::tuple(len, value));
 }
 
-auto kdl::build_target::resource_instance::write_wstr(const type_field field, const type_field_value field_value, const std::string value) -> void
+auto kdl::build_target::resource_instance::write_wstr(const type_field& field, const type_field_value& field_value, const std::string& value) -> void
 {
     write(field_value.extended_name(available_name_extensions(field)).text(), value);
 }
 
-auto kdl::build_target::resource_instance::write_lstr(const type_field field, const type_field_value field_value, const std::string value) -> void
+auto kdl::build_target::resource_instance::write_lstr(const type_field& field, const type_field_value& field_value, const std::string& value) -> void
 {
     write(field_value.extended_name(available_name_extensions(field)).text(), value);
 }
 
-auto kdl::build_target::resource_instance::write_cstr(const type_field field, const type_field_value field_value, const std::string value, const std::size_t len) -> void
+auto kdl::build_target::resource_instance::write_cstr(const type_field& field, const type_field_value& field_value, const std::string& value, const std::size_t& len) -> void
 {
     write(field_value.extended_name(available_name_extensions(field)).text(), std::tuple(len, value));
 }
 
-auto kdl::build_target::resource_instance::write_data(const type_field field, const type_field_value field_value, const std::vector<char> data) -> void
+auto kdl::build_target::resource_instance::write_data(const type_field& field, const type_field_value& field_value, const std::vector<char>& data) -> void
 {
     write(field_value.extended_name(available_name_extensions(field)).text(), data);
 }
 
-auto kdl::build_target::resource_instance::write_data(const type_field field, const type_field_value field_value, const std::vector<uint8_t> data) -> void
+auto kdl::build_target::resource_instance::write_data(const type_field& field, const type_field_value& field_value, const std::vector<uint8_t>& data) -> void
 {
     write(field_value.extended_name(available_name_extensions(field)).text(), data);
 }
 
-auto kdl::build_target::resource_instance::write_rect(const type_field field, const type_field_value field_value, const int16_t t, const int16_t l, const int16_t b, const int16_t r) -> void
+auto kdl::build_target::resource_instance::write_rect(const type_field& field, const type_field_value& field_value, const int16_t& t, const int16_t& l, const int16_t& b, const int16_t& r) -> void
 {
     write(field_value.extended_name(available_name_extensions(field)).text(), std::tuple(t, l, b, r));
 }
 
 // MARK: - Assembly
 
-auto kdl::build_target::resource_instance::assemble_field(graphite::data::writer& writer, const enum binary_type type, std::any wrapped_value) const -> void
+auto kdl::build_target::resource_instance::assemble_field(graphite::data::writer& writer, const enum binary_type& type, const std::any& wrapped_value) const -> void
 {
-    switch (type & ~0xFFF) {
+    switch (type & ~0xFFFUL) {
         case build_target::HBYT: {
             writer.write_byte(std::any_cast<uint8_t>(wrapped_value));
             break;
@@ -271,7 +281,7 @@ auto kdl::build_target::resource_instance::assemble() const -> std::shared_ptr<g
         auto field_name = field.label;
         auto index = index_of(field_name.text());
 
-        if ((type & ~0xFFF) == build_target::OCNT) {
+        if ((type & ~0xFFFUL) == build_target::OCNT) {
             // TODO:
             // We use an OCNT field to indicate that the next field is repeatable -- this is not really correct as
             // TMPL resources use LSTC and LSTE in addition to the count field to specify that multiple elements
@@ -314,7 +324,7 @@ auto kdl::build_target::resource_instance::synthesize_variables() const -> std::
 
     for (auto n = 0; n < m_tmpl.binary_field_count(); ++n) {
         auto field = m_tmpl.binary_field_at(n);
-        auto type = field.type;
+        auto type = static_cast<uint32_t>(field.type);
         auto field_name = field.label;
         auto index = index_of(field_name.text());
         if (m_values.find(index) == m_values.end()) {
@@ -322,7 +332,7 @@ auto kdl::build_target::resource_instance::synthesize_variables() const -> std::
         }
         auto wrapped_value = m_values.at(index).back();
 
-        switch (field.type & ~0xFFF) {
+        switch (type & ~0xFFFUL) {
             case build_target::HBYT: {
                 vars.emplace(field_name.text(), lexeme(std::to_string(std::any_cast<uint8_t>(wrapped_value)), lexeme::integer));
                 break;
@@ -367,4 +377,3 @@ auto kdl::build_target::resource_instance::synthesize_variables() const -> std::
 
     return vars;
 }
-

@@ -18,7 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <sys/stat.h>
 #include <unistd.h>
 #include <iostream>
 #include "target/target.hpp"
@@ -28,14 +27,14 @@
 // MARK: - Constructors
 
 kdl::target::target()
-    : m_dst_root("."), m_dst_file("result")
+    : m_dst_root("."), m_dst_file("result"), m_resource_tracking_table(std::make_shared<kdl::resource_tracking::table>())
 {
 
 }
 
 // MARK: - Container Management
 
-auto kdl::target::add_type_container(const build_target::type_container container) -> void
+auto kdl::target::add_type_container(const build_target::type_container& container) -> void
 {
     m_type_containers.emplace_back(container);
 }
@@ -45,12 +44,12 @@ auto kdl::target::type_container_count() const -> std::size_t
     return m_type_containers.size();
 }
 
-auto kdl::target::type_container_at(const int i) const -> build_target::type_container
+auto kdl::target::type_container_at(const int& i) const -> build_target::type_container
 {
     return m_type_containers[i];
 }
 
-auto kdl::target::type_container_named(const kdl::lexeme name) const -> build_target::type_container
+auto kdl::target::type_container_named(const kdl::lexeme& name) const -> build_target::type_container
 {
     for (auto c : m_type_containers) {
         if (c.name() == name.text()) {
@@ -63,14 +62,14 @@ auto kdl::target::type_container_named(const kdl::lexeme name) const -> build_ta
 
 // MARK: - Destination Paths
 
-auto kdl::target::set_dst_path(const std::string dst_path) -> void
+auto kdl::target::set_dst_path(const std::string& dst_path) -> void
 {
     auto path = dst_path;
     std::string filename;
 
     if (kdl::file::exists(path) && !kdl::file::is_directory(path)) {
         while (path.substr(path.size() - 1) != "/") {
-            filename = path.substr(path.size() - 1) + filename;
+            filename.insert(0, path.substr(path.size() - 1));
             path.pop_back();
         }
     }
@@ -79,7 +78,7 @@ auto kdl::target::set_dst_path(const std::string dst_path) -> void
     }
     else {
         while (path.substr(path.size() - 1) != "/") {
-            filename = path.substr(path.size() - 1) + filename;
+            filename.insert(0, path.substr(path.size() - 1));
             path.pop_back();
         }
 
@@ -99,7 +98,7 @@ auto kdl::target::set_dst_path(const std::string dst_path) -> void
 
 // MARK: - Scenario Paths
 
-auto kdl::target::set_scenario_root(std::string_view path) -> void
+auto kdl::target::set_scenario_root(const std::string& path) -> void
 {
     m_scenario_root = std::string(path);
 
@@ -127,7 +126,7 @@ auto kdl::target::scenario_manifest(std::string_view scenario_name) -> std::stri
 
 // MARK: - Source Paths
 
-auto kdl::target::set_src_root(const std::string src_root) -> void
+auto kdl::target::set_src_root(const std::string& src_root) -> void
 {
     auto path = src_root;
     // This needs to be a directory. Check if the path provided is a KDL file. If it is truncate the file name.
@@ -146,7 +145,7 @@ auto kdl::target::set_src_root(const std::string src_root) -> void
     m_src_root = path;
 }
 
-auto kdl::target::resolve_src_path(const std::string path) const -> std::string
+auto kdl::target::resolve_src_path(const std::string& path) const -> std::string
 {
     // TODO: Improve this so it actually makes more sense.
     std::string rpath("@rpath"); // Root Path (Location of Input File)
@@ -155,6 +154,12 @@ auto kdl::target::resolve_src_path(const std::string path) const -> std::string
 
     if (path.substr(0, rpath.size()) == rpath) {
         return m_src_root + path.substr(rpath.size());
+    }
+    if (path.substr(0, spath.size()) == spath) {
+        return m_src_root + path.substr(spath.size());
+    }
+    if (path.substr(0, opath.size()) == opath) {
+        return m_src_root + path.substr(opath.size());
     }
 
     return path;
@@ -197,8 +202,9 @@ auto kdl::target::set_required_format(const graphite::rsrc::file::format &format
 
 // MARK: - Resource Management
 
-auto kdl::target::add_resource(const build_target::resource_instance resource) -> void
+auto kdl::target::add_resource(const build_target::resource_instance& resource) -> void
 {
+    m_resource_tracking_table->add_instance(m_file.name(), resource.type_code(), resource.id(), resource.name());
     m_file.add_resource(resource.type_code(), resource.id(), resource.name(), resource.assemble());
 }
 
@@ -228,11 +234,6 @@ auto kdl::target::target_file_path() const -> std::string
     return path;
 }
 
-auto kdl::target::set_output_file(const std::string file) -> void
-{
-    m_dst_file = file;
-}
-
 auto kdl::target::save() -> void
 {
     std::cout << "saving to " << target_file_path() << std::endl;
@@ -241,12 +242,12 @@ auto kdl::target::save() -> void
 
 // MARK: - Disassembler
 
-auto kdl::target::set_disassembler_image_format(std::vector<lexeme> formats) -> void
+auto kdl::target::set_disassembler_image_format(const std::vector<lexeme>& formats) -> void
 {
     m_disassembler_image_format = formats;
 }
 
-auto kdl::target::set_disassembler_sound_format(std::vector<lexeme> formats) -> void
+auto kdl::target::set_disassembler_sound_format(const std::vector<lexeme>& formats) -> void
 {
     m_disassembler_sound_format = formats;
 }
@@ -261,5 +262,12 @@ auto kdl::target::initialise_disassembler(const std::string& output_dir) -> void
 auto kdl::target::disassembler() const -> std::optional<disassembler::task>
 {
     return m_disassembler;
+}
+
+// MARK: - Resource Tracker
+
+auto kdl::target::resource_tracker() const -> std::shared_ptr<kdl::resource_tracking::table>
+{
+    return m_resource_tracking_table;
 }
 

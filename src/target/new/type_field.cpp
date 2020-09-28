@@ -20,15 +20,17 @@
 
 #include "type_field.hpp"
 
+#include <utility>
+
 // MARK: - Constructors
 
-kdl::build_target::type_field::type_field(const lexeme name)
-    : m_name(name)
+kdl::build_target::type_field::type_field(lexeme  name)
+    : m_name(std::move(name))
 {
 
 }
 
-kdl::build_target::type_field::type_field(const std::string name)
+kdl::build_target::type_field::type_field(const std::string& name)
     : m_name(lexeme(name, lexeme::identifier))
 {
 
@@ -43,7 +45,7 @@ auto kdl::build_target::type_field::name() const -> kdl::lexeme
 
 // MARK: - Value Management
 
-static inline auto __is_bitmask(const kdl::build_target::type_field_value& value) -> bool
+static inline auto is_bitmask(const kdl::build_target::type_field_value& value) -> bool
 {
     return value.explicit_type().has_value()
         && value.explicit_type().value().name().has_value()
@@ -51,10 +53,10 @@ static inline auto __is_bitmask(const kdl::build_target::type_field_value& value
         && !value.explicit_type().value().is_reference();
 }
 
-auto kdl::build_target::type_field::add_value(const kdl::build_target::type_field_value value) -> void
+auto kdl::build_target::type_field::add_value(const kdl::build_target::type_field_value& value) -> void
 {
     // Merge bitmasks together.
-    if (m_values.size() > 0 && __is_bitmask(value) && __is_bitmask(m_values.back())) {
+    if (!m_values.empty() && is_bitmask(value) && is_bitmask(m_values.back())) {
         m_values.back().join_value(value);
         return;
     }
@@ -66,14 +68,14 @@ auto kdl::build_target::type_field::expected_values() const -> std::size_t
     return m_values.size();
 }
 
-auto kdl::build_target::type_field::value_at(const int n) const -> kdl::build_target::type_field_value
+auto kdl::build_target::type_field::value_at(const int& n) const -> kdl::build_target::type_field_value
 {
     return m_values.at(n);
 }
 
 // MARK: - Repeatable
 
-auto kdl::build_target::type_field::make_repeatable(const int lower, const int upper) -> void
+auto kdl::build_target::type_field::make_repeatable(const int& lower, const int& upper) -> void
 {
     m_repeatable_lower = lower;
     m_repeatable_upper = upper;

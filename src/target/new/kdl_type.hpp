@@ -26,7 +26,7 @@
 #include <vector>
 #include "parser/lexeme.hpp"
 
-namespace kdl { namespace build_target {
+namespace kdl::build_target {
 
     struct kdl_type
     {
@@ -36,20 +36,20 @@ namespace kdl { namespace build_target {
         std::vector<lexeme> m_type_hints {};
 
     public:
-        kdl_type();
-        kdl_type(const bool is_reference, const lexeme name);
+        kdl_type() = default;
+        kdl_type(const bool& is_reference, const lexeme& name);
 
-        auto set_reference(const bool reference) -> void;
-        auto is_reference() const -> bool;
+        auto set_reference(const bool& reference) -> void;
+        [[nodiscard]] auto is_reference() const -> bool;
 
-        auto set_name(const lexeme name) -> void;
-        auto name() const -> std::optional<lexeme>;
+        auto set_name(const lexeme& name) -> void;
+        [[nodiscard]] auto name() const -> std::optional<lexeme>;
 
-        auto set_type_hints(const std::vector<lexeme> hints) -> void;
-        auto type_hints() const -> std::vector<lexeme>;
+        auto set_type_hints(const std::vector<lexeme>& hints) -> void;
+        [[nodiscard]] auto type_hints() const -> std::vector<lexeme>;
 
     };
 
-}};
+};
 
 #endif //KDL_KDL_TYPE_HPP

@@ -95,6 +95,14 @@ auto main(int argc, const char **argv) -> int
                 i += 1;
 
                 graphite::rsrc::manager::shared_manager().import_file(file);
+
+                // Import the contents of the file into the resource tracker.
+                auto tracker = target->resource_tracker();
+                for (const auto& type: file->types()) {
+                    for (const auto& resource: type->resources()) {
+                        tracker->add_instance(file->name(), type->code(), resource->id(), resource->name());
+                    }
+                }
             }
             else if (arg == "-d" || arg == "--disassemble") {
                 target->initialise_disassembler(kdl::file::resolve_tilde(std::string(argv[++i])));

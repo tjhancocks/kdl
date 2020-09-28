@@ -18,44 +18,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TYPE_FIELD_HPP)
-#define KDL_TYPE_FIELD_HPP
+#if !defined(KDL_RESOURCE_TRACKING_HPP)
+#define KDL_RESOURCE_TRACKING_HPP
 
-#include <optional>
-#include <tuple>
-#include <vector>
 #include <string>
-#include "target/new/kdl_type.hpp"
-#include "target/new/type_field_value.hpp"
-#include "parser/lexeme.hpp"
+#include <vector>
+#include <map>
 
-namespace kdl::build_target {
+namespace kdl::resource_tracking {
 
-    struct type_field
+    class table
     {
     private:
-        lexeme m_name;
-        std::vector<type_field_value> m_values;
-        bool m_repeatable { false };
-        int m_repeatable_lower { 0 };
-        int m_repeatable_upper { 0 };
+
+        struct instance
+        {
+            std::string file;
+            std::string type_code;
+            std::map<std::string, std::string> attributes {};
+            int64_t id;
+            std::string name;
+
+            instance(std::string file, std::string type, int64_t id, std::string name);
+        };
+
+        std::vector<instance> m_instances {};
 
     public:
-        explicit type_field(lexeme name);
-        explicit type_field(const std::string& name);
+        table() = default;
 
-        [[nodiscard]] auto name() const -> lexeme;
+        auto add_instance(const std::string& file, const std::string& type, const int64_t& id, const std::string& name) -> void;
+        [[nodiscard]] auto instance_exists(const std::string& type, const int64_t& id) -> bool;
 
-        auto add_value(const type_field_value& value) -> void;
-        [[nodiscard]] auto expected_values() const -> std::size_t;
-        [[nodiscard]] auto value_at(const int& n) const -> type_field_value;
-
-        auto make_repeatable(const int& lower, const int& upper) -> void;
-        [[nodiscard]] auto lower_repeat_bound() const -> int;
-        [[nodiscard]] auto upper_repeat_bound() const -> int;
-        [[nodiscard]] auto is_repeatable() const -> bool;
     };
 
-};
+}
 
-#endif //KDL_TYPE_FIELD_HPP
+#endif //KDL_RESOURCE_TRACKING_HPP

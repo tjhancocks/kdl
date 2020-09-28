@@ -18,44 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TYPE_FIELD_HPP)
-#define KDL_TYPE_FIELD_HPP
+#if !defined(KDL_RESOURCE_IMPORTER_HPP)
+#define KDL_RESOURCE_IMPORTER_HPP
 
-#include <optional>
-#include <tuple>
-#include <vector>
 #include <string>
-#include "target/new/kdl_type.hpp"
-#include "target/new/type_field_value.hpp"
-#include "parser/lexeme.hpp"
+#include "target/new/resource_instance.hpp"
 
-namespace kdl::build_target {
+namespace kdl::resource_tracking {
 
-    struct type_field
+    struct importer
     {
     private:
-        lexeme m_name;
-        std::vector<type_field_value> m_values;
-        bool m_repeatable { false };
-        int m_repeatable_lower { 0 };
-        int m_repeatable_upper { 0 };
+        std::string m_code;
+        int64_t m_id;
 
     public:
-        explicit type_field(lexeme name);
-        explicit type_field(const std::string& name);
+        importer(std::string code, const int64_t& id);
 
-        [[nodiscard]] auto name() const -> lexeme;
-
-        auto add_value(const type_field_value& value) -> void;
-        [[nodiscard]] auto expected_values() const -> std::size_t;
-        [[nodiscard]] auto value_at(const int& n) const -> type_field_value;
-
-        auto make_repeatable(const int& lower, const int& upper) -> void;
-        [[nodiscard]] auto lower_repeat_bound() const -> int;
-        [[nodiscard]] auto upper_repeat_bound() const -> int;
-        [[nodiscard]] auto is_repeatable() const -> bool;
+        auto populate(kdl::build_target::resource_instance& instance) -> bool;
     };
 
-};
+}
 
-#endif //KDL_TYPE_FIELD_HPP
+#endif //KDL_RESOURCE_IMPORTER_HPP

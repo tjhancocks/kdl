@@ -20,12 +20,14 @@
 
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/declaration_parser.hpp"
+
+#include <utility>
 #include "parser/sema/declarations/resource_instance_parser.hpp"
 
 // MARK: - Constructor
 
 kdl::sema::declaration_parser::declaration_parser(kdl::sema::parser &parser, std::weak_ptr<target> target)
-    : m_parser(parser), m_target(target)
+    : m_parser(parser), m_target(std::move(target))
 {
 
 }
@@ -48,13 +50,18 @@ auto kdl::sema::declaration_parser::parse() -> std::vector<kdl::build_target::re
     m_parser.ensure({ expectation(lexeme::l_brace).be_true() });
     while (m_parser.expect({ expectation(lexeme::r_brace).be_false() })) {
 
+        kdl::sema::resource_instance_parser parser(m_parser, type, m_target);
         if (m_parser.expect({ expectation(lexeme::identifier, "new").be_true() })) {
-            instances.emplace_back(resource_instance_parser(m_parser, type, m_target).parse());
+            parser.set_keyword("new");
+        }
+        else if (m_parser.expect({ expectation(lexeme::identifier, "override").be_true() })) {
+            parser.set_keyword("override");
         }
         else {
             log::fatal_error(m_parser.peek(), 1, "Unexpected lexeme '" + m_parser.peek().text() + "' encountered.");
         }
 
+        instances.emplace_back(parser.parse());
         m_parser.ensure({ expectation(lexeme::semi).be_true() });
     }
     m_parser.ensure({ expectation(lexeme::r_brace).be_true() });
