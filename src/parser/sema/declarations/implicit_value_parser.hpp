@@ -23,7 +23,7 @@
 
 #include "parser/parser.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema {
 
     class implicit_value_parser
     {
@@ -40,6 +40,6 @@ namespace kdl { namespace sema {
         auto parse(build_target::resource_instance& instance) -> void;
     };
 
-}};
+}
 
 #endif //KDL_IMPLICIT_VALUE_PARSER_HPP

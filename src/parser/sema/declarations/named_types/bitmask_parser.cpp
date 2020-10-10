@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <utility>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/named_types/bitmask_parser.hpp"
 
@@ -30,7 +31,7 @@ kdl::sema::bitmask_parser::bitmask_parser(kdl::sema::parser &parser, kdl::build_
     : m_parser(parser),
       m_field(field),
       m_field_value(field_value),
-      m_binary_fields(binary_fields),
+      m_binary_fields(std::move(binary_fields)),
       m_explicit_type(type)
 {
 
@@ -44,7 +45,7 @@ auto kdl::sema::bitmask_parser::parse(kdl::build_target::resource_instance &inst
         log::fatal_error(m_parser.peek(-1), 1, "The field '" + m_field.name().text() + "' should have only one value due to it being a 'Bitmask'.");
     }
 
-    for (auto binary_field : m_binary_fields) {
+    for (const auto& binary_field : m_binary_fields) {
         if (binary_field.type != build_target::HBYT && binary_field.type != build_target::HWRD && binary_field.type != build_target::HLNG && binary_field.type != build_target::HQAD) {
             log::fatal_error(m_parser.peek(-1), 1, "The field '" + m_field.name().text() + "' must be backed by either HBYT, HWRD, HLNG or HQAD values.");
         }
@@ -102,21 +103,21 @@ auto kdl::sema::bitmask_parser::parse(kdl::build_target::resource_instance &inst
 
     // Add the primary value as a merge one for the purpose of this part...
     merged_masks.emplace_back(std::tuple(mask, m_field_value, m_binary_fields.at(0)));
-    for (auto mask : merged_masks) {
-        auto value = std::get<0>(mask);
-        auto field_value = std::get<1>(mask);
+    for (const auto& merged_mask : merged_masks) {
+        auto value = std::get<0>(merged_mask);
+        const auto& field_value = std::get<1>(merged_mask);
 
-        switch (std::get<2>(mask).type & ~0xFFF) {
+        switch (std::get<2>(merged_mask).type & ~0xFFFUL) {
             case build_target::HBYT: {
-                instance.write_byte(m_field, field_value, static_cast<uint8_t>(value & 0xFF));
+                instance.write_byte(m_field, field_value, static_cast<uint8_t>(value & 0xFFUL));
                 break;
             }
             case build_target::HWRD: {
-                instance.write_short(m_field, field_value, static_cast<uint16_t>(value & 0xFFFF));
+                instance.write_short(m_field, field_value, static_cast<uint16_t>(value & 0xFFFFUL));
                 break;
             }
             case build_target::HLNG: {
-                instance.write_long(m_field, field_value, static_cast<uint32_t>(value & 0xFFFFFFFF));
+                instance.write_long(m_field, field_value, static_cast<uint32_t>(value & 0xFFFFFFFFUL));
                 break;
             }
             case build_target::HQAD: {

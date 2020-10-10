@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <utility>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/named_types/color_parser.hpp"
 
@@ -30,27 +31,13 @@ kdl::sema::color_parser::color_parser(kdl::sema::parser &parser, kdl::build_targ
         : m_parser(parser),
           m_field(field),
           m_field_value(field_value),
-          m_binary_field(binary_field),
+          m_binary_field(std::move(binary_field)),
           m_explicit_type(type)
 {
 
 }
 
 // MARK: - Parser
-
-template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
-static auto __validate_component(const kdl::lexeme value) -> T
-{
-    auto __v = value.value<T>();
-    auto __lV = 0;
-    auto __uV = 255;
-    if ((__v >= __lV) && (__v <= __uV)) {
-        return __v;
-    }
-    else {
-        kdl::log::fatal_error(value, 1, "Specified value '" + value.text() + "' is outside of allowed range '0 ... 255'");
-    }
-}
 
 auto kdl::sema::color_parser::parse(kdl::build_target::resource_instance &instance) -> void
 {
@@ -73,7 +60,7 @@ auto kdl::sema::color_parser::parse(kdl::build_target::resource_instance &instan
         auto b = m_parser.read().value<uint8_t>();
         m_parser.advance();
 
-        uint32_t color = (r << 16) | (g << 8) | b;
+        uint32_t color = (r << 16UL) | (g << 8UL) | b;
         instance.write_long(m_field, m_field_value, color);
     }
     else {

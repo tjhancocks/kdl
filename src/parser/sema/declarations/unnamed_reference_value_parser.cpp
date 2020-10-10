@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <utility>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/unnamed_reference_value_parser.hpp"
 
@@ -28,7 +29,7 @@ kdl::sema::unnamed_reference_value_parser::unnamed_reference_value_parser(kdl::s
                                                                           build_target::type_field_value& field_value,
                                                                           build_target::type_template::binary_field binary_field,
                                                                           kdl::build_target::kdl_type &type)
-    : m_parser(parser), m_explicit_type(type), m_field(field), m_binary_field(binary_field), m_field_value(field_value)
+    : m_parser(parser), m_explicit_type(type), m_field(field), m_binary_field(std::move(binary_field)), m_field_value(field_value)
 {
 
 }
@@ -45,7 +46,10 @@ auto kdl::sema::unnamed_reference_value_parser::parse(kdl::build_target::resourc
     if (ref.is(lexeme::identifier)) {
         auto symbol_value = m_field_value.value_for(ref);
 
-        if (!symbol_value.is(lexeme::res_id)) {
+        if (symbol_value.is(lexeme::identifier, "new")) {
+            log::fatal_error(m_parser.peek(), 1, "You can not use nested resources on unnamed reference types.");
+        }
+        else if (!symbol_value.is(lexeme::res_id)) {
             log::fatal_error(m_parser.peek(), 1, "The field '" + m_field.name().text() + "' expects a resource id valued symbol.");
         }
 

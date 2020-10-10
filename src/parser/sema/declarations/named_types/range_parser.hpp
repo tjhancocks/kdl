@@ -23,7 +23,7 @@
 
 #include "parser/parser.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema {
 
     class range_parser
     {
@@ -42,6 +42,6 @@ namespace kdl { namespace sema {
         auto parse(build_target::resource_instance& instance) -> void;
     };
 
-}};
+}
 
 #endif //KDL_RANGE_PARSER_HPP

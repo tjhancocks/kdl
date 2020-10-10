@@ -18,17 +18,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <utility>
 #include "parser/sema/type_definition/binary_field.hpp"
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/field_parser.hpp"
 #include "parser/sema/declarations/unnamed_reference_value_parser.hpp"
+#include "parser/sema/declarations/named_reference_value_parser.hpp"
 #include "parser/sema/declarations/named_value_parser.hpp"
 #include "implicit_value_parser.hpp"
 
 // MARK: - Constructor
 
 kdl::sema::field_parser::field_parser(kdl::sema::parser &parser, build_target::type_container& type, build_target::resource_instance& instance, std::weak_ptr<target> target)
-    : m_parser(parser), m_instance(instance), m_type(type), m_target(target)
+    : m_parser(parser), m_instance(instance), m_type(type), m_target(std::move(target))
 {
 
 }
@@ -84,16 +86,16 @@ auto kdl::sema::field_parser::parse() -> void
             // There are several forms an explicit type can take.
             if (explicit_type.name().has_value() && explicit_type.is_reference()) {
                 // TODO: This should be a named reference.
-                unnamed_reference_value_parser(m_parser, field, field_value, binary_fields.back(), explicit_type)
-                        .parse(m_instance);
+                named_reference_value_parser(m_parser, field, field_value, binary_fields.back(), explicit_type, m_target)
+                    .parse(m_instance);
             }
             else if (explicit_type.name().has_value()) {
                 named_value_parser(m_parser, field, field_value, binary_fields, explicit_type, m_target)
-                        .parse(m_instance);
+                    .parse(m_instance);
             }
             else if (explicit_type.is_reference()) {
                 unnamed_reference_value_parser(m_parser, field, field_value, binary_fields.back(), explicit_type)
-                        .parse(m_instance);
+                    .parse(m_instance);
             }
             else {
                 throw std::logic_error("Impossible explicit type encountered - Any");
@@ -108,7 +110,7 @@ auto kdl::sema::field_parser::parse() -> void
     }
 }
 
-auto kdl::sema::field_parser::apply_defaults_for_field(const lexeme field_name) -> void
+auto kdl::sema::field_parser::apply_defaults_for_field(const lexeme& field_name) -> void
 {
     auto field = m_type.field_named(field_name);
 
