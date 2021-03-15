@@ -3,8 +3,6 @@
 //
 
 #include <sys/stat.h>
-#include <unistd.h>
-#include <pwd.h>
 #include <fstream>
 #include <streambuf>
 #include <iostream>
@@ -12,28 +10,24 @@
 #include <cctype>
 #include <sstream>
 #include <functional>
+#include <algorithm>
 #include "parser/file.hpp"
 
-#if true
-// TODO: make this work with Windows
-#define USE_GLOB
-#include <glob.h>
+
+#if (_WIN32 || _WIN64) && (_MSC_VER)
+    // Windows Specific]
+#   include <windows.h>
+#else
+    // Linux / macOS Specific
+#   define USE_GLOB
+#   include <glob.h>
+#   include <pwd.h>
+#   include <unistd.h>
 #endif
 
 // MARK: - Prototypes
 
 int alphanum_impl(const char *l, const char *r);
-
-template<class Ty>
-struct alphanum_less : public std::binary_function<Ty, Ty, bool>
-{
-    bool operator()(const Ty& left, const Ty& right) const
-    {
-        std::ostringstream l; l << left;
-        std::ostringstream r; r << right;
-        return alphanum_impl(l.str().c_str(), r.str().c_str()) < 0;
-    }
-};
 
 // MARK: - Helpers
 
@@ -45,13 +39,23 @@ auto kdl::file::exists(std::string_view path) -> bool
 
 auto kdl::file::is_directory(std::string_view path) -> bool
 {
+#if (_WIN32 || _WIN64) && (_MSC_VER)
+    auto result = GetFileAttributesA(std::string(path).c_str());
+    return (result & FILE_ATTRIBUTE_DIRECTORY);
+return false;
+#else
     struct stat buffer {};
     return (stat(resolve_tilde(path).c_str(), &buffer) == 0 && S_ISDIR(buffer.st_mode));
+#endif
 }
 
 auto kdl::file::create_directory(std::string_view path) -> void
 {
+#if (_WIN32 || _WIN64) && (_MSC_VER)
+    CreateDirectory(std::string(path).c_str(), NULL);
+#else
     mkdir(std::string(path).c_str(), 0700);
+#endif
 }
 
 auto kdl::file::create_intermediate(std::string_view path, bool omit_last) -> bool
@@ -96,6 +100,12 @@ auto kdl::file::create_intermediate(std::string_view path, bool omit_last) -> bo
     return true;
 }
 
+#if (_WIN32 || _WIN64) && (_MSC_VER)
+auto kdl::file::resolve_tilde(std::string_view path) -> std::string
+{
+    return std::string(path);
+}
+#else
 auto kdl::file::resolve_tilde(std::string_view path) -> std::string
 {
     if (path.length() == 0 || path[0] != '~') {
@@ -140,6 +150,7 @@ auto kdl::file::resolve_tilde(std::string_view path) -> std::string
     result.append(path.substr(pos + 1));
     return result;
 }
+#endif
 
 auto kdl::file::copy_file(std::string_view src, std::string_view dst) -> void
 {
@@ -152,7 +163,7 @@ auto kdl::file::glob(std::string path) -> std::shared_ptr<std::vector<std::strin
 {
     auto files = std::make_shared<std::vector<std::string>>();
 
-#ifdef USE_GLOB
+#if defined(USE_GLOB)
     glob_t result;
     int err = ::glob(path.c_str(), GLOB_ERR | GLOB_MARK, NULL, &result);
 
@@ -165,10 +176,15 @@ auto kdl::file::glob(std::string path) -> std::shared_ptr<std::vector<std::strin
 
     globfree(&result);
 #else
-    // TODO: make this work with Windows
+    std::cout << "Note: File globbing is not currently supported in the Windows version of KDL" << std::endl;
+    files->emplace_back(path);
 #endif
 
-    std::sort(files->begin(), files->end(), alphanum_less<std::string>());
+    std::sort(files->begin(), files->end(), [&](const std::string& left, const std::string& right) -> bool {
+        std::ostringstream l; l << left;
+        std::ostringstream r; r << right;
+        return alphanum_impl(l.str().c_str(), r.str().c_str()) < 0;
+    });
 
     return files;
 }
@@ -176,7 +192,7 @@ auto kdl::file::glob(std::string path) -> std::shared_ptr<std::vector<std::strin
 // MARK: - Constructors
 
 kdl::file::file()
-    : m_path(""), m_contents("")
+    : m_path(""), m_raw(nullptr), m_length(0)
 {
 
 }
@@ -185,20 +201,32 @@ kdl::file::file(std::string_view path)
     : m_path(resolve_tilde(path))
 {
     if (exists(m_path)) {
-        std::ifstream f(m_path);
+        std::ifstream f(m_path, std::ios::binary);
 
         // Reserve space in the m_contents string, equivalent to the length of the file.
         f.seekg(0, std::ios::end);
-        m_contents.reserve(f.tellg());
+        m_length = static_cast<uint64_t>(f.tellg());
+        m_raw = new uint8_t[m_length + 1];
+        memset(m_raw, 0, m_length);
         f.seekg(0, std::ios::beg);
+        m_raw[m_length] = '\n';
 
         // Read in the contents of the file.
-        m_contents.assign(std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>());
-        m_contents += "\n";
+        f.read((char *)m_raw, m_length);
+        ++m_length;
+
+        f.close();
     }
     else {
-        m_contents = "";
+        m_raw = nullptr;
     }
+}
+
+// MARK: - Destructors
+
+kdl::file::~file()
+{
+    delete[] m_raw;
 }
 
 // MARK: - Accessors
@@ -208,14 +236,28 @@ auto kdl::file::path() const -> std::string
     return m_path;
 }
 
-auto kdl::file::contents() -> std::string&
+auto kdl::file::contents() -> std::string
 {
-    return m_contents;
+    std::string s;
+    s.assign(m_raw, m_raw + m_length);
+    return s;
+}
+
+auto kdl::file::vector() -> std::vector<char>
+{
+    std::vector<char> v(m_raw, m_raw + m_length);
+    return v;
 }
 
 auto kdl::file::set_contents(const std::string contents) -> void
 {
-    m_contents = contents;
+    if (m_raw) {
+        delete[] m_raw;
+    }
+
+    m_length = contents.size();
+    m_raw = new uint8_t[m_length];
+    memcpy(m_raw, contents.c_str(), m_length);
 }
 
 // MARK: - Saving
@@ -231,7 +273,7 @@ auto kdl::file::save(std::optional<std::string> path) -> void
     }
 
     std::ofstream out(m_path);
-    out << m_contents;
+    out << contents();
     out.close();
 }
 

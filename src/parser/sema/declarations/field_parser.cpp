@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <stdexcept>
 #include <utility>
 #include "parser/sema/type_definition/binary_field.hpp"
 #include "diagnostic/fatal.hpp"

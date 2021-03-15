@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <utility>
+#include <iterator>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/named_types/file_type_parser.hpp"
 #include "media/conversion.hpp"
@@ -47,7 +48,7 @@ kdl::sema::file_type_parser::file_type_parser(kdl::sema::parser &parser, kdl::bu
 auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &instance) -> void
 {
     std::vector<lexeme> file_lx;
-    std::vector<std::string> file_contents;
+    std::vector<std::vector<char>> file_contents;
     auto target = m_target.lock();
     auto import_file = false;
 
@@ -56,25 +57,37 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
         import_file = true;
     }
 
+    auto string_to_vector = [](std::string s) -> std::vector<char> {
+        std::vector<char> v;
+        std::copy(s.begin(), s.end(), std::back_inserter(v));
+        return v;
+    };
+
+    auto vector_to_string = [](std::vector<char> v) -> std::string {
+        std::string s;
+        std::copy(v.begin(), v.end(), std::back_inserter(s));
+        return s;
+    };
+
     // Build a list of file contents, or file paths if import was specified
     while (m_parser.expect({ expectation(lexeme::string).be_true() })) {
         auto string_lx = m_parser.read();
-        auto string_value = string_lx.text();
+        auto content_value = string_to_vector(string_lx.text());
 
         if (import_file) {
             // Pass the resolved paths through glob to expand wildcards
-            auto path = target->resolve_src_path(string_value);
+            auto path = target->resolve_src_path(string_lx.text());
             auto paths = file::glob(path);
 
             for (auto p : *paths) {
-                string_value = kdl::file(p).contents();
+                content_value = kdl::file(p).vector();
                 file_lx.emplace_back(lexeme(p, lexeme::string));
-                file_contents.emplace_back(string_value);
+                file_contents.emplace_back(content_value);
             }
         }
         else {
             file_lx.emplace_back(string_lx);
-            file_contents.emplace_back(string_value);
+            file_contents.emplace_back(content_value);
         }
     }
 
@@ -83,7 +96,7 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
     }
 
     auto string_lx = file_lx.back();
-    auto string_value = file_contents.back();
+    auto content_value = file_contents.back();
 
     // Check if we need to perform a conversion on the file data.
     if (m_field_value.has_conversion_defined()) {
@@ -110,43 +123,40 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
         if (file_contents.size() != 1) {
             auto conversion = kdl::media::conversion(input_format, output_format);
             for (const auto& f : file_contents) {
-                conversion.add_input_file(f);
+                conversion.add_input_data(f);
             }
-            auto output = conversion.perform_conversion();
-            string_value = std::string(output.begin(), output.end());
+            content_value = conversion.perform_conversion();
         }
         else {
-            auto output = kdl::media::conversion(string_value, input_format, output_format).perform_conversion();
-            string_value = std::string(output.begin(), output.end());
+            content_value = kdl::media::conversion(content_value, input_format, output_format).perform_conversion();
         }
     }
 
     // Check if we're assembling a sprite sheet (this involves taking multiple input files and putting them
     // into a single image and export it as TGA data)
     else if (m_field_value.assemble_sprite_sheet()) {
-        auto output = kdl::media::sprite_sheet_assembler(file_contents, m_explicit_type.type_hints()[0]).assemble();
-        string_value = std::string(output.begin(), output.end());
+        content_value = kdl::media::sprite_sheet_assembler(file_contents, m_explicit_type.type_hints()[0]).assemble();
     }
 
     // Get the value type for the field, and the set it.
     switch (m_binary_field.type & ~0xFFFUL) {
         case build_target::PSTR: {
-            if (string_value.size() > 255) {
+            if (content_value.size() > 255) {
                 log::fatal_error(string_lx, 1, "String too large for value type.");
             }
-            instance.write_pstr(m_field, m_field_value, string_value, 0);
+            instance.write_pstr(m_field, m_field_value, vector_to_string(content_value), 0);
             break;
         }
         case build_target::CSTR: {
-            instance.write_cstr(m_field, m_field_value, string_value);
+            instance.write_cstr(m_field, m_field_value, vector_to_string(content_value));
             break;
         }
         case build_target::Cnnn: {
             auto size = static_cast<std::size_t>(m_binary_field.type) & 0xFFFUL;
-            if (string_value.size() > size) {
+            if (content_value.size() > size) {
                 log::fatal_error(string_lx, 1, "String too large for value type.");
             }
-            instance.write_cstr(m_field, m_field_value, string_value, size);
+            instance.write_cstr(m_field, m_field_value, vector_to_string(content_value), size);
             break;
         }
 //        case build_target::P0nn: {
@@ -158,7 +168,7 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
 //            break;
 //        }
         case build_target::HEXD: {
-            instance.write_data(m_field, m_field_value, std::vector<char>(string_value.begin(), string_value.end()));
+            instance.write_data(m_field, m_field_value, content_value);
             break;
         }
         default: {

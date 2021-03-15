@@ -31,10 +31,10 @@
 
 // MARK: - Constructors
 
-kdl::media::conversion::conversion(const std::string m_input_file_contents, const kdl::lexeme input,
+kdl::media::conversion::conversion(const std::vector<char> m_input_file_contents, const kdl::lexeme input,
                                           const kdl::lexeme output)
     : m_input_file_format(input), m_output_file_format(output),
-      m_input_file_contents({ std::make_shared<std::vector<char>>(m_input_file_contents.begin(), m_input_file_contents.end()) })
+      m_input_file_contents({ std::make_shared<std::vector<char>>(m_input_file_contents) })
 {
 }
 
