@@ -24,7 +24,8 @@
 #include <string>
 #include "parser/lexeme.hpp"
 
-namespace kdl { namespace log {
+namespace kdl::log
+{
 
     /**
      * Reports a fatal error to the standard error pipe of the process and terminates.
@@ -32,9 +33,8 @@ namespace kdl { namespace log {
      * @param code The exit code to be raised.
      * @param message A message to show to the user about why the error occured.
      */
-     __attribute__((noreturn))
-    auto fatal_error(const kdl::lexeme& lx, const int code, const std::string message) -> void;
+    [[noreturn]] auto fatal_error(const kdl::lexeme& lx, const int code, const std::string message) -> void;
 
-}};
+}
 
 #endif //KDL_FATAL_HPP

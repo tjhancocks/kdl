@@ -102,7 +102,7 @@ namespace kdl
          * @param fn Test function to validate each character.
          * @return true if any characters were matched.
          */
-        auto consume_while(std::function<auto(const std::string) -> bool> fn) -> bool;
+        auto consume_while(std::function<auto(const std::string) -> bool> fn, const std::size_t size = 1) -> bool;
 
     public:
         /**
@@ -120,6 +120,13 @@ namespace kdl
 
     template<char c>
     struct match
+    {
+        static auto yes(const std::string) -> bool;
+        static auto no(const std::string) -> bool;
+    };
+
+    template<char tc,char...ttC>
+    struct sequence
     {
         static auto yes(const std::string) -> bool;
         static auto no(const std::string) -> bool;

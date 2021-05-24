@@ -20,6 +20,7 @@
 
 #include <map>
 #include <algorithm>
+#include <stdexcept>
 #include "disassembler/binary_parser.hpp"
 #include "disassembler/resource_exporter.hpp"
 #include "libGraphite/data/reader.hpp"

@@ -20,7 +20,7 @@
 
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/declaration_parser.hpp"
-
+#include <stdexcept>
 #include <utility>
 #include "parser/sema/declarations/resource_instance_parser.hpp"
 

@@ -33,7 +33,7 @@ namespace kdl { namespace media {
         lexeme m_input_file_format;
 
     public:
-        sprite_sheet_assembler(const std::vector<std::string> input_file_contents, const lexeme input);
+        sprite_sheet_assembler(const std::vector<std::vector<char>> input_file_contents, const lexeme input);
 
         auto assemble() const -> std::vector<char>;
     };
