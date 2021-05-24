@@ -10,7 +10,7 @@
 #include <cctype>
 #include <sstream>
 #include <functional>
-#include <algorithm>
+#include <cstring>
 #include "parser/file.hpp"
 
 
@@ -209,11 +209,10 @@ kdl::file::file(std::string_view path)
         m_raw = new uint8_t[m_length + 1];
         memset(m_raw, 0, m_length);
         f.seekg(0, std::ios::beg);
-        m_raw[m_length] = '\n';
 
         // Read in the contents of the file.
         f.read((char *)m_raw, m_length);
-        ++m_length;
+        m_raw[m_length++] = '\n';
 
         f.close();
     }
