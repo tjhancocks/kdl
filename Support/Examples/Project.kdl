@@ -1,0 +1,13 @@
+@project "Example Game";
+@author "Tom Hancocks";
+@version "1.0";
+
+component "Core Game" {
+	path-prefix = "./";
+	namespace = "app";
+	base-id = #0;
+
+	files {
+		"main.lua" ("Main");
+	};
+};

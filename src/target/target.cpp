@@ -32,6 +32,24 @@ kdl::target::target()
 
 }
 
+// MARK: - Metadata Management
+
+auto kdl::target::set_project_name(const std::string& name) -> void
+{
+    m_name = name;
+}
+
+auto kdl::target::add_author(const std::string& name) -> void
+{
+    m_authors.emplace_back(name);
+}
+
+auto kdl::target::set_version_string(const std::string& version) -> void
+{
+    m_version = version;
+}
+
+
 // MARK: - Container Management
 
 auto kdl::target::add_type_container(const build_target::type_container& container) -> void

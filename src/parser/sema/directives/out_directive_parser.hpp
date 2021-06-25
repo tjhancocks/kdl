@@ -23,7 +23,8 @@
 
 #include "parser/parser.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema
+{
 
     class out_directive_parser
     {
@@ -31,6 +32,6 @@ namespace kdl { namespace sema {
         static auto parse(parser& parser) -> void;
     };
 
-}};
+}
 
 #endif //KDL_OUT_DIRECTIVE_PARSER_HPP
