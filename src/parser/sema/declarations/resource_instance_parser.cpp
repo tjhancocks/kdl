@@ -30,8 +30,9 @@
 
 kdl::sema::resource_instance_parser::resource_instance_parser(kdl::sema::parser &parser,
                                                               kdl::build_target::type_container &type,
-                                                              std::weak_ptr<target> target)
-    : m_type(type), m_parser(parser), m_target(std::move(target))
+                                                              std::weak_ptr<target> target,
+                                                              bool discards)
+    : m_type(type), m_parser(parser), m_target(std::move(target)), m_discards(discards)
 {
 
 }
@@ -77,13 +78,21 @@ auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource
         auto args = list.parse();
 
         for (const auto& arg : args) {
-            if (arg.is(lexeme::res_id)) {
+            if (arg.is(lexeme::res_id, "auto")) {
+                m_id = INT64_MIN;
+            }
+            else if (arg.is(lexeme::res_id)) {
                 m_id = arg.value<int64_t>();
             }
             else if (arg.is(lexeme::string)) {
                 m_name = arg.text();
             }
         }
+    }
+
+    // If the ID of the resource is INT64_MIN, then we should automatically lookup a new resource id.
+    if (m_id == INT64_MIN) {
+        m_id = target->resource_tracker()->next_available_id(m_type.code());
     }
 
     // Acquire a new instance of the resource and populate it with default values.
@@ -125,6 +134,9 @@ auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource
             log::fatal_error(first_lx, 1, "Assertion Failed: " + assertion.failure_text());
         }
     }
+
+    // Add the resource to the target now.
+    target->add_resource(instance);
 
     return instance;
 }

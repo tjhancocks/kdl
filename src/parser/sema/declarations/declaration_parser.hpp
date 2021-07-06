@@ -32,9 +32,10 @@ namespace kdl::sema {
     private:
         parser& m_parser;
         std::weak_ptr<target> m_target;
+        bool m_discards { false };
 
     public:
-        declaration_parser(parser& parser, std::weak_ptr<target> target);
+        declaration_parser(parser& parser, std::weak_ptr<target> target, bool discards = false);
 
         auto parse() -> std::vector<build_target::resource_instance>;
     };

@@ -81,6 +81,10 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
             m_lexemes.emplace_back(kdl::lexeme(m_slice, lexeme::string, m_pos, m_offset, m_line, m_source));
             advance();
         }
+        else if (available(0, 5) && test_if([](const std::string hint) -> bool{ return hint == "#auto"; }, 0, 5)) {
+            // TODO: Expand upon the lexer to handle keywords of this format.
+            m_lexemes.emplace_back(kdl::lexeme(read(1, 4), lexeme::res_id, m_pos, m_offset, m_line, m_source));
+        }
         else if (test_if(match<'#'>::yes)) {
             // We're looking at a resource id.
             advance();
