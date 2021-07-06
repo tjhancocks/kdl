@@ -49,16 +49,13 @@ auto kdl::sema::parser::parse() -> void
         }
         else if (expect({ expectation(lexeme::directive, "example").be_true(), expectation(lexeme::identifier, "declare").be_true() })) {
             advance();
-            declaration_parser(*this, m_target).parse();
+            declaration_parser(*this, m_target, true).parse();
         }
         else if (expect({ expectation(lexeme::directive).be_true() })) {
             asm_directive(*this, m_target).parse();
         }
         else if (expect({ expectation(lexeme::identifier, "declare").be_true() })) {
-            auto declarations = declaration_parser(*this, m_target).parse();
-            for (const auto& instance : declarations) {
-                target->add_resource(instance);
-            }
+            declaration_parser(*this, m_target).parse();
         }
         else if (expect({ expectation(lexeme::identifier, "component").be_true() })) {
             component_parser(*this, m_target).parse();
