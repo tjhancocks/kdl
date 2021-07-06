@@ -33,6 +33,21 @@ kdl::build_target::resource_instance::resource_instance(const int64_t& id, std::
 
 }
 
+kdl::build_target::resource_instance::resource_instance(const int64_t &id, std::string code, std::string name,
+                                                        std::string contents)
+    : m_id(id), m_name(std::move(name)), m_code(std::move(code))
+{
+    // We're pulling contents directly, so we need to synthesize a template to represent a singular CSTR field.
+    kdl::lexeme data_lexeme("data", lexeme::identifier);
+    kdl::build_target::type_template::binary_field data_field(data_lexeme, binary_type::CSTR);
+
+    m_tmpl.add_binary_field(data_field);
+
+    // Add the contents to the field.
+    write("data", std::make_tuple(contents.size(), contents));
+}
+
+
 // MARK: - Accessor
 
 auto kdl::build_target::resource_instance::type_code() const -> std::string
@@ -377,3 +392,4 @@ auto kdl::build_target::resource_instance::synthesize_variables() const -> std::
 
     return vars;
 }
+

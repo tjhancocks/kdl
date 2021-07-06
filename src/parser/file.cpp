@@ -176,7 +176,7 @@ auto kdl::file::glob(std::string path) -> std::shared_ptr<std::vector<std::strin
 // MARK: - Constructors
 
 kdl::file::file()
-    : m_path(""), m_contents("")
+    : m_path(""), m_data()
 {
 
 }
@@ -185,19 +185,28 @@ kdl::file::file(std::string_view path)
     : m_path(resolve_tilde(path))
 {
     if (exists(m_path)) {
-        std::ifstream f(m_path);
+        // Attempt to open the file, and throw and exception if we failed to do so.
+        std::ifstream file(m_path, std::ios::binary);
+        if (!file.is_open() || file.fail()) {
+            throw std::runtime_error("Failed to open resource file: " + m_path);
+        }
 
-        // Reserve space in the m_contents string, equivalent to the length of the file.
-        f.seekg(0, std::ios::end);
-        m_contents.reserve(f.tellg());
-        f.seekg(0, std::ios::beg);
+        // Make sure we don't skip newlines.
+        file.unsetf(std::ios::skipws);
 
-        // Read in the contents of the file.
-        m_contents.assign(std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>());
-        m_contents += "\n";
+        // Get the size of the file.
+        file.seekg(0UL, std::ios::end);
+        auto file_size = file.tellg();
+        file.seekg(0UL, std::ios::beg);
+
+        // Read the contents of the file into the vector.
+        m_data = std::vector<char>(file_size);
+        file.read(&m_data[0], file_size);
+
+        m_data.emplace_back('\n');
     }
     else {
-        m_contents = "";
+        m_data.clear();
     }
 }
 
@@ -208,20 +217,21 @@ auto kdl::file::path() const -> std::string
     return m_path;
 }
 
-auto kdl::file::contents() -> std::string&
+auto kdl::file::contents() -> std::string
 {
-    return m_contents;
+    return std::string(m_data.begin(), m_data.end());
 }
 
 auto kdl::file::set_contents(const std::string contents) -> void
 {
-    m_contents = contents;
+    m_data = std::vector<char>(contents.begin(), contents.end());
 }
 
 // MARK: - Saving
 
 auto kdl::file::save(std::optional<std::string> path) -> void
 {
+    // TODO: This needs to be a binary file save rather than text based.
     if (path.has_value()) {
         m_path = resolve_tilde(path.value());
     }
@@ -231,7 +241,7 @@ auto kdl::file::save(std::optional<std::string> path) -> void
     }
 
     std::ofstream out(m_path);
-    out << m_contents;
+    out << contents();
     out.close();
 }
 

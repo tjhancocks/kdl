@@ -28,7 +28,8 @@
 #include "target/target.hpp"
 #include "parser/expectation.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema
+{
 
     /**
      * The kdl::sema::parser class is responsible for consuming a stream of lexemes (std::vector<lexeme>)
@@ -132,6 +133,6 @@ namespace kdl { namespace sema {
 
     };
 
-}};
+}
 
 #endif //KDL_PARSER_COMPONENT_HPP

@@ -95,18 +95,18 @@ auto kdl::target::set_dst_path(const std::string& dst_path) -> void
         filename = "result";
     }
     else {
-        while (path.substr(path.size() - 1) != "/") {
+        while (!path.empty() && path.substr(path.size() - 1) != "/") {
             filename.insert(0, path.substr(path.size() - 1));
             path.pop_back();
         }
 
-        if (!kdl::file::exists(path)) {
+        if (!path.empty() && !kdl::file::exists(path)) {
             kdl::file::is_directory(path);
         }
     }
 
     // Make sure the end of the path is a name.
-    if (path.substr(path.size() - 1) == "/") {
+    if (!path.empty() && path.substr(path.size() - 1) == "/") {
         path.pop_back();
     }
 
@@ -232,7 +232,7 @@ auto kdl::target::target_file_path() const -> std::string
 {
     auto path = m_dst_root;
 
-    if (path.substr(path.size() - 1) != "/") {
+    if (!path.empty() && path.substr(path.size() - 1) != "/") {
         path += "/";
     }
     path += m_dst_file;

@@ -30,7 +30,7 @@ namespace kdl
 
     private:
         std::string m_path;
-        std::string m_contents;
+        std::vector<char> m_data;
 
     public:
         /**
@@ -54,7 +54,7 @@ namespace kdl
          * The contents of the file as they currently are.
          * @return A reference to the contents of the file.
          */
-        auto contents() -> std::string&;
+        auto contents() -> std::string;
 
         /**
          * Set the contents of the file without saving the changes to disk.

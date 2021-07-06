@@ -2,10 +2,21 @@
 @author "Tom Hancocks";
 @version "1.0";
 
+@type LuaScript : "LuaS" {
+    template {
+        CSTR Script;
+    };
+
+    field("Script") {
+        Script as File;
+    };
+};
+
 component "Core Game" {
-	path-prefix = "./";
+	path_prefix = "@rpath/";
 	namespace = "app";
-	base-id = #0;
+	base_id = #0;
+	as_type = LuaScript;
 
 	files {
 		"main.lua" ("Main");

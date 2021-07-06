@@ -52,6 +52,7 @@ namespace kdl::build_target {
 
     public:
         resource_instance(const int64_t& id, std::string code, std::string name, kdl::build_target::type_template tmpl);
+        resource_instance(const int64_t& id, std::string code, std::string name, std::string contents);
 
         [[nodiscard]] auto type_code() const -> std::string;
         [[nodiscard]] auto id() const -> int64_t;
