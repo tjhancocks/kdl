@@ -41,10 +41,30 @@ auto kdl::sema::declaration_parser::parse() -> std::vector<kdl::build_target::re
     auto target = m_target.lock();
 
     m_parser.ensure({ expectation(lexeme::identifier, "declare").be_true() });
-    if (!m_parser.expect({ expectation(lexeme::identifier).be_true() })) {
-        log::fatal_error(m_parser.peek(), 1, "Declaration type name must be an identifier.");
+
+    // We need to determine if we're being supplied a namespace or not.
+    kdl::lexeme type_name { "", lexeme::any };
+    kdl::lexeme ns { "", lexeme::any };
+
+    if (m_parser.expect({
+        expectation(lexeme::identifier).be_true(), expectation(lexeme::dot).be_true(), expectation(lexeme::identifier).be_true()
+    })) {
+        // Format is: Namespace.Type
+        ns = m_parser.read();
+        m_parser.advance();
+        type_name = m_parser.read();
     }
-    auto type = target->type_container_named(m_parser.read());
+    else if (m_parser.expect({
+        expectation(lexeme::identifier).be_true(), expectation(lexeme::dot).be_false()
+    })) {
+        // Format is: Type
+        type_name = m_parser.read();
+    }
+    else {
+        log::fatal_error(m_parser.peek(), 1, "Expected resource type name.");
+    }
+
+    auto type = target->type_container_named(type_name);
 
     std::vector<kdl::build_target::resource_instance> instances;
     m_parser.ensure({ expectation(lexeme::l_brace).be_true() });
@@ -61,7 +81,14 @@ auto kdl::sema::declaration_parser::parse() -> std::vector<kdl::build_target::re
             log::fatal_error(m_parser.peek(), 1, "Unexpected lexeme '" + m_parser.peek().text() + "' encountered.");
         }
 
-        instances.emplace_back(parser.parse());
+        // Assign the namespace to the resource instance if one has been specified.
+        // TODO: Perhaps the resource parser should be aware of attributes?
+        auto instance = parser.parse();
+        if (ns.is(lexeme::identifier)) {
+            instance.set_attribute("namespace", ns.text());
+        }
+
+        instances.emplace_back(instance);
         m_parser.ensure({ expectation(lexeme::semi).be_true() });
     }
     m_parser.ensure({ expectation(lexeme::r_brace).be_true() });

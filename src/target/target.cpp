@@ -223,7 +223,11 @@ auto kdl::target::set_required_format(const graphite::rsrc::file::format &format
 auto kdl::target::add_resource(const build_target::resource_instance& resource) -> void
 {
     m_resource_tracking_table->add_instance(m_file.name(), resource.type_code(), resource.id(), resource.name());
-    m_file.add_resource(resource.type_code(), resource.id(), resource.name(), resource.assemble());
+    m_file.add_resource(resource.type_code(),
+                        resource.id(),
+                        resource.name(),
+                        resource.assemble(),
+                        resource.attributes());
 }
 
 // MARK: - Saving

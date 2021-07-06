@@ -103,7 +103,6 @@ auto kdl::sema::component::generate_resources(std::shared_ptr<target> target) co
 {
     // Fetch the type container for the resources...
     auto container = target->type_container_named(m_as_type);
-//    auto ns_container =
 
     // Iterate through each of the files and produce a resource for it.
     int64_t id = m_base_id;
@@ -115,6 +114,9 @@ auto kdl::sema::component::generate_resources(std::shared_ptr<target> target) co
                                             container.code(),
                                             file.name.has_value() ? file.name.value() : "",
                                             contents);
+
+        // Set up the attributes of the resource.
+        res.set_attribute("namespace", m_namespace);
 
         target->add_resource(res);
     }
