@@ -30,13 +30,16 @@ namespace kdl
 
     private:
         std::string m_path;
-        std::vector<char> m_data;
+        uint8_t *m_raw;
+        uint64_t m_length;
 
     public:
         /**
          * Create a blank file for writing to.
          */
         file();
+
+        ~file();
 
         /**
          * Read the specified file from disk.
@@ -51,8 +54,7 @@ namespace kdl
         auto path() const -> std::string;
 
         /**
-         * The contents of the file as they currently are.
-         * @return A reference to the contents of the file.
+         * The contents of the file as a string
          */
         auto contents() -> std::string;
 
@@ -61,6 +63,11 @@ namespace kdl
          * @param contents The new contents of the file.
          */
         auto set_contents(const std::string contents) -> void;
+
+        /**
+         * The contents of the file as a vector.
+         */
+        auto vector() -> std::vector<char>;
 
         /**
          * Save the contents of the file to disk.

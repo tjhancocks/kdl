@@ -51,6 +51,10 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
             m_offset = 0;
             continue;
         }
+        else if (test_if(match<'\r'>::yes)) {
+            advance();
+            continue;
+        }
 
         // Check for a comment. If we're looking at a comment then we need to consume the entire line. We need to
         // advance past the character at the end of the match.
@@ -254,11 +258,11 @@ auto kdl::lexer::test_if(std::function<auto(const std::string) -> bool> fn, cons
     return fn(peek(offset, length));
 }
 
-auto kdl::lexer::consume_while(std::function<auto(const std::string) -> bool> fn) -> bool
+auto kdl::lexer::consume_while(std::function<auto(const std::string) -> bool> fn, const std::size_t size) -> bool
 {
     m_slice.clear();
-    while (fn(peek())) {
-        m_slice += read();
+    while (fn(peek(0, size))) {
+        m_slice += read(0, size);
     }
     return !m_slice.empty();
 }
@@ -274,6 +278,24 @@ auto kdl::match<c>::yes(const std::string __Chk) -> bool
 
 template <char c>
 auto kdl::match<c>::no(const std::string __Chk) -> bool
+{
+    return !yes(__Chk);
+}
+
+template<char tC,char...ttC>
+auto kdl::sequence<tC, ttC...>::yes(const std::string __Chk) -> bool
+{
+    std::vector<char> v = {tC, ttC...};
+    for (auto i = 0; i < v.size(); ++i) {
+        if (__Chk[i] != v[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+template<char tC,char...ttC>
+auto kdl::sequence<tC, ttC...>::no(const std::string __Chk) -> bool
 {
     return !yes(__Chk);
 }

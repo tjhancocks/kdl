@@ -24,24 +24,25 @@
 #include <cstdint>
 #include <string>
 
-namespace kdl::build_target {
+namespace kdl::build_target
+{
 
     /**
      * Different data types that might/can be found in a template.
      */
-    enum binary_type : uint32_t
+    enum binary_type
     {
-        INVALID = 0x00000000,
+        INVALID = 0x00000000U,
 
         // Basic Integer Types
-        DBYT = 0x00010000,
-        DWRD = 0x00020000,
-        DLNG = 0x00030000,
-        DQAD = 0x00040000,
-        HBYT = 0x00050000,
-        HWRD = 0x00060000,
-        HLNG = 0x00070000,
-        HQAD = 0x00080000,
+        DBYT = 0x00010000U,
+        DWRD = 0x00020000U,
+        DLNG = 0x00030000U,
+        DQAD = 0x00040000U,
+        HBYT = 0x00050000U,
+        HWRD = 0x00060000U,
+        HLNG = 0x00070000U,
+        HQAD = 0x00080000U,
 
         // Aligned Integer Types
 //        AWRD = 0x00090000,
@@ -55,16 +56,16 @@ namespace kdl::build_target {
 //        FQAD = 0x000F0000,
 
         // Data
-        HEXD = 0x00100000,
+        HEXD = 0x00100000U,
 
         // Strings
-        PSTR = 0x00110000,
+        PSTR = 0x00110000U,
 //        LSTR = 0x00120000,
 //        WSTR = 0x00130000,
 //        ESTR = 0x00140000,
 //        OSTR = 0x00150000,
-        CSTR = 0x00160000,
-        Cnnn = 0x00170000,
+        CSTR = 0x00160000U,
+        Cnnn = 0x00170000U,
 //        ECST = 0x00180000,
 //        OCST = 0x00190000,
 
@@ -73,12 +74,12 @@ namespace kdl::build_target {
 //        BBIT = 0x001B0000,
 //        TNAM = 0x001C0000,
 //        CHAR = 0x001D0000,
-        RECT = 0x001E0000,
+        RECT = 0x001E0000U,
 //        Hnnn = 0x001F0000,
 //        P0nn = 0x00200000,
 
         // List support
-        OCNT = 0x00210000,
+        OCNT = 0x00210000U,
 //        LSTZ = 0x00220000,
 //        LSTE = 0x00230000,
 //        ZCNT = 0x00240000,

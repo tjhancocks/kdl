@@ -27,12 +27,12 @@
 
 // MARK: - Construction
 
-kdl::media::sprite_sheet_assembler::sprite_sheet_assembler(std::vector<std::string> input_file_contents,
+kdl::media::sprite_sheet_assembler::sprite_sheet_assembler(std::vector<std::vector<char>> input_file_contents,
                                                            const kdl::lexeme input)
     : m_input_file_format(input)
 {
     for (auto f : input_file_contents) {
-        m_input_file_contents.emplace_back(std::make_shared<std::vector<char>>(f.begin(), f.end()));
+        m_input_file_contents.emplace_back(std::make_shared<std::vector<char>>(f));
     }
 }
 

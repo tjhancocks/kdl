@@ -63,7 +63,7 @@ foreach(example ${kdl_examples})
     string(REGEX REPLACE ".*/" "" test_name "${example}")
     string(REGEX REPLACE ".kdl$" "" test_name "${test_name}")
     add_test(
-    	NAME ${test_name} 
+    	NAME ${test_name}
     	COMMAND "${EXECUTABLE_OUTPUT_PATH}/kdl" "${example}"
     	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     )
