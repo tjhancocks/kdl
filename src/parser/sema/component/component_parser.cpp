@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <utility>
+#include <stdexcept>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/component/component_parser.hpp"
 #include "parser/sema/component/file_list_parser.hpp"
