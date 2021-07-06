@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Tom Hancocks
+// Copyright (c) 2021 Tom Hancocks
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,20 +18,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_REQUIRE_DIRECTIVE_PARSER_HPP)
-#define KDL_REQUIRE_DIRECTIVE_PARSER_HPP
+#include <stdexcept>
+#include "diagnostic/fatal.hpp"
+#include "parser/sema/directives/project_directive_parser.hpp"
 
-#include "parser/parser.hpp"
-
-namespace kdl::sema
+auto kdl::sema::project_directive_parser::parse(kdl::sema::parser &parser, std::weak_ptr<target> target) -> void
 {
+    if (target.expired()) {
+        throw std::logic_error("Build target has expired. This is a bug!");
+    }
+    auto t = target.lock();
 
-    class require_directive_parser
-    {
-    public:
-        static auto parse(parser& parser, std::weak_ptr<target> target) -> void;
-    };
+    if (!parser.expect({
+        expectation(lexeme::string).be_true(),
+    })) {
+        log::fatal_error(parser.peek(), 1, "Expected a string for the project name.");
+    }
 
+    auto project_name = parser.read();
+    t->set_project_name(project_name.text());
 }
-
-#endif //KDL_REQUIRE_DIRECTIVE_PARSER_HPP

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Tom Hancocks
+// Copyright (c) 2021 Tom Hancocks
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,20 +18,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_REQUIRE_DIRECTIVE_PARSER_HPP)
-#define KDL_REQUIRE_DIRECTIVE_PARSER_HPP
+#include "parser/sema/component/component_file.hpp"
 
-#include "parser/parser.hpp"
+// MARK: - Construction
 
-namespace kdl::sema
+kdl::sema::component_file::component_file(const std::string& file)
+    : m_file(file), m_name({})
 {
+    // TODO: Name should probably be taken from the file name and converted into something friendly for a name.
+}
 
-    class require_directive_parser
-    {
-    public:
-        static auto parse(parser& parser, std::weak_ptr<target> target) -> void;
-    };
+kdl::sema::component_file::component_file(const std::string &file, const std::string &name)
+    : m_file(file), m_name(name)
+{
 
 }
 
-#endif //KDL_REQUIRE_DIRECTIVE_PARSER_HPP
+// MARK: - Accessors
+
+auto kdl::sema::component_file::name() const -> std::string
+{
+    return m_name.has_value() ? m_name.value() : "";
+}
+
+auto kdl::sema::component_file::file() const -> std::string
+{
+    return m_file;
+}

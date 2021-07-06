@@ -31,6 +31,24 @@ kdl::target::target()
 
 }
 
+// MARK: - Metadata Management
+
+auto kdl::target::set_project_name(const std::string& name) -> void
+{
+    m_name = name;
+}
+
+auto kdl::target::add_author(const std::string& name) -> void
+{
+    m_authors.emplace_back(name);
+}
+
+auto kdl::target::set_version_string(const std::string& version) -> void
+{
+    m_version = version;
+}
+
+
 // MARK: - Container Management
 
 auto kdl::target::add_type_container(const build_target::type_container& container) -> void
@@ -76,18 +94,18 @@ auto kdl::target::set_dst_path(const std::string& dst_path) -> void
         filename = "result";
     }
     else {
-        while (path.substr(path.size() - 1) != "/") {
+        while (!path.empty() && path.substr(path.size() - 1) != "/") {
             filename.insert(0, path.substr(path.size() - 1));
             path.pop_back();
         }
 
-        if (!kdl::file::exists(path)) {
+        if (!path.empty() && !kdl::file::exists(path)) {
             kdl::file::is_directory(path);
         }
     }
 
     // Make sure the end of the path is a name.
-    if (path.substr(path.size() - 1) == "/") {
+    if (!path.empty() && path.substr(path.size() - 1) == "/") {
         path.pop_back();
     }
 
@@ -204,7 +222,11 @@ auto kdl::target::set_required_format(const graphite::rsrc::file::format &format
 auto kdl::target::add_resource(const build_target::resource_instance& resource) -> void
 {
     m_resource_tracking_table->add_instance(m_file.name(), resource.type_code(), resource.id(), resource.name());
-    m_file.add_resource(resource.type_code(), resource.id(), resource.name(), resource.assemble());
+    m_file.add_resource(resource.type_code(),
+                        resource.id(),
+                        resource.name(),
+                        resource.assemble(),
+                        resource.attributes());
 }
 
 // MARK: - Saving
@@ -213,7 +235,7 @@ auto kdl::target::target_file_path() const -> std::string
 {
     auto path = m_dst_root;
 
-    if (path.substr(path.size() - 1) != "/") {
+    if (!path.empty() && path.substr(path.size() - 1) != "/") {
         path += "/";
     }
     path += m_dst_file;

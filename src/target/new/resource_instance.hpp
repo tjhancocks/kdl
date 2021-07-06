@@ -44,6 +44,7 @@ namespace kdl::build_target {
         std::map<std::string, int> m_field_counts;
         type_template m_tmpl;
         std::map<int, std::vector<std::any>> m_values;
+        std::map<std::string, std::string> m_attributes;
 
         auto assemble_field(graphite::data::writer& writer, const enum binary_type& type, const std::any& wrapped_value) const -> void;
         auto write(const std::string& field, const std::any& value) -> void;
@@ -52,10 +53,14 @@ namespace kdl::build_target {
 
     public:
         resource_instance(const int64_t& id, std::string code, std::string name, kdl::build_target::type_template tmpl);
+        resource_instance(const int64_t& id, std::string code, std::string name, std::string contents);
 
         [[nodiscard]] auto type_code() const -> std::string;
         [[nodiscard]] auto id() const -> int64_t;
         [[nodiscard]] auto name() const -> std::string;
+
+        auto set_attribute(const std::string& name, const std::string& value) -> void;
+        [[nodiscard]] auto attributes() const -> std::map<std::string, std::string>;
 
         [[nodiscard]] auto get_type_template() const -> kdl::build_target::type_template;
 

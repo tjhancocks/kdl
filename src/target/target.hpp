@@ -42,6 +42,9 @@ namespace kdl
     class target : public std::enable_shared_from_this<target>
     {
     private:
+        std::string m_name { "Untitled Project" };
+        std::string m_version { "1.0" };
+        std::vector<std::string> m_authors {};
         std::string m_dst_root;
         std::string m_dst_file;
         std::string m_src_root;
@@ -60,6 +63,10 @@ namespace kdl
 
     public:
         target();
+
+        auto set_project_name(const std::string& name) -> void;
+        auto add_author(const std::string& name) -> void;
+        auto set_version_string(const std::string& version) -> void;
 
         auto set_dst_path(const std::string& dst_path) -> void;
 

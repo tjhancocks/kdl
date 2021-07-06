@@ -24,6 +24,9 @@
 #include "parser/sema/directives/import_directive_parser.hpp"
 #include "parser/sema/directives/configuration_directive_parser.hpp"
 #include "parser/sema/directives/require_directive_parser.hpp"
+#include "parser/sema/directives/project_directive_parser.hpp"
+#include "parser/sema/directives/author_directive_parser.hpp"
+#include "parser/sema/directives/version_directive_parser.hpp"
 
 // MARK: - Constructor
 
@@ -53,6 +56,15 @@ auto kdl::sema::asm_directive::parse() -> void
     }
     else if (directive.text() == "require") {
         require_directive_parser::parse(m_parser, m_target);
+    }
+    else if (directive.text() == "project") {
+        project_directive_parser::parse(m_parser, m_target);
+    }
+    else if (directive.text() == "author") {
+        author_directive_parser::parse(m_parser, m_target);
+    }
+    else if (directive.text() == "version") {
+        version_directive_parser::parse(m_parser, m_target);
     }
     else {
         log::fatal_error(directive, 1, "Unrecognised directive '" + directive.text() + "'");

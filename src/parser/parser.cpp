@@ -24,6 +24,7 @@
 #include "parser/sema/declarations/declaration_parser.hpp"
 #include "parser/sema/directives/directive_parser.hpp"
 #include "parser/sema/type_definition/type_definition_parser.hpp"
+#include "parser/sema/component/component_parser.hpp"
 
 // MARK: - Constructor
 
@@ -58,6 +59,9 @@ auto kdl::sema::parser::parse() -> void
             for (const auto& instance : declarations) {
                 target->add_resource(instance);
             }
+        }
+        else if (expect({ expectation(lexeme::identifier, "component").be_true() })) {
+            component_parser(*this, m_target).parse();
         }
         else {
             auto lx = peek();

@@ -263,6 +263,7 @@ auto kdl::file::set_contents(const std::string contents) -> void
 
 auto kdl::file::save(std::optional<std::string> path) -> void
 {
+    // TODO: This needs to be a binary file save rather than text based.
     if (path.has_value()) {
         m_path = resolve_tilde(path.value());
     }
