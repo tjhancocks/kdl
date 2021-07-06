@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <vector>
+#include <stdexcept>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/component/file_list_parser.hpp"
 
