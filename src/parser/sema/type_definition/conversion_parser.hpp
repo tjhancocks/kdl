@@ -23,19 +23,21 @@
 
 #include "parser/parser.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema
+{
 
     class conversion_parser
     {
     public:
         parser& m_parser;
+        std::shared_ptr<target> m_target;
 
     public:
-        conversion_parser(parser& parser);
+        conversion_parser(parser& parser, std::weak_ptr<target> target);
 
         auto parse() -> std::tuple<lexeme, lexeme>;
     };
 
-}};
+}
 
 #endif //KDL_CONVERSION_PARSER_HPP

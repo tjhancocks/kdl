@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <stdexcept>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/type_definition/value_reference_parser.hpp"
 #include "parser/sema/type_definition/name_extension_parser.hpp"
@@ -27,10 +28,13 @@
 
 // MARK: - Constructor
 
-kdl::sema::value_reference_parser::value_reference_parser(kdl::sema::parser &parser, build_target::type_template tmpl)
+kdl::sema::value_reference_parser::value_reference_parser(kdl::sema::parser &parser, std::weak_ptr<target> target, build_target::type_template tmpl)
     : m_parser(parser), m_tmpl(tmpl)
 {
-
+    if (target.expired()) {
+        throw std::logic_error("Target has expired. This is a bug.");
+    }
+    m_target = target.lock();
 }
 
 // MARK: - Parser
@@ -45,13 +49,13 @@ auto kdl::sema::value_reference_parser::parse() -> kdl::build_target::type_field
 
     // Check for any name extensions.
     if (m_parser.expect({ expectation(lexeme::l_angle).be_true() })) {
-        ref.set_name_extensions(name_extension_parser::parse(m_parser));
+        ref.set_name_extensions(name_extension_parser::parse(m_parser, m_target));
     }
 
     // Check for an explicit type.
     if (m_parser.expect({ expectation(lexeme::identifier, "as").be_true() })) {
         m_parser.advance();
-        ref.set_explicit_type(kdl_type_parser::parse(m_parser));
+        ref.set_explicit_type(kdl_type_parser::parse(m_parser, m_target));
     }
 
     // Check for a default value.
@@ -65,7 +69,7 @@ auto kdl::sema::value_reference_parser::parse() -> kdl::build_target::type_field
 
     // Check for a type/data conversion.
     if (m_parser.expect({ expectation(lexeme::identifier, "__conversion").be_true() })) {
-        ref.set_conversion_map(conversion_parser(m_parser).parse());
+        ref.set_conversion_map(conversion_parser(m_parser, m_target).parse());
     }
 
     // Check for the sprite sheet assembler function

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Tom Hancocks
+// Copyright (c) 2021 Tom Hancocks
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,25 +21,40 @@
 #include <stdexcept>
 #include <iostream>
 #include "diagnostic/fatal.hpp"
-#include "parser/sema/directives/out_directive_parser.hpp"
+#include "parser/sema/directives/let_directive_parser.hpp"
 #include "parser/sema/expression/expression_parser.hpp"
 
-auto kdl::sema::out_directive_parser::parse(kdl::sema::parser &parser, std::weak_ptr<target> target) -> void
+auto kdl::sema::let_directive_parser::parse(kdl::sema::parser &parser, std::weak_ptr<target> target) -> void
 {
+    if (!parser.expect({ expectation(lexeme::identifier).be_true() })) {
+        log::fatal_error(parser.peek(), 1, "Variable name must be an identifier.");
+    }
+    auto var_name = parser.read();
+
+    parser.ensure({ expectation(lexeme::equals).be_true() });
+
+    if (!parser.expect_any({
+        expectation(lexeme::string).be_true(),
+        expectation(lexeme::res_id).be_true(),
+        expectation(lexeme::integer).be_true(),
+        expectation(lexeme::l_expr).be_true()
+    })) {
+        log::fatal_error(parser.peek(), 1, "Variable value must be an expression, an integer, string or resource id literal.");
+    }
+
+    // We need to pass the variable into the target as a global now.
     if (target.expired()) {
         throw std::logic_error("Build target has expired. This is a bug!");
     }
     auto t = target.lock();
-    expression_parser expr(parser, target, {});
 
-    while (parser.expect({ expectation(lexeme::semi).be_false() })) {
-        if (parser.expect_any({ expectation(lexeme::var).be_true(), expectation(lexeme::l_expr).be_true() })) {
-            const auto& value = expr.parse();
-            std::cout << value.text();
-        }
-        else {
-            std::cout << parser.read().text();
-        }
+    if (parser.peek().is(lexeme::l_expr)) {
+        // We're dealing with an expression that needs evaluating into a single value before assigning the variable.
+        expression_parser expr(parser, target, {});
+        t->set_global_variable(var_name.text(), expr.parse());
     }
-    std::cout << std::endl;
+    else {
+        t->set_global_variable(var_name.text(), parser.read());
+    }
+
 }

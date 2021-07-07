@@ -24,19 +24,21 @@
 #include "parser/parser.hpp"
 #include "target/new/type_container.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema
+{
 
     class type_definition_parser
     {
     private:
         parser& m_parser;
+        std::shared_ptr<target> m_target;
 
     public:
-        type_definition_parser(parser& parser);
+        type_definition_parser(parser& parser, std::weak_ptr<target> target);
 
-        auto parse(const bool directive = false) -> build_target::type_container;
+        auto parse(bool directive = false) -> build_target::type_container;
     };
 
-}};
+}
 
 #endif //KDL_TYPE_DEFINITION_PARSER_HPP

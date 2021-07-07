@@ -27,6 +27,7 @@
 #include "parser/sema/directives/project_directive_parser.hpp"
 #include "parser/sema/directives/author_directive_parser.hpp"
 #include "parser/sema/directives/version_directive_parser.hpp"
+#include "parser/sema/directives/let_directive_parser.hpp"
 
 // MARK: - Constructor
 
@@ -46,7 +47,10 @@ auto kdl::sema::asm_directive::parse() -> void
     auto directive = m_parser.read();
 
     if (directive.text() == "out") {
-        out_directive_parser::parse(m_parser);
+        out_directive_parser::parse(m_parser, m_target);
+    }
+    else if (directive.text() == "let") {
+        let_directive_parser::parse(m_parser, m_target);
     }
     else if (directive.text() == "import") {
         import_directive_parser::parse(m_parser, m_target);

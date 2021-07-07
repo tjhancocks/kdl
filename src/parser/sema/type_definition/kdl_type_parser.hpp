@@ -24,14 +24,15 @@
 #include "parser/parser.hpp"
 #include "target/new/kdl_type.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema
+{
 
     class kdl_type_parser
     {
     public:
-        static auto parse(parser& parser) -> build_target::kdl_type;
+        static auto parse(parser& parser, std::weak_ptr<target> target) -> build_target::kdl_type;
     };
 
-}};
+}
 
 #endif //KDL_KDL_TYPE_PARSER_HPP

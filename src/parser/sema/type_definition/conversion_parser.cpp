@@ -18,16 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <stdexcept>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/util/list_parser.hpp"
 #include "parser/sema/type_definition/conversion_parser.hpp"
 
 // MARK: - Constructor
 
-kdl::sema::conversion_parser::conversion_parser(kdl::sema::parser &parser)
+kdl::sema::conversion_parser::conversion_parser(kdl::sema::parser &parser, std::weak_ptr<target> target)
     : m_parser(parser)
 {
-
+    if (target.expired()) {
+        throw std::logic_error("Target has expired. This is a bug.");
+    }
+    m_target = target.lock();
 }
 
 // MARK: - Parser
@@ -37,7 +41,7 @@ auto kdl::sema::conversion_parser::parse() -> std::tuple<lexeme, lexeme>
     auto conversion_lx = m_parser.peek();
     m_parser.ensure({ expectation(lexeme::identifier, "__conversion").be_true() });
 
-    list_parser list(m_parser);
+    list_parser list(m_parser, m_target);
     list.set_list_start(lexeme::l_paren);
     list.set_list_end(lexeme::r_paren);
     list.set_delimiter(lexeme::comma);

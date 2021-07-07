@@ -1,0 +1,23 @@
+` Test the declaration of a new variable and use within a directive.
+@let foo = 5;
+@let bar = 10;
+@out "foo is " $(foo + bar);
+
+@let gamma = $((foo + bar) * 2);
+@out "gamma is " $gamma;
+
+@type Example : "expl" {
+    template {
+        DWRD Value;
+    };
+
+    field("Value") {
+        Value;
+    };
+};
+
+declare Example {
+    new ($(#128 + gamma)) {
+        Value = $(gamma);
+    };
+};

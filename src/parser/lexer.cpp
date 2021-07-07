@@ -101,11 +101,23 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
                 m_lexemes.emplace_back(kdl::lexeme(m_slice, lexeme::res_id, m_pos, m_offset, m_line, m_source));
             }
         }
-        else if (test_if(match<'$'>::yes)) {
-            // We're looking at a variable.
+        else if (test_if(match<'$'>::yes) && !m_in_expr) {
+            // We're looking at a variable or an expression.
             advance();
-            consume_while(identifier_set::contains);
-            m_lexemes.emplace_back(kdl::lexeme(m_slice, lexeme::var, m_pos, m_offset, m_line, m_source));
+
+            if (test_if(match<'('>::yes)) {
+                advance();
+                // We're looking at an explicit expression.
+                m_lexemes.emplace_back(kdl::lexeme(m_slice, lexeme::l_expr, m_pos, m_offset, m_line, m_source));
+
+                // Set a flag to indicate that we're in an expression.
+                m_in_expr = true;
+            }
+            else {
+                // We're looking at an implicit variable expression.
+                consume_while(identifier_set::contains);
+                m_lexemes.emplace_back(kdl::lexeme(m_slice, lexeme::var, m_pos, m_offset, m_line, m_source));
+            }
         }
         else if (test_if(match<'0'>::yes) && test_if(set<'x', 'X'>::contains, 1)) {
             // We're looking at a hexadecimal number
@@ -123,7 +135,7 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
             consume_while(decimal_set::contains);
             auto number_text = m_slice;
             if (negative) {
-                number_text = "-" + number_text;
+                number_text.insert(0, 1, '-');
             }
 
             if (test_if(match<'%'>::yes)) {
@@ -161,9 +173,19 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
         }
         else if (test_if(match<'('>::yes)) {
             m_lexemes.emplace_back(kdl::lexeme(read(), lexeme::l_paren, m_pos, m_offset, m_line, m_source));
+            if (m_in_expr) {
+                m_expr_paren_balance++;
+            }
+        }
+        else if (test_if(match<')'>::yes) && m_in_expr && m_expr_paren_balance <= 0) {
+            m_lexemes.emplace_back(kdl::lexeme(read(), lexeme::r_expr, m_pos, m_offset, m_line, m_source));
+            m_in_expr = false;
         }
         else if (test_if(match<')'>::yes)) {
             m_lexemes.emplace_back(kdl::lexeme(read(), lexeme::r_paren, m_pos, m_offset, m_line, m_source));
+            if (m_in_expr) {
+                m_expr_paren_balance--;
+            }
         }
         else if (test_if(match<'<'>::yes)) {
             m_lexemes.emplace_back(kdl::lexeme(read(), lexeme::l_angle, m_pos, m_offset, m_line, m_source));

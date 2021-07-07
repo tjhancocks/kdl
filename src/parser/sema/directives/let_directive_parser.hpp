@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Tom Hancocks
+// Copyright (c) 2021 Tom Hancocks
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,15 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_OUT_DIRECTIVE_PARSER_HPP)
-#define KDL_OUT_DIRECTIVE_PARSER_HPP
+#if !defined(KDL_LET_DIRECTIVE_PARSER_HPP)
+#define KDL_LET_DIRECTIVE_PARSER_HPP
 
 #include "parser/parser.hpp"
 
 namespace kdl::sema
 {
 
-    class out_directive_parser
+    class let_directive_parser
     {
     public:
         static auto parse(parser& parser, std::weak_ptr<target> target) -> void;
@@ -34,4 +34,4 @@ namespace kdl::sema
 
 }
 
-#endif //KDL_OUT_DIRECTIVE_PARSER_HPP
+#endif //KDL_LET_DIRECTIVE_PARSER_HPP

@@ -24,6 +24,7 @@
 #include <memory>
 #include <string>
 #include <type_traits>
+#include <utility>
 #include "parser/file.hpp"
 
 namespace kdl
@@ -44,7 +45,7 @@ namespace kdl
             integer, string, res_id, identifier,
             l_paren, r_paren, l_angle, r_angle, l_brace, r_brace, l_bracket, r_bracket,
             comma, dot, pipe, slash, amp, colon, semi, plus, minus, star, equals, carat,
-            directive, var, percentage, exclaim
+            directive, var, l_expr, r_expr, percentage, exclaim
         };
 
     private:
@@ -61,8 +62,8 @@ namespace kdl
          * @param text The source text value from which this lexeme is being created.
          * @param type The lexical type that the token is
          */
-        lexeme(std::string text, enum type type)
-            : m_text(text), m_type(type), m_owner({})
+        lexeme(std::string  text, enum type type)
+            : m_text(std::move(text)), m_type(type), m_owner({}), m_pos(0), m_offset(0), m_line(0)
         {
 
         }
@@ -77,7 +78,7 @@ namespace kdl
          * @param owner The file from which the token originated.
          */
         lexeme(std::string text, enum type type, std::size_t pos, std::size_t offset, std::size_t line, std::weak_ptr<file> owner)
-            : m_text(text), m_type(type), m_pos(pos), m_offset(offset), m_line(line), m_owner(owner)
+            : m_text(std::move(text)), m_type(type), m_pos(pos), m_offset(offset), m_line(line), m_owner(owner)
         {
 
         }
@@ -89,7 +90,7 @@ namespace kdl
          *
          * @return A string representing the location of the lexeme.
          */
-        auto location() const -> std::string
+        [[nodiscard]] auto location() const -> std::string
         {
             std::string result;
 
@@ -109,7 +110,7 @@ namespace kdl
          * @param type A lexeme type.
          * @return true if matching
          */
-        auto is(const enum type type) const -> bool
+        [[nodiscard]] auto is(const enum type type) const -> bool
         {
             return type == m_type;
         }
@@ -119,7 +120,7 @@ namespace kdl
          * @param value The value to test for.
          * @return true if matching
          */
-        auto is(const std::string value) const -> bool
+        [[nodiscard]] auto is(const std::string& value) const -> bool
         {
             return value == m_text;
         }
@@ -130,7 +131,7 @@ namespace kdl
          * @param value The value to test for.
          * @return true if matching
          */
-        auto is(const enum type type, const std::string value) const -> bool
+        [[nodiscard]] auto is(const enum type type, const std::string value) const -> bool
         {
             return is(type) && is(value);
         }
@@ -139,7 +140,7 @@ namespace kdl
          * The line number of the lexeme.
          * @return An integer representing the line number.
          */
-        auto line() const -> std::size_t
+        [[nodiscard]] auto line() const -> std::size_t
         {
             return m_line;
         }
@@ -148,7 +149,7 @@ namespace kdl
          * The line offset of the lexeme.
          * @return An integer representing the line offset.
          */
-        auto offset() const -> std::size_t
+        [[nodiscard]] auto offset() const -> std::size_t
         {
             return m_offset;
         }
@@ -157,7 +158,7 @@ namespace kdl
          * The lexical type of the lexeme.
          * @return A lexeme type.
          */
-        auto type() const -> enum type
+        [[nodiscard]] auto type() const -> enum type
         {
             return m_type;
         }
@@ -166,19 +167,29 @@ namespace kdl
          * The textual value of the lexeme
          * @return A string
          */
-        auto text() const -> std::string
+        [[nodiscard]] auto text() const -> std::string
         {
             return m_text;
         }
 
         /**
-         * The numeric value of the lexeme. If the lexeme is not a numeric type then the value returned will
-         * be 0.
+         * The numeric value of the lexeme.
+         *
+         * If the lexeme is not a numeric type or an operator then the value returned will be 0.
          */
         template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
         auto value() const -> T
         {
-            if (m_text.size() >= 2 && m_text[0] == '-') {
+            if (m_type == lexeme::plus || m_type == lexeme::minus) {
+                return 2;
+            }
+            else if (m_type == lexeme::star || m_type == lexeme::slash) {
+                return 3;
+            }
+            else if (m_type == lexeme::carat) {
+                return 4;
+            }
+            else if (m_text.size() >= 2 && m_text[0] == '-') {
                // Negative decimal
                return static_cast<T>(std::stoll(m_text, nullptr, 10));
             }
@@ -190,6 +201,21 @@ namespace kdl
                // Decimal
                return static_cast<T>(std::stoull(m_text, nullptr, 10));
            }
+        }
+
+        /**
+         * Associativity of the lexeme if it is an operator.
+         * Will return true if the operator is left associative
+         */
+        [[nodiscard]] auto left_associative() const -> bool
+        {
+            switch (m_type) {
+                case lexeme::carat:
+                    return false;
+
+                default:
+                    return true;
+            }
         }
     };
 };

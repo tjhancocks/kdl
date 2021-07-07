@@ -69,7 +69,7 @@ auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource
     });
 
     if (m_parser.expect({ expectation(lexeme::l_paren).be_true() })) {
-        list_parser list(m_parser);
+        list_parser list(m_parser, m_target);
         list.set_list_start(lexeme::l_paren);
         list.set_list_end(lexeme::r_paren);
         list.set_delimiter(lexeme::comma);

@@ -43,7 +43,9 @@ namespace kdl
         std::size_t m_line { 1 };
         std::size_t m_offset { 0 };
         std::size_t m_pos { 0 };
-        std::string m_slice { "" };
+        std::string m_slice;
+        bool m_in_expr { false };
+        int m_expr_paren_balance { 0 };
         std::vector<lexeme> m_lexemes;
 
         /**

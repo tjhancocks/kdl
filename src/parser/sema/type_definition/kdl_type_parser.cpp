@@ -23,7 +23,7 @@
 
 // MARK: - Parser
 
-auto kdl::sema::kdl_type_parser::parse(kdl::sema::parser& parser) -> kdl::build_target::kdl_type
+auto kdl::sema::kdl_type_parser::parse(kdl::sema::parser& parser, std::weak_ptr<target> target) -> kdl::build_target::kdl_type
 {
     build_target::kdl_type type;
 
@@ -33,7 +33,7 @@ auto kdl::sema::kdl_type_parser::parse(kdl::sema::parser& parser) -> kdl::build_
 
         // Check for associated values / type hints.
         if (parser.expect({ expectation(lexeme::l_angle).be_true() })) {
-            list_parser list(parser);
+            list_parser list(parser, target);
             list.set_list_start(lexeme::l_angle);
             list.set_list_end(lexeme::r_angle);
             list.set_delimiter(lexeme::comma);

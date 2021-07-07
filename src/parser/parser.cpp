@@ -44,7 +44,7 @@ auto kdl::sema::parser::parse() -> void
     while (!finished()) {
 
         if (expect({ expectation(lexeme::directive, "type").be_true() })) {
-            auto container = type_definition_parser(*this).parse(true);
+            auto container = type_definition_parser(*this, m_target).parse(true);
             target->add_type_container(container);
         }
         else if (expect({ expectation(lexeme::directive, "example").be_true(), expectation(lexeme::identifier, "declare").be_true() })) {

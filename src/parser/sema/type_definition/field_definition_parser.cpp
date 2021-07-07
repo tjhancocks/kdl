@@ -25,10 +25,13 @@
 
 // MARK: - Constructor
 
-kdl::sema::field_definition_parser::field_definition_parser(kdl::sema::parser &parser, kdl::build_target::type_template tmpl)
+kdl::sema::field_definition_parser::field_definition_parser(kdl::sema::parser &parser, std::weak_ptr<target> target, kdl::build_target::type_template tmpl)
     : m_parser(parser), m_tmpl(tmpl)
 {
-
+    if (target.expired()) {
+        throw std::logic_error("Target has expired. This is a bug.");
+    }
+    m_target = target.lock();
 }
 
 // MARK: - Parser
@@ -50,7 +53,7 @@ auto kdl::sema::field_definition_parser::parse() -> kdl::build_target::type_fiel
     if (m_parser.expect({ expectation(lexeme::identifier, "repeatable").be_true() })) {
         auto lx = m_parser.read();
 
-        list_parser list(m_parser);
+        list_parser list(m_parser, m_target);
         list.set_list_start(lexeme::l_angle);
         list.set_list_end(lexeme::r_angle);
         list.set_delimiter(lexeme::comma);
@@ -69,7 +72,7 @@ auto kdl::sema::field_definition_parser::parse() -> kdl::build_target::type_fiel
     }
 
     // The body of the field is enclosed in '{' braces '}'
-    value_reference_parser field_value_parser(m_parser, m_tmpl);
+    value_reference_parser field_value_parser(m_parser, m_target, m_tmpl);
 
     m_parser.ensure({ expectation(lexeme::l_brace).be_true() });
     while (m_parser.expect({ expectation(lexeme::r_brace).be_false() })) {

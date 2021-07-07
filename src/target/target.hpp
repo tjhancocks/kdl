@@ -25,6 +25,7 @@
 #include <vector>
 #include <optional>
 #include <memory>
+#include <map>
 #include "disassembler/task.hpp"
 #include "target/new/type_container.hpp"
 #include "target/new/resource_instance.hpp"
@@ -54,6 +55,7 @@ namespace kdl
         std::vector<build_target::type_container> m_type_containers;
         graphite::rsrc::file m_file;
         std::shared_ptr<kdl::resource_tracking::table> m_resource_tracking_table {};
+        std::map<std::string, kdl::lexeme> m_globals {};
 
         std::optional<disassembler::task> m_disassembler;
         std::vector<lexeme> m_disassembler_image_format { lexeme("PNG", lexeme::identifier) };
@@ -85,6 +87,10 @@ namespace kdl
         auto type_container_named(const kdl::lexeme& name) const -> build_target::type_container;
 
         auto add_resource(const build_target::resource_instance& resource) -> void;
+
+        auto set_global_variable(const std::string& var_name, const kdl::lexeme& value) -> void;
+        [[nodiscard]] auto all_global_variables() const -> std::map<std::string, kdl::lexeme>;
+        [[nodiscard]] auto global_variable(const std::string& var_name) const -> std::optional<kdl::lexeme>;
 
         auto set_disassembler_image_format(const std::vector<lexeme>& formats) -> void;
         auto set_disassembler_sound_format(const std::vector<lexeme>& formats) -> void;

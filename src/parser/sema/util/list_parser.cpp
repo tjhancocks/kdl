@@ -18,15 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <stdexcept>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/util/list_parser.hpp"
+#include "parser/sema/expression/expression_parser.hpp"
 
 // MARK: - Constructor
 
-kdl::sema::list_parser::list_parser(parser& parser)
+kdl::sema::list_parser::list_parser(parser& parser, std::weak_ptr<target> target)
     : m_parser(parser)
 {
-
+    if (target.expired()) {
+        throw std::logic_error("Target has expired. This is a bug.");
+    }
+    m_target = target.lock();
 }
 
 // MARK: - Configuration
@@ -51,7 +56,7 @@ auto kdl::sema::list_parser::add_valid_list_item(enum lexeme::type lx) -> void
     m_valid_lexemes.emplace_back(std::make_tuple(lx, std::make_optional<std::string>()));
 }
 
-auto kdl::sema::list_parser::add_valid_list_item(enum lexeme::type lx, const std::string text) -> void
+auto kdl::sema::list_parser::add_valid_list_item(enum lexeme::type lx, const std::string& text) -> void
 {
     m_valid_lexemes.emplace_back(std::make_tuple(lx, text));
 }
@@ -60,7 +65,7 @@ auto kdl::sema::list_parser::add_valid_list_item(enum lexeme::type lx, const std
 
 auto kdl::sema::list_parser::parse() -> std::vector<lexeme>
 {
-    // Build a list of valid expactations
+    // Build a list of valid expectations
     std::vector<expectation::function> expectations;
     for (auto ex : m_valid_lexemes) {
         auto type = std::get<0>(ex);
@@ -74,6 +79,9 @@ auto kdl::sema::list_parser::parse() -> std::vector<lexeme>
         }
     }
 
+    // Introduce a basic expression expectation in the list.
+    expectations.emplace_back(expectation(lexeme::l_expr).be_true());
+
     // Parse the list
     std::vector<lexeme> out;
     m_parser.ensure({ expectation(m_list_start).be_true() });
@@ -81,7 +89,14 @@ auto kdl::sema::list_parser::parse() -> std::vector<lexeme>
         if (!m_parser.expect_any(expectations)) {
             log::fatal_error(m_parser.peek(), 1, "Unexpected type '" + m_parser.peek().text() + "' encountered in list.");
         }
-        out.emplace_back(m_parser.read());
+
+        if (m_parser.peek().is(lexeme::l_expr)) {
+            expression_parser expr(m_parser, m_target, {});
+            out.emplace_back(expr.parse());
+        }
+        else {
+            out.emplace_back(m_parser.read());
+        }
 
         if (m_parser.expect({ expectation(m_list_end).be_false() })) {
             m_parser.ensure({ expectation(m_delimit).be_true() });

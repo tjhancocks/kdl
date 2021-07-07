@@ -21,24 +21,27 @@
 #if !defined(KDL_VALUE_REFERENCE_PARSER_HPP)
 #define KDL_VALUE_REFERENCE_PARSER_HPP
 
+#include <stdexcept>
 #include "parser/parser.hpp"
 #include "target/new/type_field_value.hpp"
 #include "target/new/type_container.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema
+{
 
     class value_reference_parser
     {
     private:
         parser& m_parser;
+        std::shared_ptr<target> m_target;
         build_target::type_template m_tmpl;
 
     public:
-        value_reference_parser(parser& parser, build_target::type_template tmpl);
+        value_reference_parser(parser& parser, std::weak_ptr<target> target, build_target::type_template tmpl);
 
         auto parse() -> build_target::type_field_value;
     };
 
-}};
+}
 
 #endif //KDL_VALUE_REFERENCE_PARSER_HPP
