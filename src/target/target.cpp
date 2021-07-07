@@ -31,6 +31,13 @@ kdl::target::target()
 
 }
 
+// MARK: - File
+
+auto kdl::target::file() -> graphite::rsrc::file&
+{
+    return m_file;
+}
+
 // MARK: - Metadata Management
 
 auto kdl::target::set_project_name(const std::string& name) -> void

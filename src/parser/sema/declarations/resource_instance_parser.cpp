@@ -159,7 +159,7 @@ auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource
 
         // We can safely assume that the resource exists... load the resource from the resource manager and request that
         // it be parsed into something that we can use here.
-        if (!kdl::resource_tracking::importer(m_type.code(), source_id).populate(instance)) {
+        if (!kdl::resource_tracking::importer(m_type.code(), source_id).populate(instance, target->file())) {
             log::fatal_error(first_lx, 1, "Unable to "+ m_keyword + " resource '" + m_type.code() + "' #" + std::to_string(source_id));
         }
     }

@@ -64,6 +64,8 @@ namespace kdl
     public:
         target();
 
+        [[nodiscard]] auto file() -> graphite::rsrc::file&;
+
         auto set_project_name(const std::string& name) -> void;
         auto add_author(const std::string& name) -> void;
         auto set_version_string(const std::string& version) -> void;

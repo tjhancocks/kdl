@@ -22,6 +22,7 @@
 #define KDL_RESOURCE_IMPORTER_HPP
 
 #include <string>
+#include <libGraphite/rsrc/file.hpp>
 #include "target/new/resource_instance.hpp"
 
 namespace kdl::resource_tracking {
@@ -35,7 +36,7 @@ namespace kdl::resource_tracking {
     public:
         importer(std::string code, const int64_t& id);
 
-        auto populate(kdl::build_target::resource_instance& instance) -> bool;
+        auto populate(kdl::build_target::resource_instance& instance, graphite::rsrc::file& file) -> bool;
     };
 
 }
