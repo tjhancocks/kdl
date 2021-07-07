@@ -85,11 +85,10 @@ auto kdl::sema::declaration_parser::parse() -> std::vector<kdl::build_target::re
         }
 
         // Assign the namespace to the resource instance if one has been specified.
-        // TODO: Perhaps the resource parser should be aware of attributes?
-        auto instance = parser.parse();
         if (ns.is(lexeme::identifier)) {
-            instance.set_attribute("namespace", ns.text());
+            parser.add_attribute("namespace", ns.text());
         }
+        auto instance = parser.parse();
 
         instances.emplace_back(instance);
         m_parser.ensure({ expectation(lexeme::semi).be_true() });
