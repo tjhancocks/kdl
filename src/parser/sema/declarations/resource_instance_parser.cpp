@@ -67,7 +67,48 @@ auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource
         expectation(lexeme::identifier, m_keyword).be_true()
     });
 
-    if (m_parser.expect({ expectation(lexeme::l_paren).be_true() })) {
+    // Setup a source id that can be used for duplication.
+    auto source_id = INT64_MIN;
+
+    if (m_keyword == "duplicate" && m_parser.expect({ expectation(lexeme::l_paren).be_true() })) {
+        // The duplicate syntax is slightly unique and specific, and not just a simple list of values that can
+        // be parsed.
+        m_parser.advance();
+
+        if (m_parser.expect({
+            expectation(lexeme::res_id).be_true(),
+            expectation(lexeme::identifier, "as").be_true(),
+            expectation(lexeme::res_id).be_true()
+        })) {
+            source_id = m_parser.read().value<int64_t>();
+            m_parser.advance();
+            m_id = m_parser.read().value<int64_t>();
+        }
+        else {
+            log::fatal_error(m_parser.peek(), 1, "Incorrect syntax for resource duplication.");
+        }
+
+        // We may have subsequent items here so we need to parse them out... check for a comma to see if further
+        // items exist or not.
+        if (m_parser.expect({ expectation(lexeme::comma).be_true() })) {
+            m_parser.read();
+
+            while (m_parser.expect({ expectation(lexeme::r_paren).be_false() })) {
+                const auto &token = m_parser.read();
+
+                if (token.is(lexeme::string)) {
+                    m_name = token.text();
+                }
+
+                if (m_parser.expect({expectation(lexeme::r_paren).be_false()})) {
+                    m_parser.ensure({expectation(lexeme::comma).be_true()});
+                }
+            }
+        }
+
+        m_parser.ensure({ expectation(lexeme::r_paren).be_true() });
+    }
+    else if (m_parser.expect({ expectation(lexeme::l_paren).be_true() })) {
         list_parser list(m_parser);
         list.set_list_start(lexeme::l_paren);
         list.set_list_end(lexeme::r_paren);
@@ -84,6 +125,9 @@ auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource
                 m_name = arg.text();
             }
         }
+
+        // 'new' doesn't care about source_id, and 'override' requires it to be equal to m_id.
+        source_id = m_id;
     }
 
     // Acquire a new instance of the resource and populate it with default values.
@@ -96,18 +140,18 @@ auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource
 
     // Is this resource one that is overriding another? If it is then we need to pre-populate the resource with the data
     // of the original (if it exists.)
-    if (m_keyword == "override") {
+    if (m_keyword == "override" || m_keyword == "duplicate") {
         // First check if the existing resource exists in our scope.
         auto tracker = target->resource_tracker();
-        if (!tracker->instance_exists(m_type.code(), m_id)) {
+        if (!tracker->instance_exists(m_type.code(), source_id)) {
             // The resource does not exist, so throw an error!
-            log::fatal_error(first_lx, 1, "Attempting to override resource '" + m_type.code() + "' #" + std::to_string(m_id) + ", but no existing resource found.");
+            log::fatal_error(first_lx, 1, "Attempting to "+ m_keyword + " resource '" + m_type.code() + "' #" + std::to_string(source_id) + ", but no existing resource found.");
         }
 
         // We can safely assume that the resource exists... load the resource from the resource manager and request that
         // it be parsed into something that we can use here.
-        if (!kdl::resource_tracking::importer(m_type.code(), m_id).populate(instance)) {
-            log::fatal_error(first_lx, 1, "Unable to override resource '" + m_type.code() + "' #" + std::to_string(m_id));
+        if (!kdl::resource_tracking::importer(m_type.code(), source_id).populate(instance)) {
+            log::fatal_error(first_lx, 1, "Unable to "+ m_keyword + " resource '" + m_type.code() + "' #" + std::to_string(source_id));
         }
     }
 

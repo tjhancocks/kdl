@@ -77,6 +77,9 @@ auto kdl::sema::declaration_parser::parse() -> std::vector<kdl::build_target::re
         else if (m_parser.expect({ expectation(lexeme::identifier, "override").be_true() })) {
             parser.set_keyword("override");
         }
+        else if (m_parser.expect({ expectation(lexeme::identifier, "duplicate").be_true() })) {
+            parser.set_keyword("duplicate");
+        }
         else {
             log::fatal_error(m_parser.peek(), 1, "Unexpected lexeme '" + m_parser.peek().text() + "' encountered.");
         }
