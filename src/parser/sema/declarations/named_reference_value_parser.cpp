@@ -67,9 +67,6 @@ auto kdl::sema::named_reference_value_parser::parse(kdl::build_target::resource_
         instance_parser.set_keyword("new");
         auto nested_instance = instance_parser.parse();
 
-        // TODO: Propagate this correctly, and don't short circuit.
-        target->add_resource(nested_instance);
-
         // Replace the nesting with an ID.
         ref = lexeme(std::to_string(nested_instance.id()), lexeme::res_id);
     }

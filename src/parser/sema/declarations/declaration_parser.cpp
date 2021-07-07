@@ -26,8 +26,8 @@
 
 // MARK: - Constructor
 
-kdl::sema::declaration_parser::declaration_parser(kdl::sema::parser &parser, std::weak_ptr<target> target)
-    : m_parser(parser), m_target(std::move(target))
+kdl::sema::declaration_parser::declaration_parser(kdl::sema::parser &parser, std::weak_ptr<target> target, bool discards)
+    : m_parser(parser), m_target(std::move(target)), m_discards(discards)
 {
 
 }
@@ -70,7 +70,7 @@ auto kdl::sema::declaration_parser::parse() -> std::vector<kdl::build_target::re
     m_parser.ensure({ expectation(lexeme::l_brace).be_true() });
     while (m_parser.expect({ expectation(lexeme::r_brace).be_false() })) {
 
-        kdl::sema::resource_instance_parser parser(m_parser, type, m_target);
+        kdl::sema::resource_instance_parser parser(m_parser, type, m_target, m_discards);
         if (m_parser.expect({ expectation(lexeme::identifier, "new").be_true() })) {
             parser.set_keyword("new");
         }

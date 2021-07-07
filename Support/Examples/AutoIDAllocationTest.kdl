@@ -1,0 +1,49 @@
+@type Color : "colr" {
+    template {
+        DLNG Code;
+    };
+
+    field("Hex") {
+        Code;
+    };
+};
+
+@type Fruit : "früt" {
+    template {
+        CSTR Name;
+        DWRD Color;
+    };
+
+    field("Name") {
+        Name;
+    };
+
+    field("Color") {
+        Color as Color&;
+    };
+};
+
+declare Fruit {
+
+    new(#auto) {
+        Name = "Apple";
+        Color = new(#128) {
+            Hex = 0xFF0000;
+        };
+    };
+
+    new(#auto) {
+        Name = "Orange";
+        Color = new(#auto) {
+            Hex = 0xFF88000;
+        };
+    };
+
+    new {
+        Name = "Banana";
+        Color = new {
+            Hex = 0xFFFF00;
+        };
+    };
+
+};

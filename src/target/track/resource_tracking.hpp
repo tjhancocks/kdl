@@ -50,6 +50,8 @@ namespace kdl::resource_tracking {
         auto add_instance(const std::string& file, const std::string& type, const int64_t& id, const std::string& name) -> void;
         [[nodiscard]] auto instance_exists(const std::string& type, const int64_t& id) -> bool;
 
+        [[nodiscard]] auto next_available_id(const std::string& type) const -> int64_t;
+
     };
 
 }

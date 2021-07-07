@@ -47,3 +47,22 @@ auto kdl::resource_tracking::table::instance_exists(const std::string &type, con
         return (i.type_code == type) && (i.id == id);
     });
 }
+
+// MARK: - Automatic Resource ID Allocation
+
+auto kdl::resource_tracking::table::next_available_id(const std::string &type) const -> int64_t
+{
+    // This is going to take a naive approach. We will scan through for the largest ID in the specified type, and then
+    // increment the value by one and return that as the suggestion.
+    // TODO: Potentially change the behaviour of this to find and utilise gaps in the ID space?
+    int64_t candidate_id = 128;
+
+    for (const auto& instance : m_instances) {
+        if (instance.type_code != type) {
+            continue;
+        }
+        candidate_id = std::max(instance.id + 1, candidate_id);
+    }
+
+    return candidate_id;
+}
