@@ -35,6 +35,7 @@ namespace kdl::sema {
         std::string m_keyword { "new" };
         std::weak_ptr<target> m_target;
         bool m_discards { false };
+        std::map<std::string, std::string> m_attributes {};
 
     public:
         resource_instance_parser(parser& parser, build_target::type_container& type, std::weak_ptr<target> target, bool discards = false);
@@ -42,6 +43,7 @@ namespace kdl::sema {
         auto set_keyword(const std::string& keyword) -> void;
         auto set_id(const int64_t& id) -> void;
         auto set_name(const std::string& name) -> void;
+        auto add_attribute(const std::string& name, const std::string& value) -> void;
 
         auto parse() -> build_target::resource_instance;
     };

@@ -54,6 +54,11 @@ auto kdl::sema::resource_instance_parser::set_name(const std::string& name) -> v
     m_name = name;
 }
 
+auto kdl::sema::resource_instance_parser::add_attribute(const std::string& name, const std::string& value) -> void
+{
+    m_attributes[name] = value;
+}
+
 // MARK: - Parser
 
 auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource_instance
@@ -177,6 +182,11 @@ auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource
         if (!assertion.evaluate(instance.synthesize_variables())) {
             log::fatal_error(first_lx, 1, "Assertion Failed: " + assertion.failure_text());
         }
+    }
+
+    // Assign the attributes to the resource instance.
+    for (const auto& attribute : m_attributes) {
+        instance.set_attribute(attribute.first, attribute.second);
     }
 
     // Add the resource to the target now.
