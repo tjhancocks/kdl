@@ -26,8 +26,8 @@
 
 kdl::sema::expression_parser::expression_parser(kdl::sema::parser &parser,
                                                 std::weak_ptr<target> target,
-                                                const std::map<std::string, kdl::lexeme>& vars)
-    : m_parser(parser), m_vars(vars)
+                                                std::map<std::string, kdl::lexeme> vars)
+    : m_parser(parser), m_vars(std::move(vars))
 {
     if (target.expired()) {
         throw std::logic_error("Build target has expired. This is a bug.");

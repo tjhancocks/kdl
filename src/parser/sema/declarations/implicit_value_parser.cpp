@@ -50,7 +50,10 @@ auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_instanc
     // Check if the value coming up in the lexical stream is an expression. If it is then preemptively parse it
     // and push the result into the parser.
     if (m_parser.expect({ expectation(lexeme::l_expr).be_true() })) {
-        expression_parser expr(m_parser, m_target, {});
+        expression_parser expr(m_parser, m_target, {
+            std::make_pair("_id", kdl::lexeme(std::to_string(instance.id()), lexeme::res_id)),
+            std::make_pair("_name", kdl::lexeme(instance.name(), lexeme::string))
+        });
         m_parser.push({ expr.parse() });
     }
 

@@ -19,31 +19,42 @@
 // SOFTWARE.
 
 #include <utility>
+#include <stdexcept>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/unnamed_reference_value_parser.hpp"
+#include "parser/sema/expression/expression_parser.hpp"
 
 // MARK: - Constructor
 
 kdl::sema::unnamed_reference_value_parser::unnamed_reference_value_parser(kdl::sema::parser &parser,
+                                                                          std::weak_ptr<target> target,
                                                                           build_target::type_field& field,
                                                                           build_target::type_field_value& field_value,
                                                                           build_target::type_template::binary_field binary_field,
                                                                           kdl::build_target::kdl_type &type)
     : m_parser(parser), m_explicit_type(type), m_field(field), m_binary_field(std::move(binary_field)), m_field_value(field_value)
 {
-
+    if (target.expired()) {
+        throw std::logic_error("Target has expired. This is a bug.");
+    }
+    m_target = target.lock();
 }
 
 // MARK: - Parser
 
 auto kdl::sema::unnamed_reference_value_parser::parse(kdl::build_target::resource_instance &instance) -> void
 {
-    if (!m_parser.expect_any({ expectation(lexeme::identifier).be_true(), expectation(lexeme::res_id).be_true() })) {
-        log::fatal_error(m_parser.peek(), 1, "The field '" + m_field.name().text() + "' expects a symbol or resource id.");
+    if (!m_parser.expect_any({
+        expectation(lexeme::identifier).be_true(),
+        expectation(lexeme::res_id).be_true(),
+        expectation(lexeme::l_expr).be_true()
+    })) {
+        log::fatal_error(m_parser.peek(), 1, "The field '" + m_field.name().text() + "' expects a symbol, resource id or expression.");
     }
 
-    auto ref = m_parser.read();
+    auto ref = m_parser.peek();
     if (ref.is(lexeme::identifier)) {
+        ref = m_parser.read();
         auto symbol_value = m_field_value.value_for(ref);
 
         if (symbol_value.is(lexeme::identifier, "new")) {
@@ -54,6 +65,13 @@ auto kdl::sema::unnamed_reference_value_parser::parse(kdl::build_target::resourc
         }
 
         ref = symbol_value;
+    }
+    else if (ref.is(lexeme::l_expr)) {
+        expression_parser expr(m_parser, m_target, {
+            std::make_pair("_id", kdl::lexeme(std::to_string(instance.id()), lexeme::res_id)),
+            std::make_pair("_name", kdl::lexeme(instance.name(), lexeme::string))
+        });
+        ref = expr.parse();
     }
 
     // Ensure that the underlying type is correct for a reference.

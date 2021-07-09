@@ -31,12 +31,12 @@ namespace kdl::sema
     private:
         parser& m_parser;
         std::shared_ptr<target> m_target;
-        const std::map<std::string, kdl::lexeme>& m_vars;
+        std::map<std::string, kdl::lexeme> m_vars;
 
         [[nodiscard]] auto resolve_variable_named(const kdl::lexeme& var) const -> kdl::lexeme;
 
     public:
-        expression_parser(parser& parser, std::weak_ptr<target> target, const std::map<std::string, kdl::lexeme>& vars);
+        expression_parser(parser& parser, std::weak_ptr<target> target, std::map<std::string, kdl::lexeme> vars);
 
         auto parse() -> kdl::lexeme;
 
