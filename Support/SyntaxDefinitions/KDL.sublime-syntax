@@ -36,12 +36,7 @@ contexts:
     - include: configuration
     - include: directive
     - include: resource-declaration
-    - include: string-literal
-    - include: number-literal
-    - include: resource-literal
-    - include: percentage-literal
-    - include: variable-literal
-    - include: identifier-literal
+    - include: component-declaration
 
 # COMMENTS #####################################################################
 
@@ -56,7 +51,7 @@ contexts:
 # DIRECTIVES ###################################################################
 
   directive:
-    - match: '((@)(out|import))'
+    - match: '((@)(out|import|project|author|version))'
       scope: meta.preprocessor.directive.kdl
       captures:
         1: keyword.kdl
@@ -84,6 +79,19 @@ contexts:
               scope: punctuation.definition.type.end.kdl
               pop: true
             - include: configuration-key-value
+    - match: '((@)(let))[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]*\=[ \t]*'
+      captures:
+        1: keyword.kdl
+        4: entity.name.type.kdl
+      set:
+        - match: ';'
+          pop: true
+        - include: string-literal
+        - include: identifier-literal
+        - include: number-literal
+        - include: resource-literal
+        - include: percentage-literal
+        - include: expression-literal
     - match: '((@)(type))[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]*\:[ \t]*(".{4}")'
       captures:
         1: keyword.kdl
@@ -99,6 +107,38 @@ contexts:
             - include: template-definition
             - include: assertion-rule
             - include: field-definition
+
+# EXPRESSIONS
+
+  expression-block:
+    - match: '(\$\()'
+      scope: punctuation.expression.begin.kdl
+      captures:
+        0: keyword.operator.kdl
+      set:
+        - match: '(\))'
+          scope: punctuation.expression.end.kdl
+          pop: true
+        - include: expression-literal
+
+  expression-literal:
+    - match: '(\()'
+      captures:
+        1: keyword.operator.kdl
+      push:
+        - include: expression-literal
+    - match: '(\))'
+      captures:
+        1: keyword.operator.kdl
+      pop: true
+    - match: '([\+\-\*\^\/])'
+      captures:
+        1: keyword.operator.kdl
+    - include: percentage-literal
+    - include: number-literal
+    - include: string-literal
+    - include: identifier-literal
+    - include: resource-literal
 
 # CONFIGURATION ################################################################
 
@@ -206,14 +246,15 @@ contexts:
 # RESOURCE DECLARATION #########################################################
 
   resource-declaration:
-    - match: '((@)example[ \t]+)?(declare)[ \t]+([A-Za-z0-9_]+)([ \t]*(\:[A-Za-z0-9_]+)\=([A-Za-z0-9_]+))*'
+    - match: '((@)example[ \t]+)?(declare)[ \t]+([A-Za-z0-9_]+\.)?(([A-Za-z0-9_]+))([ \t]*(\:[A-Za-z0-9_]+)\=([A-Za-z0-9_]+))*'
       scope: meta.impl.kdl
       captures:
         1: keyword.kdl
         3: keyword.declaration.impl.kdl
-        4: entity.name.type.kdl
-        6: entity.other.attribute-name.kdl
-        7: string.unquoted.kdl
+        4: entity.name.namespace.kdl
+        5: entity.name.type.kdl
+        8: entity.other.attribute-name.kdl
+        9: string.unquoted.kdl
       set:
         - match: '\{'
           scope: punctuation.definition.begin.kdl
@@ -224,11 +265,26 @@ contexts:
             - include: resource-instance
 
   resource-instance:
-    - match: '(new|override)[ \t]*(\([ \t]*((#)([0-9]+|auto))[ \t]*(,[ \t]*("[^"]*")[ \t]*)?\))'
+    - match: '(new|override)[ \t]*(\([ \t]*((#)([0-9]+|auto))[ \t]*(,[ \t]*("[^"]*")[ \t]*)?\))?'
       captures:
         1: keyword.other.kdl
         3: constant.numeric.integer.decimal.kdl
         6: string.quoted.kdl
+      push:
+        - match: '\{'
+          scope: punctuation.definition.begin.kdl
+          set:
+            - match: '\};'
+              scope: punctuation.definition.type.end.kdl
+              pop: true
+            - include: resource-field
+    - match: '(duplicate)[ \t]*(\([ \t]*((#)([0-9]+))[ \t]+(as)[ \t]+((#)([0-9]+))[ \t]*(,[ \t]*("[^"]*")[ \t]*)?\))'
+      captures:
+        1: keyword.other.kdl
+        3: constant.numeric.integer.decimal.kdl
+        6: keyword.other.kdl
+        7: constant.numeric.integer.decimal.kdl
+        11: string.quoted.kdl
       push:
         - match: '\{'
           scope: punctuation.definition.begin.kdl
@@ -252,6 +308,49 @@ contexts:
         - include: string-literal
         - include: percentage-literal
 
+# COMPONENT ####################################################################
+
+  component-declaration:
+    - match: '(component)[ \t]+("[^"]*")'
+      captures:
+          1: keyword.declaration.interface.kdl
+          2: string.quoted.double.kdl
+      push:
+        - match: '\{'
+          scope: punctuation.component.begin.kdl
+          set:
+            - match: '\};'
+              scope: punctuation.component.end.kdl
+              pop: true
+            - match: '(is_scene);'
+              captures:
+                1: keyword.parameter.kdl
+            - match: '(path_prefix|namespace|base_id|as_type)[ \t]*\=[ \t]*'
+              captures:
+                1: variable.parameter.kdl
+              push:
+                - match: ';'
+                  pop: true
+                - include: string-literal
+                - include: number-literal
+                - include: percentage-literal
+                - include: resource-literal
+                - include: percentage-literal
+                - include: expression-literal
+            - match: '(files)'
+              captures:
+                1: keyword.control.import.kdl
+              push:
+                - match: '\{'
+                  scope: punctuation.files.begin.kdl
+                  set:
+                    - match: '\};'
+                      scope: punctuation.files.end.kdl
+                      pop: true
+                    - match: '("[^"]*")[ \t]*\(("[^"]*")\)[ \t]*;'
+                      captures:
+                        1: string.quoted.double.kdl
+                        2: string.quoted.double.kdl
 
 # LITERALS #####################################################################
 
