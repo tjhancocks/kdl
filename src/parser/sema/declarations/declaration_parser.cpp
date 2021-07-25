@@ -64,7 +64,11 @@ auto kdl::sema::declaration_parser::parse() -> std::vector<kdl::build_target::re
         log::fatal_error(m_parser.peek(), 1, "Expected resource type name.");
     }
 
-    auto type = target->type_container_named(type_name);
+    std::map<std::string, std::string> attributes;
+    if (ns.is(lexeme::identifier)) {
+        attributes["namespace"] = ns.text();
+    }
+    auto type = target->type_container_named(type_name, attributes);
 
     std::vector<kdl::build_target::resource_instance> instances;
     m_parser.ensure({ expectation(lexeme::l_brace).be_true() });
@@ -81,14 +85,7 @@ auto kdl::sema::declaration_parser::parse() -> std::vector<kdl::build_target::re
             log::fatal_error(m_parser.peek(), 1, "Unexpected lexeme '" + m_parser.peek().text() + "' encountered.");
         }
 
-        // Assign the namespace to the resource instance if one has been specified.
-        // TODO: Perhaps the resource parser should be aware of attributes?
-        auto instance = parser.parse();
-        if (ns.is(lexeme::identifier)) {
-            instance.set_attribute("namespace", ns.text());
-        }
-
-        instances.emplace_back(instance);
+        instances.emplace_back(parser.parse());
         m_parser.ensure({ expectation(lexeme::semi).be_true() });
     }
     m_parser.ensure({ expectation(lexeme::r_brace).be_true() });

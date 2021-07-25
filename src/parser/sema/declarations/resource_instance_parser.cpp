@@ -32,7 +32,7 @@ kdl::sema::resource_instance_parser::resource_instance_parser(kdl::sema::parser 
                                                               kdl::build_target::type_container &type,
                                                               std::weak_ptr<target> target,
                                                               bool discards)
-    : m_type(type), m_parser(parser), m_target(std::move(target)), m_discards(discards)
+    : m_type(type), m_parser(parser), m_target(std::move(target)), m_discards(discards), m_attributes(type.attributes())
 {
 
 }
@@ -52,6 +52,11 @@ auto kdl::sema::resource_instance_parser::set_id(const int64_t& id) -> void
 auto kdl::sema::resource_instance_parser::set_name(const std::string& name) -> void
 {
     m_name = name;
+}
+
+auto kdl::sema::resource_instance_parser::set_attributes(const std::map<std::string, std::string> &attributes) -> void
+{
+    m_attributes = attributes;
 }
 
 // MARK: - Parser
@@ -133,6 +138,11 @@ auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource
         if (!assertion.evaluate(instance.synthesize_variables())) {
             log::fatal_error(first_lx, 1, "Assertion Failed: " + assertion.failure_text());
         }
+    }
+
+    // Apply attributes to the instance.
+    if (!m_attributes.empty()) {
+        instance.set_attributes(m_attributes);
     }
 
     // Add the resource to the target now.

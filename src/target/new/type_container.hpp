@@ -45,14 +45,20 @@ namespace kdl::build_target {
         type_template m_tmpl;
         std::vector<type_field> m_fields;
         std::vector<assertion> m_assertions;
+        std::map<std::string, std::string> m_attributes;
 
     public:
         explicit type_container(const std::string& code);
         type_container(const lexeme& name, std::string code);
         type_container(std::string name, std::string code);
 
+        static auto empty_clone_of(const type_container& source, const std::map<std::string, std::string>& attributes) -> type_container;
+
         [[nodiscard]] auto name() const -> std::string;
         [[nodiscard]] auto code() const -> std::string;
+
+        auto set_attribute(const std::string& name, const std::string& value) -> void;
+        [[nodiscard]] auto attributes() const -> std::map<std::string, std::string>;
 
         auto internal_template() -> type_template&;
         auto set_internal_template(const type_template& tmpl) -> void;

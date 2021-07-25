@@ -53,6 +53,7 @@ namespace kdl
         graphite::rsrc::file::format m_format { graphite::rsrc::file::format::classic };
         std::optional<graphite::rsrc::file::format> m_required_format{};
         std::vector<build_target::type_container> m_type_containers;
+        std::vector<build_target::type_container> m_attributed_type_containers;
         graphite::rsrc::file m_file;
         std::shared_ptr<kdl::resource_tracking::table> m_resource_tracking_table {};
         std::map<std::string, kdl::lexeme> m_globals {};
@@ -84,7 +85,7 @@ namespace kdl
         auto add_type_container(const build_target::type_container& container) -> void;
         auto type_container_count() const -> std::size_t;
         auto type_container_at(const int& i) const -> build_target::type_container;
-        auto type_container_named(const kdl::lexeme& name) const -> build_target::type_container;
+        auto type_container_named(const kdl::lexeme& name, const std::map<std::string, std::string>& attributes = {}) -> build_target::type_container;
 
         auto add_resource(const build_target::resource_instance& resource) -> void;
 

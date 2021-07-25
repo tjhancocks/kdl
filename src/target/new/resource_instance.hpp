@@ -59,6 +59,7 @@ namespace kdl::build_target {
         [[nodiscard]] auto id() const -> int64_t;
         [[nodiscard]] auto name() const -> std::string;
 
+        auto set_attributes(const std::map<std::string, std::string>& attributes) -> void;
         auto set_attribute(const std::string& name, const std::string& value) -> void;
         [[nodiscard]] auto attributes() const -> std::map<std::string, std::string>;
 
