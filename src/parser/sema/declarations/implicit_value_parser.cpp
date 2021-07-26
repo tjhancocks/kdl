@@ -19,25 +19,43 @@
 // SOFTWARE.
 
 #include <utility>
+#include <stdexcept>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/implicit_value_parser.hpp"
+#include "parser/sema/expression/expression_parser.hpp"
 
 // MARK: - Constructor
 
-kdl::sema::implicit_value_parser::implicit_value_parser(kdl::sema::parser &parser, kdl::build_target::type_field &field,
+kdl::sema::implicit_value_parser::implicit_value_parser(kdl::sema::parser &parser,
+                                                        std::weak_ptr<target> target,
+                                                        kdl::build_target::type_field &field,
                                                         kdl::build_target::type_field_value &field_value,
                                                         kdl::build_target::type_template::binary_field binary_field)
     : m_parser(parser), m_field(field), m_field_value(field_value), m_binary_field(std::move(binary_field))
 {
-
+    if (target.expired()) {
+        throw std::logic_error("Target has expired. This is a bug.");
+    }
+    m_target = target.lock();
 }
 
 // MARK: - Parser
 
 auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_instance &instance) -> void
 {
+    // TODO: This function may need evaluating to make expressions work correctly without hundreds of hacks.
     // Validate the type of the next value
     enum lexeme::type field_type;
+
+    // Check if the value coming up in the lexical stream is an expression. If it is then preemptively parse it
+    // and push the result into the parser.
+    if (m_parser.expect({ expectation(lexeme::l_expr).be_true() })) {
+        expression_parser expr(m_parser, m_target, {
+            std::make_pair("_id", kdl::lexeme(std::to_string(instance.id()), lexeme::res_id)),
+            std::make_pair("_name", kdl::lexeme(instance.name(), lexeme::string))
+        });
+        m_parser.push({ expr.parse() });
+    }
 
     switch (m_binary_field.type & ~0xFFFUL) {
         case build_target::DBYT:
@@ -49,7 +67,7 @@ auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_instanc
         case build_target::HLNG:
         case build_target::HQAD: {
             field_type = lexeme::integer;
-            if (!m_parser.expect_any({ expectation(lexeme::integer).be_true(), expectation(lexeme::identifier).be_true() })) {
+            if (!m_parser.expect_any({ expectation(lexeme::integer).be_true(), expectation(lexeme::identifier).be_true(), expectation(lexeme::var).be_true() })) {
                 auto lx = m_parser.peek();
                 log::fatal_error(lx, 1, "Expected an integer literal or symbol for field '" + m_field.name().text() + "'.");
             }
@@ -60,7 +78,7 @@ auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_instanc
         case build_target::CSTR:
         case build_target::Cnnn: {
             field_type = lexeme::string;
-            if (!m_parser.expect_any({ expectation(lexeme::string).be_true(), expectation(lexeme::identifier).be_true() })) {
+            if (!m_parser.expect_any({ expectation(lexeme::string).be_true(), expectation(lexeme::identifier).be_true(), expectation(lexeme::var).be_true() })) {
                 auto lx = m_parser.peek();
                 log::fatal_error(lx, 1, "Expected an string literal or symbol for field '" + m_field.name().text() + "'.");
             }
@@ -98,6 +116,7 @@ auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_instanc
     }
     else {
         auto value = m_parser.read();
+
         if (value.is(lexeme::identifier)) {
             auto symbol_value = m_field_value.value_for(value);
 

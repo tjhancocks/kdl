@@ -23,18 +23,22 @@
 
 #include "parser/parser.hpp"
 
-namespace kdl::sema {
+namespace kdl::sema
+{
 
     class unnamed_reference_value_parser
     {
     private:
         parser& m_parser;
+        std::shared_ptr<target> m_target;
         build_target::kdl_type& m_explicit_type;
         build_target::type_field& m_field;
         build_target::type_field_value& m_field_value;
         build_target::type_template::binary_field m_binary_field;
     public:
-        unnamed_reference_value_parser(parser& parser, build_target::type_field& field,
+        unnamed_reference_value_parser(parser& parser,
+                                       std::weak_ptr<target> target,
+                                       build_target::type_field& field,
                                        build_target::type_field_value& field_value,
                                        build_target::type_template::binary_field binary_field,
                                        build_target::kdl_type& type);

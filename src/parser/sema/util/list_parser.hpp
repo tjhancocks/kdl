@@ -27,30 +27,32 @@
 #include <string>
 #include "parser/parser.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema
+{
 
     class list_parser
     {
     private:
         parser& m_parser;
+        std::shared_ptr<target> m_target;
         enum lexeme::type m_list_start { lexeme::l_angle };
         enum lexeme::type m_list_end { lexeme::r_angle };
         enum lexeme::type m_delimit { lexeme::comma };
         std::vector<std::tuple<enum lexeme::type, std::optional<std::string>>> m_valid_lexemes;
 
     public:
-        list_parser(parser& parser);
+        explicit list_parser(parser& parser, std::weak_ptr<target> target);
 
         auto set_list_start(enum lexeme::type lx) -> void;
         auto set_list_end(enum lexeme::type lx) -> void;
         auto set_delimiter(enum lexeme::type lx) -> void;
 
         auto add_valid_list_item(enum lexeme::type lx) -> void;
-        auto add_valid_list_item(enum lexeme::type lx, const std::string text) -> void;
+        auto add_valid_list_item(enum lexeme::type lx, const std::string& text) -> void;
 
         auto parse() -> std::vector<lexeme>;
     };
 
-}};
+}
 
 #endif //KDL_LIST_PARSER_HPP

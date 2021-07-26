@@ -54,6 +54,11 @@ auto kdl::sema::resource_instance_parser::set_name(const std::string& name) -> v
     m_name = name;
 }
 
+auto kdl::sema::resource_instance_parser::set_attributes(const std::map<std::string, std::string> &attributes) -> void
+{
+    m_attributes = attributes;
+}
+
 auto kdl::sema::resource_instance_parser::add_attribute(const std::string& name, const std::string& value) -> void
 {
     m_attributes[name] = value;
@@ -115,7 +120,8 @@ auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource
         m_parser.ensure({ expectation(lexeme::r_paren).be_true() });
     }
     else if (m_parser.expect({ expectation(lexeme::l_paren).be_true() })) {
-        list_parser list(m_parser);
+        list_parser list(m_parser, m_target);
+
         list.set_list_start(lexeme::l_paren);
         list.set_list_end(lexeme::r_paren);
         list.set_delimiter(lexeme::comma);

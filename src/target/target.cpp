@@ -75,7 +75,8 @@ auto kdl::target::type_container_at(const int& i) const -> build_target::type_co
 
 auto kdl::target::type_container_named(const kdl::lexeme& name) const -> build_target::type_container
 {
-    for (auto c : m_type_containers) {
+    for (const auto& c : m_type_containers) {
+        // We have found a type container with the specified name.
         if (c.name() == name.text()) {
             return c;
         }
@@ -299,3 +300,24 @@ auto kdl::target::resource_tracker() const -> std::shared_ptr<kdl::resource_trac
     return m_resource_tracking_table;
 }
 
+// MARK: - Global Variables
+
+auto kdl::target::set_global_variable(const std::string& var_name, const kdl::lexeme &value) -> void
+{
+    m_globals.insert(std::make_pair(var_name, value));
+}
+
+auto kdl::target::global_variable(const std::string& var_name) const -> std::optional<kdl::lexeme>
+{
+    for (const auto& var : m_globals) {
+        if (var.first == var_name) {
+            return var.second;
+        }
+    }
+    return {};
+}
+
+auto kdl::target::all_global_variables() const -> std::map<std::string, kdl::lexeme>
+{
+    return m_globals;
+}

@@ -18,13 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <stdexcept>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/util/list_parser.hpp"
 #include "parser/sema/type_definition/name_extension_parser.hpp"
 
-auto kdl::sema::name_extension_parser::parse(kdl::sema::parser &parser) -> std::vector<lexeme>
+auto kdl::sema::name_extension_parser::parse(kdl::sema::parser &parser, std::weak_ptr<target> target) -> std::vector<lexeme>
 {
-    list_parser list(parser);
+    list_parser list(parser, target);
     list.set_list_start(lexeme::l_angle);
     list.set_list_end(lexeme::r_angle);
     list.set_delimiter(lexeme::comma);

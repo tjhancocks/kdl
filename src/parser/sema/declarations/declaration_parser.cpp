@@ -69,8 +69,11 @@ auto kdl::sema::declaration_parser::parse() -> std::vector<kdl::build_target::re
     std::vector<kdl::build_target::resource_instance> instances;
     m_parser.ensure({ expectation(lexeme::l_brace).be_true() });
     while (m_parser.expect({ expectation(lexeme::r_brace).be_false() })) {
-
         kdl::sema::resource_instance_parser parser(m_parser, type, m_target, m_discards);
+        if (ns.is(lexeme::identifier)) {
+            parser.add_attribute("namespace", ns.text());
+        }
+
         if (m_parser.expect({ expectation(lexeme::identifier, "new").be_true() })) {
             parser.set_keyword("new");
         }
@@ -84,13 +87,7 @@ auto kdl::sema::declaration_parser::parse() -> std::vector<kdl::build_target::re
             log::fatal_error(m_parser.peek(), 1, "Unexpected lexeme '" + m_parser.peek().text() + "' encountered.");
         }
 
-        // Assign the namespace to the resource instance if one has been specified.
-        if (ns.is(lexeme::identifier)) {
-            parser.add_attribute("namespace", ns.text());
-        }
-        auto instance = parser.parse();
-
-        instances.emplace_back(instance);
+        instances.emplace_back(parser.parse());
         m_parser.ensure({ expectation(lexeme::semi).be_true() });
     }
     m_parser.ensure({ expectation(lexeme::r_brace).be_true() });

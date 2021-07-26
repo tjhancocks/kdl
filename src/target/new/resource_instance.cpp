@@ -396,6 +396,11 @@ auto kdl::build_target::resource_instance::synthesize_variables() const -> std::
 
 // MARK: - Attributes
 
+auto kdl::build_target::resource_instance::set_attributes(const std::map<std::string, std::string>& attributes) -> void
+{
+    m_attributes = attributes;
+}
+
 auto kdl::build_target::resource_instance::set_attribute(const std::string& name, const std::string& value) -> void
 {
     m_attributes[name] = value;

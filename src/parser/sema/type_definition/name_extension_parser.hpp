@@ -23,14 +23,15 @@
 
 #include "parser/parser.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema
+{
 
     struct name_extension_parser
     {
     public:
-        static auto parse(parser& parser) -> std::vector<lexeme>;
+        static auto parse(parser& parser, std::weak_ptr<target> target) -> std::vector<lexeme>;
     };
 
-}};
+}
 
 #endif //KDL_NAME_EXTENSION_PARSER_HPP

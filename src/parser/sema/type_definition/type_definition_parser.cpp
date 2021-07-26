@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <stdexcept>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/type_definition/type_definition_parser.hpp"
 #include "parser/sema/type_definition/template_parser.hpp"
@@ -26,15 +27,18 @@
 
 // MARK: - Constructor
 
-kdl::sema::type_definition_parser::type_definition_parser(kdl::sema::parser &parser)
+kdl::sema::type_definition_parser::type_definition_parser(kdl::sema::parser &parser, std::weak_ptr<target> target)
     : m_parser(parser)
 {
-
+    if (target.expired()) {
+        throw std::logic_error("Target has expired. This is a bug.");
+    }
+    m_target = target.lock();
 }
 
 // MARK: - Parser
 
-auto kdl::sema::type_definition_parser::parse(const bool directive) -> kdl::build_target::type_container
+auto kdl::sema::type_definition_parser::parse(bool directive) -> kdl::build_target::type_container
 {
     if (directive) {
         m_parser.ensure({ expectation(lexeme::directive, "type").be_true() });
@@ -66,7 +70,7 @@ auto kdl::sema::type_definition_parser::parse(const bool directive) -> kdl::buil
             type.add_assertions(assertion_parser::parse(m_parser));
         }
         else if (m_parser.expect({ expectation(lexeme::identifier, "field").be_true() })) {
-            type.add_field(field_definition_parser(m_parser, type.internal_template()).parse());
+            type.add_field(field_definition_parser(m_parser, m_target, type.internal_template()).parse());
         }
         else {
             log::fatal_error(m_parser.peek(), 1, "Unexpected lexeme found in type definition.");
