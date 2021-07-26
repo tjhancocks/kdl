@@ -31,6 +31,13 @@ kdl::target::target()
 
 }
 
+// MARK: - File
+
+auto kdl::target::file() -> graphite::rsrc::file&
+{
+    return m_file;
+}
+
 // MARK: - Metadata Management
 
 auto kdl::target::set_project_name(const std::string& name) -> void
@@ -66,32 +73,12 @@ auto kdl::target::type_container_at(const int& i) const -> build_target::type_co
     return m_type_containers[i];
 }
 
-auto kdl::target::type_container_named(const kdl::lexeme& name, const std::map<std::string, std::string>& attributes) -> build_target::type_container
+auto kdl::target::type_container_named(const kdl::lexeme& name) const -> build_target::type_container
 {
-    // Search through the list of attributed type containers first to see if we have a matching container.
-    if (!attributes.empty()) {
-        for (const auto& c : m_attributed_type_containers) {
-            if ((c.name() == name.text()) && (c.attributes() == attributes)) {
-                return c;
-            }
-        }
-    }
-
-    // We failed to find an exact match for the attributed container.
     for (const auto& c : m_type_containers) {
         // We have found a type container with the specified name.
         if (c.name() == name.text()) {
-            // If we have attributes then we need to build an empty copy of the container to make use of...
-            if (!attributes.empty()) {
-                auto clone = kdl::build_target::type_container::empty_clone_of(c, attributes);
-                m_attributed_type_containers.emplace_back(clone);
-                return clone;
-            }
-
-            // ... otherwise just use the default "global" container.
-            else {
-                return c;
-            }
+            return c;
         }
     }
     log::fatal_error(name, 1, "Missing definition for type '" + name.text() + "'");

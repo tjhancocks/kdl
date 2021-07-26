@@ -73,6 +73,10 @@ auto kdl::sema::unnamed_reference_value_parser::parse(kdl::build_target::resourc
         });
         ref = expr.parse();
     }
+    else {
+        // Make sure we read the lexeme from the input stream.
+        m_parser.advance();
+    }
 
     // Ensure that the underlying type is correct for a reference.
     switch (m_binary_field.type & ~0xFFFUL) {

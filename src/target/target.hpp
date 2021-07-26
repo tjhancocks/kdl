@@ -67,6 +67,8 @@ namespace kdl
     public:
         target();
 
+        [[nodiscard]] auto file() -> graphite::rsrc::file&;
+
         auto set_project_name(const std::string& name) -> void;
         auto add_author(const std::string& name) -> void;
         auto set_version_string(const std::string& version) -> void;
@@ -85,7 +87,7 @@ namespace kdl
         auto add_type_container(const build_target::type_container& container) -> void;
         auto type_container_count() const -> std::size_t;
         auto type_container_at(const int& i) const -> build_target::type_container;
-        auto type_container_named(const kdl::lexeme& name, const std::map<std::string, std::string>& attributes = {}) -> build_target::type_container;
+        auto type_container_named(const kdl::lexeme& name) const -> build_target::type_container;
 
         auto add_resource(const build_target::resource_instance& resource) -> void;
 

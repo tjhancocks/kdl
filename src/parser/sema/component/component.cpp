@@ -102,9 +102,7 @@ auto kdl::sema::component::set_files(std::vector<file> files) -> void
 auto kdl::sema::component::generate_resources(std::shared_ptr<target> target) const -> void
 {
     // Fetch the type container for the resources...
-    auto container = target->type_container_named(m_as_type, {
-        std::make_pair("namespace", m_name)
-    });
+    auto container = target->type_container_named(m_as_type);
 
     // Iterate through each of the files and produce a resource for it.
     int64_t id = m_base_id;

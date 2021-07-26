@@ -43,16 +43,6 @@ kdl::build_target::type_container::type_container(std::string name, std::string 
 
 }
 
-auto kdl::build_target::type_container::empty_clone_of(const type_container& source, const std::map<std::string, std::string>& attributes) -> kdl::build_target::type_container
-{
-    type_container clone(source.m_name, source.m_code);
-    clone.m_fields = source.m_fields;
-    clone.m_tmpl = source.m_tmpl;
-    clone.m_assertions = source.m_assertions;
-    clone.m_attributes = attributes;
-    return clone;
-}
-
 // MARK: - Accessors
 
 auto kdl::build_target::type_container::name() const -> std::string
@@ -122,16 +112,4 @@ auto kdl::build_target::type_container::assertions() const -> std::vector<assert
 auto kdl::build_target::type_container::add_assertions(const std::vector<assertion>& assertions) -> void
 {
     m_assertions.insert(m_assertions.end(), assertions.begin(), assertions.end());
-}
-
-// MARK: - Attributes
-
-auto kdl::build_target::type_container::set_attribute(const std::string& name, const std::string& value) -> void
-{
-    m_attributes[name] = value;
-}
-
-auto kdl::build_target::type_container::attributes() const -> std::map<std::string, std::string>
-{
-    return m_attributes;
 }

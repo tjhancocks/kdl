@@ -1,0 +1,43 @@
+@type Example : "expl" {
+    template {
+        DWRD Id;
+        CSTR Name;
+        CSTR Color;
+        CSTR Message;
+    };
+
+    field("ID") {
+        Id;
+    };
+
+    field("Name") {
+        Name;
+    };
+
+    field("Color") {
+        Color;
+    };
+
+    field("Message") {
+        Message;
+    };
+};
+
+declare Example {
+    new (#128, "Original") {
+        ID = 0;
+        Name = "Named Entity";
+        Color = "Red";
+        Message = "Hello, World";
+    };
+
+    duplicate(#128 as #500, "Duplicated") {
+        ID = 1;
+        ` Values for Name, Color Message should be inherited
+    };
+
+    duplicate(#128 as #501, "Duplicated #2") {
+        ID = 2;
+        Color = "Green";
+    };
+};

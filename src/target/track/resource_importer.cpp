@@ -33,10 +33,16 @@ kdl::resource_tracking::importer::importer(std::string code, const int64_t &id)
 
 // MARK: - Importer
 
-auto kdl::resource_tracking::importer::populate(kdl::build_target::resource_instance &instance) -> bool
+auto kdl::resource_tracking::importer::populate(kdl::build_target::resource_instance &instance, graphite::rsrc::file& file) -> bool
 {
-    // Find and load the resource.
-    if (auto res = graphite::rsrc::manager::shared_manager().find(m_code, m_id).lock()) {
+    // Find and load the resource. Try to load it from the target file first, and then fallback on the imported
+    // resource files.
+    auto res = file.find(m_code, m_id, {}).lock();
+    if (!res) {
+        res = graphite::rsrc::manager::shared_manager().find(m_code, m_id).lock();
+    }
+
+    if (res) {
         // We need the type template of the resource in order to parse out the binary data into the instance.
         auto tmpl = instance.get_type_template();
         graphite::data::reader reader(res->data());

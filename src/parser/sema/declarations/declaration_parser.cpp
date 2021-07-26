@@ -64,22 +64,24 @@ auto kdl::sema::declaration_parser::parse() -> std::vector<kdl::build_target::re
         log::fatal_error(m_parser.peek(), 1, "Expected resource type name.");
     }
 
-    std::map<std::string, std::string> attributes;
-    if (ns.is(lexeme::identifier)) {
-        attributes["namespace"] = ns.text();
-    }
-    auto type = target->type_container_named(type_name, attributes);
+    auto type = target->type_container_named(type_name);
 
     std::vector<kdl::build_target::resource_instance> instances;
     m_parser.ensure({ expectation(lexeme::l_brace).be_true() });
     while (m_parser.expect({ expectation(lexeme::r_brace).be_false() })) {
-
         kdl::sema::resource_instance_parser parser(m_parser, type, m_target, m_discards);
+        if (ns.is(lexeme::identifier)) {
+            parser.add_attribute("namespace", ns.text());
+        }
+
         if (m_parser.expect({ expectation(lexeme::identifier, "new").be_true() })) {
             parser.set_keyword("new");
         }
         else if (m_parser.expect({ expectation(lexeme::identifier, "override").be_true() })) {
             parser.set_keyword("override");
+        }
+        else if (m_parser.expect({ expectation(lexeme::identifier, "duplicate").be_true() })) {
+            parser.set_keyword("duplicate");
         }
         else {
             log::fatal_error(m_parser.peek(), 1, "Unexpected lexeme '" + m_parser.peek().text() + "' encountered.");
