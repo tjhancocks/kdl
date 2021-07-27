@@ -34,7 +34,7 @@ kdl::media::image::png::png(const std::string path)
 
 kdl::media::image::png::png(std::shared_ptr<std::vector<char>> data)
 {
-    auto ptr = std::make_shared<graphite::data::data>(data, data->size(), 0, graphite::data::data::lsb);
+    auto ptr = std::make_shared<graphite::data::data>(data, data->size(), 0, graphite::data::lsb);
     graphite::data::reader reader(ptr, 0);
     decode(reader);
 }

@@ -34,7 +34,7 @@ kdl::media::sound::wav::wav(const std::string path)
 kdl::media::sound::wav::wav(std::shared_ptr<std::vector<char>> data)
     : m_sample_rate(1), m_sample_bits(8)
 {
-    auto ptr = std::make_shared<graphite::data::data>(data, data->size(), 0, graphite::data::data::lsb);
+    auto ptr = std::make_shared<graphite::data::data>(data, data->size(), 0, graphite::data::lsb);
     graphite::data::reader reader(ptr, 0);
     decode(reader);
 }
@@ -137,7 +137,7 @@ auto kdl::media::sound::wav::decode(graphite::data::reader &reader) -> bool
 
 auto kdl::media::sound::wav::encode(graphite::data::writer &writer) -> void
 {
-    writer.data()->set_byte_order(graphite::data::data::byte_order::lsb);
+    writer.data()->set_byte_order(graphite::data::lsb);
 
     auto num_channels = m_sample_data.size();
     if (!num_channels) {

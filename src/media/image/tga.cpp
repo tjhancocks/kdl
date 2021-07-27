@@ -27,7 +27,7 @@ kdl::media::image::tga::tga(const std::string path)
 {
     // TARGA images are stored in little endian, so set the byte order accordingly
     graphite::data::reader reader(path);
-    reader.get()->set_byte_order(graphite::data::data::lsb);
+    reader.get()->set_byte_order(graphite::data::lsb);
 
     // TODO: Possibly handle any errors that occur?
     decode(reader);
@@ -35,7 +35,7 @@ kdl::media::image::tga::tga(const std::string path)
 
 kdl::media::image::tga::tga(std::shared_ptr<std::vector<char>> data)
 {
-    auto ptr = std::make_shared<graphite::data::data>(data, data->size(), 0, graphite::data::data::lsb);
+    auto ptr = std::make_shared<graphite::data::data>(data, data->size(), 0, graphite::data::lsb);
     graphite::data::reader reader(ptr, 0);
     decode(reader);
 }
@@ -249,7 +249,7 @@ auto kdl::media::image::tga::surface() -> std::weak_ptr<graphite::qd::surface>
 
 auto kdl::media::image::tga::data() -> std::vector<char>
 {
-    auto data = std::make_shared<graphite::data::data>(graphite::data::data::byte_order::lsb);
+    auto data = std::make_shared<graphite::data::data>(graphite::data::lsb);
     graphite::data::writer writer(data);
     encode(writer);
     return *data->get();
