@@ -114,6 +114,7 @@ auto kdl::sema::component::generate_resources(std::shared_ptr<target> target) co
                                             container.code(),
                                             file.name.has_value() ? file.name.value() : "",
                                             contents);
+        id++;
 
         // Set up the attributes of the resource.
         res.set_attribute("namespace", m_namespace);
