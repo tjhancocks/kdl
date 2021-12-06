@@ -20,6 +20,7 @@
 
 #include <utility>
 #include <iterator>
+#include <iostream>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/named_types/file_type_parser.hpp"
 #include "media/conversion.hpp"
@@ -79,7 +80,7 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
             auto path = target->resolve_src_path(string_lx.text());
             auto paths = file::glob(path);
 
-            for (auto p : *paths) {
+            for (const auto& p : *paths) {
                 content_value = kdl::file(p).vector();
                 file_lx.emplace_back(lexeme(p, lexeme::string));
                 file_contents.emplace_back(content_value);

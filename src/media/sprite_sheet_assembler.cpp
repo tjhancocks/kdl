@@ -86,55 +86,79 @@ auto kdl::media::sprite_sheet_assembler::assemble() const -> std::vector<char>
     std::vector<graphite::qd::rect> sprite_sheet_rects;
     int16_t y = 0;
 
-    for (auto sprite : sprites) {
+    int16_t left_edge = INT16_MAX;
+    int16_t right_edge = 0;
+    int16_t top_edge = INT16_MAX;
+    int16_t bottom_edge = 0;
 
-        // Calculate the bounding box of the sprite
-        graphite::qd::rect edges(0, 0, sprite->size().width(), sprite->size().height());
+    for (const auto& sprite : sprites) {
+        auto w = sprite->size().width();
+        auto h = sprite->size().height();
+        auto hw = static_cast<int16_t>(w >> 1);
+        auto hh = static_cast<int16_t>(h >> 1);
 
-        // left/right edge
-        auto x_inset = 0;
-        for (auto x = 0; x < edges.width() / 2; ++x) {
-            for (auto y = 0; y < edges.height(); ++y) {
-                if (sprite->at(x, y).alpha_component() != 0) {
-                    x_inset = x;
-                    goto X_EDGE_FOUND;
-                }
-                if (sprite->at(edges.width() - 1 - x, y).alpha_component() != 0) {
-                    x_inset = x;
-                    goto X_EDGE_FOUND;
-                }
-            }
-        }
-        X_EDGE_FOUND:
-        edges.set_x(x_inset);
-        edges.set_width(edges.width() - (x_inset * 2));
-
-        // top/bottom edge
-        auto y_inset = 0;
-        for (auto y = 0; y < edges.height() / 2; ++y) {
-            for (auto x = 0; x < edges.width(); ++x) {
-                if (sprite->at(x, y).alpha_component() != 0) {
-                    y_inset = y;
-                    goto Y_EDGE_FOUND;
-                }
-                if (sprite->at(x, edges.height() - 1 - y).alpha_component() != 0) {
-                    y_inset = y;
-                    goto Y_EDGE_FOUND;
+        for (int16_t y = 0; y < hh; ++y) {
+            for (int16_t x = 0; x < hw; ++x) {
+                const auto& c1 = sprite->at(x, y);
+                const auto& c2 = sprite->at(hw + x, y);
+                if (c1.alpha_component() != 0 || c2.alpha_component() != 0) {
+                    top_edge = std::min(y, top_edge);
+                    goto TOP_FOUND;
                 }
             }
         }
-        Y_EDGE_FOUND:
-        edges.set_y(y_inset);
-        edges.set_height(edges.height() - (y_inset * 2));
+        TOP_FOUND:
 
+        for (int16_t y = h - 1; y >= hh; --y) {
+            for (int16_t x = 0; x < hw; ++x) {
+                const auto& c1 = sprite->at(x, y);
+                const auto& c2 = sprite->at(hw + x, y);
+                if (c1.alpha_component() != 0 || c2.alpha_component() != 0) {
+                    bottom_edge = std::max(y, bottom_edge);
+                    goto BOTTOM_FOUND;
+                }
+            }
+        }
+        BOTTOM_FOUND:
+
+        for (int16_t x = 0; x < hw; ++x) {
+            for (int16_t y = 0; y < hh; ++y) {
+                const auto& c1 = sprite->at(x, y);
+                const auto& c2 = sprite->at(x, hh + y);
+                if (c1.alpha_component() != 0 || c2.alpha_component() != 0) {
+                    left_edge = std::min(x, left_edge);
+                    goto LEFT_FOUND;
+                }
+            }
+        }
+        LEFT_FOUND:
+
+        for (int16_t x = w - 1; x >= hw; --x) {
+            for (int16_t y = 0; y < hh; ++y) {
+                const auto& c1 = sprite->at(x, y);
+                const auto& c2 = sprite->at(x, hh + y);
+                if (c1.alpha_component() != 0 || c2.alpha_component() != 0) {
+                    right_edge = std::max(x, right_edge);
+                    goto RIGHT_FOUND;
+                }
+            }
+        }
+        RIGHT_FOUND:
+        continue;
+
+    }
+
+    graphite::qd::rect edges(left_edge, top_edge, right_edge - left_edge, bottom_edge - top_edge);
+
+    for (const auto& sprite : sprites) {
         sprite_rects.emplace_back(edges);
 
         if (sprite_sheet_rects.empty()) {
             sprite_sheet_rects.emplace_back(graphite::qd::rect(0, 0, edges.width(), edges.height()));
         }
         else {
-            auto x = sprite_sheet_rects.back().x() + sprite_sheet_rects.back().width();
-            auto rx = x + edges.width();
+            int16_t x = sprite_sheet_rects.back().x() + sprite_sheet_rects.back().width();
+            int16_t rx = x + edges.width();
 
             if (rx > sprites.front()->size().width() * (sprites.size() / 10)) {
                 x = 0;
@@ -156,13 +180,13 @@ auto kdl::media::sprite_sheet_assembler::assemble() const -> std::vector<char>
         auto sprite_frame = sprite_rects[sprite_index];
         auto sheet_frame = sprite_sheet_rects[sprite_index];
 
-        auto sprite_x = sheet_frame.x();
-        auto sprite_y = sheet_frame.y();
+        int16_t sprite_x = sheet_frame.x();
+        int16_t sprite_y = sheet_frame.y();
         auto sprite = sprites[sprite_index];
 
-        for (auto y = 0; y < sprite_frame.height(); ++y) {
-            for (auto x = 0; x < sprite_frame.width(); ++x) {
-                sheet->set(sprite_x + x, sprite_y + y, sprite->at(x + sprite_frame.x(), y + sprite_frame.y()));
+        for (int16_t yy = 0; yy < sprite_frame.height(); ++yy) {
+            for (int16_t x = 0; x < sprite_frame.width(); ++x) {
+                sheet->set(sprite_x + x, sprite_y + yy, sprite->at(x + sprite_frame.x(), yy + sprite_frame.y()));
             }
         }
     }

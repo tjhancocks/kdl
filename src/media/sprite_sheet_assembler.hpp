@@ -24,7 +24,8 @@
 #include <vector>
 #include "parser/lexeme.hpp"
 
-namespace kdl { namespace media {
+namespace kdl::media
+{
 
     class sprite_sheet_assembler
     {
@@ -38,6 +39,6 @@ namespace kdl { namespace media {
         auto assemble() const -> std::vector<char>;
     };
 
-}}
+}
 
 #endif //KDL_SPRITE_SHEET_ASSEMBLER_HPP
