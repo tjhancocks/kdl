@@ -150,13 +150,7 @@ auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource
         m_id = target->resource_tracker()->next_available_id(m_type.code());
     }
 
-    // Acquire a new instance of the resource and populate it with default values.
     auto instance = m_type.new_instance(m_id, m_name);
-    for (const auto& field : m_type.all_fields()) {
-        field_parser(m_parser, m_type, instance, m_target).apply_defaults_for_field(field.name());
-    }
-    m_parser.clear_pushed_lexemes();
-    instance.reset_acquisition_locks();
 
     // Is this resource one that is overriding another? If it is then we need to pre-populate the resource with the data
     // of the original (if it exists.)
@@ -174,6 +168,14 @@ auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource
             log::fatal_error(first_lx, 1, "Unable to "+ m_keyword + " resource '" + m_type.code() + "' #" + std::to_string(source_id));
         }
     }
+    else {
+        // Acquire a new instance of the resource and populate it with default values.
+        for (const auto& field : m_type.all_fields()) {
+            field_parser(m_parser, m_type, instance, m_target).apply_defaults_for_field(field.name());
+        }
+        m_parser.clear_pushed_lexemes();
+    }
+    instance.reset_acquisition_locks();
 
     m_parser.ensure({ expectation(lexeme::l_brace).be_true() });
     while (m_parser.expect({ expectation(lexeme::r_brace).be_false() })) {

@@ -115,6 +115,12 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
 
             return std::vector<char>(png_data->get()->begin(), png_data->get()->end());
         }
+        else if (m_output_file_format.is("TGA")) {
+            image::tga tga(surface);
+            auto tga_data = tga.data();
+
+            return std::vector<char>(tga_data.begin(), tga_data.end());
+        }
         else if (m_output_file_format.is("ppat")) {
             graphite::qd::ppat ppat(surface);
             auto ppat_data = ppat.data();
