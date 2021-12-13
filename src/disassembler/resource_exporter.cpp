@@ -76,7 +76,7 @@ auto kdl::disassembler::resource_exporter::extract_kdl_field(const build_target:
 
         // Check if the template field has been visited already. If it has check if this value has a higher
         // priority than the previous. If it does then replace the previous visitation with this one.
-        auto priority = std::numeric_limits<int>::max(); // Default the "higest value"/"lowest priority".
+        auto priority = static_cast<int>(INT_MAX); // Default the "higest value"/"lowest priority".
         auto is_file = false;
         if (expected_value.explicit_type().has_value() && expected_value.explicit_type()->name()->is("File")) {
             // The type hints here denote a file format. If no type hints exist, then use the default priority above.
