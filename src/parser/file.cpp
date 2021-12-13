@@ -14,8 +14,8 @@
 #include "parser/file.hpp"
 
 
-#if (_WIN32 || _WIN64) && (_MSC_VER)
-    // Windows Specific]
+#if (_WIN32 || _WIN64)
+    // Windows Specific
 #   include <windows.h>
 #else
     // Linux / macOS Specific
@@ -39,7 +39,7 @@ auto kdl::file::exists(std::string_view path) -> bool
 
 auto kdl::file::is_directory(std::string_view path) -> bool
 {
-#if (_WIN32 || _WIN64) && (_MSC_VER)
+#if (_WIN32 || _WIN64)
     auto result = GetFileAttributesA(std::string(path).c_str());
     return (result & FILE_ATTRIBUTE_DIRECTORY);
 return false;
@@ -51,7 +51,7 @@ return false;
 
 auto kdl::file::create_directory(std::string_view path) -> void
 {
-#if (_WIN32 || _WIN64) && (_MSC_VER)
+#if (_WIN32 || _WIN64)
     CreateDirectory(std::string(path).c_str(), NULL);
 #else
     mkdir(std::string(path).c_str(), 0700);
@@ -100,7 +100,7 @@ auto kdl::file::create_intermediate(std::string_view path, bool omit_last) -> bo
     return true;
 }
 
-#if (_WIN32 || _WIN64) && (_MSC_VER)
+#if (_WIN32 || _WIN64)
 auto kdl::file::resolve_tilde(std::string_view path) -> std::string
 {
     return std::string(path);

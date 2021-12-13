@@ -57,13 +57,8 @@ auto kdl::assertion::evaluate(std::map<std::string, lexeme> variables) const -> 
         case kdl::lexeme::integer:
         case kdl::lexeme::res_id:
         case kdl::lexeme::percentage: {
-#if (_WIN64 || _WIN32) && (_MSC_VER)
-            auto v1 = lhs.value<int64_t>();
-            auto v2 = rhs.value<int64_t>();
-#else
             auto v1 = lhs.value<__int128>();
             auto v2 = rhs.value<__int128>();
-#endif
 
             switch (m_operation) {
                 case lt:    return v1 < v2;
