@@ -64,7 +64,7 @@ auto kdl::disassembler::task::format_priority(const lexeme& format) const -> int
     }
 
     // ... the format is not in the users preference, so lowest priority.
-    return std::numeric_limits<int>::max();
+    return static_cast<int>(INT_MAX);
 }
 
 auto kdl::disassembler::task::appropriate_conversion_format(const kdl::lexeme &input, int priority) const -> std::optional<kdl::lexeme>
