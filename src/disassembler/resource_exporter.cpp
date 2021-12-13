@@ -21,6 +21,7 @@
 #include <map>
 #include <algorithm>
 #include <stdexcept>
+#include <limits.h>
 #include "disassembler/binary_parser.hpp"
 #include "disassembler/resource_exporter.hpp"
 #include "libGraphite/data/reader.hpp"
