@@ -25,6 +25,10 @@ set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(CMAKE_CXX_STANDARD 17)
 
+if (APPLE)
+	set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+endif()
+
 # libGraphite - Dependancy
 include_directories("${PROJECT_SOURCE_DIR}/Submodules/Graphite")
 file(GLOB_RECURSE graphite_sources
