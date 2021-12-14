@@ -1,0 +1,37 @@
+@type PrimaryType : "prme" {
+    template {
+        DWRD Value;
+        CSTR Name;
+    };
+
+    associated("Subtype") {
+        type = SecondaryType;
+        id = $(_id - 128);
+    };
+
+    field("Version") {
+        Value;
+        Subtype.Value;
+    };
+
+    field("Name") {
+        Name;
+    };
+};
+
+@type SecondaryType : "scnd" {
+    template {
+        DWRD Value;
+    };
+
+    field("Value") {
+        Value;
+    };
+};
+
+declare PrimaryType {
+    new (#auto, "Primary Example") {
+        Version = 1 0;
+        Name = "Initial Version";
+    };
+};
