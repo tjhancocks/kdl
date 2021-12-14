@@ -20,45 +20,52 @@
 
 cmake_minimum_required(VERSION 3.0)
 
+########################################################################################################################
+## Project Configuration
 project(KDL)
-set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+
+set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+
+set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
-if (APPLE)
-	set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+set(CMAKE_BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
+set(CMAKE_BINARY_DIR ${CMAKE_BUILD_DIR})
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+set(PROJECT_SUBMODULE_DIR ${PROJECT_SOURCE_DIR}/Submodules)
+
+########################################################################################################################
+## Graphite
+if (NOT TARGET Graphite)
+	add_subdirectory(${PROJECT_SUBMODULE_DIR}/Graphite)
 endif()
 
-# libGraphite - Dependancy
-include_directories("${PROJECT_SOURCE_DIR}/Submodules/Graphite")
-file(GLOB_RECURSE graphite_sources
-	Submodules/Graphite/libGraphite/*.cpp
-)
-add_library(Graphite ${graphite_sources})
-
-# kdl - Main Executable
-include_directories(
-	"${PROJECT_SOURCE_DIR}/src"
-	"${CMAKE_BINARY_DIR}"
-)
-
+########################################################################################################################
+## KDL - Main Executable
 file(GLOB_RECURSE kdl_sources
 	src/*.cpp
 ) 
 add_executable(kdl ${kdl_sources})
-
-find_package(Git)
-add_custom_target(version
-		${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/src/kdl_version.hpp.in
-						 -D DST=${CMAKE_BINARY_DIR}/kdl_version.hpp
-						 -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
-						 -P ${CMAKE_SOURCE_DIR}/Support/CMake/GenerateVersionHeader.cmake
+target_include_directories(kdl PUBLIC
+	"${PROJECT_SOURCE_DIR}/src"
+	"${PROJECT_SUBMODULE_DIR}/Graphite"
+	"${CMAKE_BUILD_DIR}"
 )
-add_dependencies(kdl version)
-
 target_link_libraries(kdl Graphite)
 
-# kdl - Tests
+########################################################################################################################
+## KDL - Version
+find_package(Git)
+add_custom_target(generate-kdl-version
+		${CMAKE_COMMAND} -D SRC=${PROJECT_SOURCE_DIR}/src/kdl_version.hpp.in
+						 -D DST=${CMAKE_BUILD_DIR}/kdl_version.hpp
+						 -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
+						 -P ${PROJECT_SOURCE_DIR}/Support/CMake/GenerateVersionHeader.cmake
+)
+add_dependencies(kdl generate-kdl-version)
+
+########################################################################################################################
+## KDL - Test Suite
 enable_testing()
 file(GLOB_RECURSE kdl_examples
 	Support/Examples/*.kdl
@@ -68,7 +75,7 @@ foreach(example ${kdl_examples})
     string(REGEX REPLACE ".kdl$" "" test_name "${test_name}")
     add_test(
     	NAME ${test_name}
-    	COMMAND "${EXECUTABLE_OUTPUT_PATH}/kdl" "${example}"
+    	COMMAND "${CMAKE_BINARY_DIR}/kdl" "${example}"
     	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     )
 endforeach(example)
