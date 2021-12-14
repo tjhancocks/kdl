@@ -54,10 +54,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Fetch Submodules
-        run: |
-          git submodule init
-          git submodule update
       - name: Setup MinGW/MSYS2
         uses: msys2/setup-msys2@v2
         with:
@@ -68,6 +64,10 @@ jobs:
           pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-clang
           pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-cmake
           pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-ninja
+      - name: Fetch Submodules
+        run: |
+          git submodule init
+          git submodule update
       - name: Build
         env:
           CC: ${{ matrix.env.CC }}
