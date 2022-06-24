@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_LEXER_HPP)
-#define KDL_LEXER_HPP
+#pragma once
 
 #include <memory>
 #include <string>
@@ -38,6 +37,19 @@ namespace kdl
      */
     class lexer
     {
+    public:
+        /**
+         * Construct a new lexer with the specified source file.
+         * @param source The source file
+         */
+        lexer(std::shared_ptr<file> source);
+
+        /**
+         * Perform lexical analysis on the source file.
+         * @return A vector of lexemes that were the result of lexical analysis.
+         */
+        auto analyze() -> std::vector<lexeme>;
+
     private:
         std::shared_ptr<file> m_source;
         std::size_t m_line { 1 };
@@ -52,19 +64,19 @@ namespace kdl
          * Generates a dummy lexeme based on the current lexer position. This is used for
          * diagnostics and reporting errors.
          */
-        auto dummy(const long offset = 0) const -> lexeme;
+        [[nodiscard]] auto dummy(long offset = 0) const -> lexeme;
 
         /**
          * Reports the length of the source file.
          * @return The number of characters in the source file.
          */
-        auto length() const -> std::size_t;
+        [[nodiscard]] auto length() const -> std::size_t;
 
         /**
          * Advance the position of the lexer by the specified offset.
          * @param offset The number of characters to advance by.
          */
-        auto advance(const long offset = 1) -> void;
+        auto advance(long offset = 1) -> void;
 
         /**
          * Test if there are any more characters in the source to parse.
@@ -72,7 +84,7 @@ namespace kdl
          * @param length The number of characters required.
          * @return true if there are enough remaining characters to meet the requirement.
          */
-        auto available(const long offset = 0, std::size_t length = 1) const -> bool;
+        [[nodiscard]] auto available(long offset = 0, std::size_t length = 1) const -> bool;
 
         /**
          * Peek a string from the source without advancing the current position.
@@ -80,7 +92,7 @@ namespace kdl
          * @param length The number of characters required.
          * @return A string.
          */
-        auto peek(const long offset = 0, const std::size_t length = 1) const -> std::string;
+        [[nodiscard]] auto peek(long offset = 0, std::size_t length = 1) const -> std::string;
 
         /**
          * Read a string from the source advancing the current position, to the end of the read string.
@@ -88,7 +100,7 @@ namespace kdl
          * @param length The number of characters required.
          * @return A string.
          */
-        auto read(const long offset = 0, const std::size_t length = 1) -> std::string;
+        auto read(long offset = 0, std::size_t length = 1) -> std::string;
 
         /**
          * Test if the specified string from the source, is validated by the provided test function.
@@ -97,73 +109,58 @@ namespace kdl
          * @param length The number of characters required.
          * @return true if the string was validated.
          */
-        auto test_if(std::function<auto(const std::string) -> bool> fn, const long offset = 0, const std::size_t length = 1) const -> bool;
+        auto test_if(const std::function<auto(const std::string&) -> bool>& fn, long offset = 0, std::size_t length = 1) const -> bool;
 
         /**
          * Consume characters from the source, whilst those characters are validated by the test function.
          * @param fn Test function to validate each character.
          * @return true if any characters were matched.
          */
-        auto consume_while(std::function<auto(const std::string) -> bool> fn, const std::size_t size = 1) -> bool;
-
-    public:
-        /**
-         * Construct a new lexer with the specified source file.
-         * @param source The source file
-         */
-        lexer(std::shared_ptr<file> source);
-
-        /**
-         * Perform lexical analysis on the source file.
-         * @return A vector of lexemes that were the result of lexical analysis.
-         */
-        auto analyze() -> std::vector<lexeme>;
+        auto consume_while(const std::function<auto(const std::string&) -> bool>& fn, std::size_t size = 1) -> bool;
     };
 
     template<char c>
     struct match
     {
-        static auto yes(const std::string) -> bool;
-        static auto no(const std::string) -> bool;
+        static auto yes(const std::string&) -> bool;
+        static auto no(const std::string&) -> bool;
     };
 
     template<char tc,char...ttC>
     struct sequence
     {
-        static auto yes(const std::string) -> bool;
-        static auto no(const std::string) -> bool;
+        static auto yes(const std::string&) -> bool;
+        static auto no(const std::string&) -> bool;
     };
 
     template<char lC, char uC>
     struct range
     {
-        static auto contains(const std::string) -> bool;
-        static auto not_contains(const std::string) -> bool;
+        static auto contains(const std::string&) -> bool;
+        static auto not_contains(const std::string&) -> bool;
     };
 
     template<char tC, char... ttC>
     struct set
     {
-        static auto contains(const std::string) -> bool;
-        static auto not_contains(const std::string) -> bool;
+        static auto contains(const std::string&) -> bool;
+        static auto not_contains(const std::string&) -> bool;
     };
 
     struct identifier_set
     {
-        static auto limited_contains(const std::string) -> bool;
-        static auto contains(const std::string) -> bool;
+        static auto limited_contains(const std::string&) -> bool;
+        static auto contains(const std::string&) -> bool;
     };
 
     struct decimal_set
     {
-        static auto contains(const std::string) -> bool;
+        static auto contains(const std::string&) -> bool;
     };
 
     struct hexadecimal_set
     {
-        static auto contains(const std::string) -> bool;
+        static auto contains(const std::string&) -> bool;
     };
 
 };
-
-#endif //KDL_LEXER_HPP

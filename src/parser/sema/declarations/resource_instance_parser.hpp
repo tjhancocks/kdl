@@ -18,25 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_RESOURCE_INSTANCE_PARSER_HPP)
-#define KDL_RESOURCE_INSTANCE_PARSER_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 
-namespace kdl::sema {
+namespace kdl::sema
+{
 
     class resource_instance_parser
     {
-    private:
-        parser& m_parser;
-        int64_t m_id { INT64_MIN };
-        std::optional<std::string> m_name;
-        build_target::type_container& m_type;
-        std::string m_keyword { "new" };
-        std::weak_ptr<target> m_target;
-        std::map<std::string, std::string> m_attributes {};
-        bool m_discards { false };
-
     public:
         resource_instance_parser(parser& parser, build_target::type_container& type, std::weak_ptr<target> target, bool discards = false);
 
@@ -47,8 +37,17 @@ namespace kdl::sema {
         auto add_attribute(const std::string& name, const std::string& value) -> void;
 
         auto parse() -> build_target::resource_instance;
+
+    private:
+        parser& m_parser;
+        int64_t m_id { INT64_MIN };
+        std::optional<std::string> m_name;
+        build_target::type_container& m_type;
+        std::string m_keyword { "new" };
+        std::weak_ptr<target> m_target;
+        std::map<std::string, std::string> m_attributes {};
+        bool m_discards { false };
+
     };
 
 }
-
-#endif //KDL_RESOURCE_INSTANCE_PARSER_HPP

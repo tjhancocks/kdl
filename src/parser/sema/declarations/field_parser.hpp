@@ -18,29 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_FIELD_DEFINITION_PARSER_HPP)
-#define KDL_FIELD_DEFINITION_PARSER_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 #include "target/new/resource_instance.hpp"
 
-namespace kdl::sema {
+namespace kdl::sema
+{
 
     class field_parser
     {
-    private:
-        parser& m_parser;
-        build_target::type_container& m_type;
-        build_target::resource_instance& m_instance;
-        std::weak_ptr<target> m_target;
-
     public:
         field_parser(parser& parser, build_target::type_container& type, build_target::resource_instance& instance, std::weak_ptr<target> target);
 
         auto parse() -> void;
         auto apply_defaults_for_field(const lexeme& field_name) -> void;
+
+    private:
+        parser& m_parser;
+        build_target::type_container& m_type;
+        build_target::resource_instance& m_instance;
+        std::weak_ptr<target> m_target;
     };
 
 }
-
-#endif //KDL_FIELD_PARSER_HPP

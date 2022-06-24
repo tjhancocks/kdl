@@ -18,14 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_PNG_HPP)
-#define KDL_PNG_HPP
+#pragma once
 
 #include <vector>
-#include "libGraphite/quickdraw/internal/surface.hpp"
-#include "libGraphite/data/data.hpp"
+#include <libGraphite/data/data.hpp>
+#include <libGraphite/quickdraw/support/surface.hpp>
 
-namespace kdl { namespace media { namespace image {
+namespace kdl::media::image
+{
 
     /**
      * The `kdl::media::image::png` class allows reading/writing and working with PNG
@@ -33,21 +33,21 @@ namespace kdl { namespace media { namespace image {
      */
     class png
     {
+    public:
+        explicit png(const std::string& path);
+        explicit png(const graphite::data::block& data);
+        explicit png(graphite::quickdraw::surface& surface);
+
+        [[nodiscard]] auto surface() const -> const graphite::quickdraw::surface&;
+        [[nodiscard]] auto data() const -> graphite::data::block;
+
     private:
-        std::shared_ptr<graphite::qd::surface> m_surface;
+        std::string m_path;
+        graphite::quickdraw::surface m_surface;
 
         auto decode(graphite::data::reader& reader) -> bool;
-        auto encode(graphite::data::writer& writer) -> void;
+        auto encode(graphite::data::writer& writer) const -> void;
 
-    public:
-        png(const std::string path);
-        png(std::shared_ptr<std::vector<char>> data);
-        png(std::shared_ptr<graphite::qd::surface> surface);
-
-        auto surface() -> std::weak_ptr<graphite::qd::surface>;
-        auto data() -> std::shared_ptr<graphite::data::data>;
     };
 
-}}};
-
-#endif //KDL_PNG_HPP
+}

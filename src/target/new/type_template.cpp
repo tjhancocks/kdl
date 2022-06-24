@@ -71,9 +71,8 @@ auto kdl::build_target::type_template::binary_field_index(const kdl::lexeme& lx)
 
 // MARK: - Binary Field Construction
 
-kdl::build_target::type_template::binary_field::binary_field(kdl::lexeme label,
-                                                             const kdl::build_target::binary_type& type)
-    : label(std::move(label)), type(type)
+kdl::build_target::type_template::binary_field::binary_field(const kdl::lexeme& label, const kdl::build_target::binary_type& type)
+    : label(label), type(type)
 {
 
 }

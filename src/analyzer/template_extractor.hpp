@@ -18,26 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TEMPLATE_EXTRACTOR_HPP)
-#define KDL_TEMPLATE_EXTRACTOR_HPP
+#pragma once
 
 #include <string>
 #include <memory>
-#include "libGraphite/rsrc/file.hpp"
+#include <libGraphite/rsrc/file.hpp>
 
-namespace kdl { namespace analyzer {
+namespace kdl::analyzer
+{
 
     class template_extractor
     {
+    public:
+        template_extractor(const std::string& in, const std::string& out);
+
+        auto build_type_definitions() -> void;
+
     private:
         graphite::rsrc::file m_in;
         std::string m_out_dir;
-    public:
-        template_extractor(const std::string in, const std::string out);
-
-        auto build_type_definitions() -> void;
     };
 
-}};
-
-#endif //KDL_TEMPLATE_EXTRACTOR_HPP
+}

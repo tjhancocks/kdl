@@ -18,12 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_CONFIGURATION_DIRECTIVE_PARSER_HPP)
-#define KDL_CONFIGURATION_DIRECTIVE_PARSER_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema
+{
 
     class configuration_directive_parser
     {
@@ -31,6 +31,4 @@ namespace kdl { namespace sema {
         static auto parse(parser& parser, std::weak_ptr<target> target) -> void;
     };
 
-}};
-
-#endif //KDL_CONFIGURATION_DIRECTIVE_PARSER_HPP
+}

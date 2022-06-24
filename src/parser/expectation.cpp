@@ -29,13 +29,13 @@ kdl::sema::expectation::expectation(enum lexeme::type Ty)
 
 }
 
-kdl::sema::expectation::expectation(const std::string Tx)
+kdl::sema::expectation::expectation(const std::string& Tx)
     : m_Ty(lexeme::any), m_Tx(Tx)
 {
 
 }
 
-kdl::sema::expectation::expectation(enum kdl::lexeme::type Ty, const std::string Tx)
+kdl::sema::expectation::expectation(enum kdl::lexeme::type Ty, const std::string& Tx)
     : m_Ty(Ty), m_Tx(Tx)
 {
 
@@ -43,7 +43,7 @@ kdl::sema::expectation::expectation(enum kdl::lexeme::type Ty, const std::string
 
 // MARK: - Conditions
 
-auto kdl::sema::expectation::to_be(const bool r) const -> function
+auto kdl::sema::expectation::to_be(bool r) const -> function
 {
     auto& Tx = m_Tx;
     auto& Ty = m_Ty;

@@ -26,7 +26,9 @@
 // MARK: - Constructors
 
 kdl::target::target()
-    : m_dst_root("."), m_dst_file("result"), m_resource_tracking_table(std::make_shared<kdl::resource_tracking::table>())
+    : m_dst_root("."),
+      m_dst_file("result"),
+      m_resource_tracking_table(std::make_shared<kdl::resource_tracking::table>())
 {
 
 }
@@ -68,7 +70,7 @@ auto kdl::target::type_container_count() const -> std::size_t
     return m_type_containers.size();
 }
 
-auto kdl::target::type_container_at(const int& i) const -> build_target::type_container
+auto kdl::target::type_container_at(int i) const -> build_target::type_container
 {
     return m_type_containers[i];
 }
@@ -195,13 +197,13 @@ auto kdl::target::resolve_src_path(const std::string& path) const -> std::string
 auto kdl::target::set_format(const std::string &format) -> void
 {
     if (format == "extended") {
-        m_format = graphite::rsrc::file::extended;
+        m_format = graphite::rsrc::file::format::extended;
     }
     else if (format == "classic") {
-        m_format = graphite::rsrc::file::classic;
+        m_format = graphite::rsrc::file::format::classic;
     }
     else if (format == "rez") {
-        m_format = graphite::rsrc::file::rez;
+        m_format = graphite::rsrc::file::format::rez;
     }
     else {
         std::cerr << "Unrecognised resource file format specified: " << format << std::endl;
@@ -214,7 +216,7 @@ auto kdl::target::set_format(const std::string &format) -> void
     }
 }
 
-auto kdl::target::set_required_format(const graphite::rsrc::file::format &format) -> bool
+auto kdl::target::set_required_format(const enum graphite::rsrc::file::format &format) -> bool
 {
     // If there is already a required resource format then check if it matches the new format.
     if (m_required_format.has_value() && m_required_format.value() != format) {
@@ -235,6 +237,8 @@ auto kdl::target::add_resource(const build_target::resource_instance& resource) 
                         resource.name(),
                         resource.assemble(),
                         resource.attributes());
+
+
 }
 
 // MARK: - Saving

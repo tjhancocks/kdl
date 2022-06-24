@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_BUILD_TARGET_TYPE_CONTAINER_HPP)
-#define KDL_BUILD_TARGET_TYPE_CONTAINER_HPP
+#pragma once
 
 #include <any>
 #include <string>
@@ -31,7 +30,8 @@
 #include "target/new/resource_instance.hpp"
 #include "target/assertion.hpp"
 
-namespace kdl::build_target {
+namespace kdl::build_target
+{
 
     /**
      * The type_container represents a resource type. It contains all of the meta data/information
@@ -39,13 +39,6 @@ namespace kdl::build_target {
      */
     class type_container
     {
-    private:
-        std::string m_code { "NULL" };
-        std::string m_name;
-        type_template m_tmpl;
-        std::vector<type_field> m_fields;
-        std::vector<assertion> m_assertions;
-
     public:
         explicit type_container(const std::string& code);
         type_container(const lexeme& name, std::string code);
@@ -66,8 +59,14 @@ namespace kdl::build_target {
         auto add_assertions(const std::vector<assertion>& assertions) -> void;
 
         auto new_instance(const int64_t& id, std::optional<std::string> name = {}) -> resource_instance;
+
+    private:
+        std::string m_code { "NULL" };
+        std::string m_name;
+        type_template m_tmpl;
+        std::vector<type_field> m_fields;
+        std::vector<assertion> m_assertions;
+
     };
 
 }
-
-#endif //KDL_TYPE_CONTAINER_HPP

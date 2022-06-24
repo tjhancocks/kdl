@@ -18,31 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
-#if !defined(KDL_BINARY_PARSER_HPP)
-#define KDL_BINARY_PARSER_HPP
+#pragma once
 
 #include <map>
 #include <any>
+#include <libGraphite/data/reader.hpp>
 #include "target/new/type_template.hpp"
-#include "libGraphite/data/reader.hpp"
 
-namespace kdl { namespace disassembler {
+namespace kdl::disassembler
+{
 
     class binary_parser
     {
+    public:
+        binary_parser(build_target::type_template& tmpl);
+
+        auto parse(graphite::data::reader& reader) -> std::map<int, std::any>;
+
     private:
         build_target::type_template& m_tmpl;
         int m_index { 0 };
 
         auto extract_value(graphite::data::reader& reader) -> std::any;
 
-    public:
-        binary_parser(build_target::type_template& tmpl);
-
-        auto parse(graphite::data::reader& reader) -> std::map<int, std::any>;
     };
 
-}}
-
-#endif //KDL_BINARY_PARSER_HPP
+}

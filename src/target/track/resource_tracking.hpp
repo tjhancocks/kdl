@@ -18,17 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_RESOURCE_TRACKING_HPP)
-#define KDL_RESOURCE_TRACKING_HPP
+#pragma once
 
 #include <string>
 #include <vector>
 #include <map>
 
-namespace kdl::resource_tracking {
+namespace kdl::resource_tracking
+{
 
     class table
     {
+    public:
+        table() = default;
+
+        auto add_instance(const std::string& file, const std::string& type,  int64_t id, const std::string& name) -> void;
+        [[nodiscard]] auto instance_exists(const std::string& type, int64_t id) -> bool;
+
+        [[nodiscard]] auto next_available_id(const std::string& type) const -> int64_t;
+
     private:
 
         struct instance
@@ -39,21 +47,11 @@ namespace kdl::resource_tracking {
             int64_t id;
             std::string name;
 
-            instance(std::string file, std::string type, int64_t id, std::string name);
+            instance(const std::string& file, const std::string& type, int64_t id, const std::string& name);
         };
 
         std::vector<instance> m_instances {};
 
-    public:
-        table() = default;
-
-        auto add_instance(const std::string& file, const std::string& type, const int64_t& id, const std::string& name) -> void;
-        [[nodiscard]] auto instance_exists(const std::string& type, const int64_t& id) -> bool;
-
-        [[nodiscard]] auto next_available_id(const std::string& type) const -> int64_t;
-
     };
 
 }
-
-#endif //KDL_RESOURCE_TRACKING_HPP

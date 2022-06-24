@@ -18,21 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_RANGE_PARSER_HPP)
-#define KDL_RANGE_PARSER_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 
-namespace kdl::sema {
+namespace kdl::sema
+{
 
     class range_parser
     {
-    private:
-        parser& m_parser;
-        build_target::kdl_type& m_explicit_type;
-        build_target::type_field& m_field;
-        build_target::type_field_value& m_field_value;
-        build_target::type_template::binary_field m_binary_field;
     public:
         range_parser(parser& parser, build_target::type_field& field,
                      build_target::type_field_value& field_value,
@@ -40,8 +34,13 @@ namespace kdl::sema {
                      build_target::kdl_type& type);
 
         auto parse(build_target::resource_instance& instance) -> void;
+
+    private:
+        parser& m_parser;
+        build_target::kdl_type& m_explicit_type;
+        build_target::type_field& m_field;
+        build_target::type_field_value& m_field_value;
+        build_target::type_template::binary_field m_binary_field;
     };
 
 }
-
-#endif //KDL_RANGE_PARSER_HPP

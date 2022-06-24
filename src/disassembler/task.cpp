@@ -24,26 +24,27 @@
 #include "disassembler/task.hpp"
 #include "disassembler/kdl_exporter.hpp"
 #include "disassembler/resource_exporter.hpp"
-#include "libGraphite/rsrc/manager.hpp"
+#include <libGraphite/rsrc/manager.hpp>
 #include "parser/file.hpp"
 #include "target/target.hpp"
 
 // MARK: - Construction
 
 kdl::disassembler::task::task(const std::string &destination_dir, std::shared_ptr<target> target)
-    : m_destination_dir(destination_dir), m_target(target)
+    : m_destination_dir(destination_dir),
+      m_target(target)
 {
 
 }
 
 // MARK: - Accessors
 
-auto kdl::disassembler::task::set_preferred_image_formats(std::vector<lexeme> formats) -> void
+auto kdl::disassembler::task::set_preferred_image_formats(const std::vector<lexeme>& formats) -> void
 {
     m_preferred_image_export_format = formats;
 }
 
-auto kdl::disassembler::task::set_preferred_sound_formats(std::vector<lexeme> formats) -> void
+auto kdl::disassembler::task::set_preferred_sound_formats(const std::vector<lexeme>& formats) -> void
 {
     m_preferred_sound_export_format = formats;
 }
@@ -65,7 +66,7 @@ auto kdl::disassembler::task::format_priority(const lexeme& format) const -> int
     }
 
     // ... the format is not in the users preference, so lowest priority.
-    return static_cast<int>(INT_MAX);
+    return std::numeric_limits<std::int32_t>::max();
 }
 
 auto kdl::disassembler::task::appropriate_conversion_format(const kdl::lexeme &input, int priority) const -> std::optional<kdl::lexeme>
@@ -124,7 +125,7 @@ auto kdl::disassembler::task::disassemble_resources() -> void
 {
     kdl::file::create_directory(m_destination_dir);
     
-    for (auto file : graphite::rsrc::manager::shared_manager().files()) {
+    for (auto file : graphite::rsrc::manager::shared_manager().file_references()) {
         std::cout << "Disassembling '" << file->name() << "'" << std::endl;
 
         // Create a directory for this file.
@@ -134,7 +135,7 @@ auto kdl::disassembler::task::disassemble_resources() -> void
         for (auto i = 0; i < m_target->type_container_count(); ++i) {
             auto type_container = m_target->type_container_at(i);
 
-            if (auto type = file->type_container(type_container.code()).lock()) {
+            if (auto type = const_cast<graphite::rsrc::type *>(file->type(type_container.code()))) {
                 if (type->count() == 0) {
                     continue;
                 }
@@ -148,8 +149,8 @@ auto kdl::disassembler::task::disassemble_resources() -> void
                 exporter.insert_comment("Resource Type Code '" + type_container.code() + "', " + std::to_string(type->count()) + " resources");
                 exporter.begin_declaration(type_container.name());
 
-                for (auto resource : type->resources()) {
-                    exporter.begin_resource(resource->id(), resource->name());
+                for (auto& resource : *type) {
+                    exporter.begin_resource(resource.id(), resource.name());
                     resource_exporter(*this, exporter, type_container).disassemble(resource);
                     exporter.end_resource();
                 }

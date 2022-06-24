@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_SPRITE_SHEET_ASSEMBLER_HPP)
-#define KDL_SPRITE_SHEET_ASSEMBLER_HPP
+#pragma once
 
 #include <vector>
 #include "parser/lexeme.hpp"
@@ -29,16 +28,15 @@ namespace kdl::media
 
     class sprite_sheet_assembler
     {
+    public:
+        sprite_sheet_assembler(const std::vector<graphite::data::block>& input_file_contents, lexeme input);
+
+        [[nodiscard]] auto assemble() const -> graphite::data::block;
+
     private:
-        std::vector<std::shared_ptr<std::vector<char>>> m_input_file_contents;
+        std::vector<graphite::data::block> m_input_file_contents;
         lexeme m_input_file_format;
 
-    public:
-        sprite_sheet_assembler(const std::vector<std::vector<char>> input_file_contents, const lexeme input);
-
-        auto assemble() const -> std::vector<char>;
     };
 
 }
-
-#endif //KDL_SPRITE_SHEET_ASSEMBLER_HPP

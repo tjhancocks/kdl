@@ -40,12 +40,12 @@ auto kdl::sema::require_directive_parser::parse(kdl::sema::parser &parser, std::
     auto format = parser.read();
 
     if (format.is("classic")) {
-        t->set_required_format(graphite::rsrc::file::classic);
+        t->set_required_format(graphite::rsrc::file::format::classic);
     }
     else if (format.is("extended")) {
-        t->set_required_format(graphite::rsrc::file::extended);
+        t->set_required_format(graphite::rsrc::file::format::extended);
     }
     else if (format.is("rez")) {
-        t->set_required_format(graphite::rsrc::file::rez);
+        t->set_required_format(graphite::rsrc::file::format::rez);
     }
 }

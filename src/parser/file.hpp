@@ -2,8 +2,7 @@
 // Created by Tom Hancocks on 03/04/2020.
 //
 
-#if !defined(KDL_FILE_HPP)
-#define KDL_FILE_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -26,12 +25,7 @@ namespace kdl
         static auto create_intermediate(std::string_view path, bool omit_last = true) -> bool;
         static auto resolve_tilde(std::string_view path) -> std::string;
         static auto copy_file(std::string_view src, std::string_view dst) -> void;
-        static auto glob(std::string path) -> std::shared_ptr<std::vector<std::string>>;
-
-    private:
-        std::string m_path;
-        uint8_t *m_raw;
-        uint64_t m_length;
+        static auto glob(const std::string& path) -> std::shared_ptr<std::vector<std::string>>;
 
     public:
         /**
@@ -45,13 +39,13 @@ namespace kdl
          * Read the specified file from disk.
          * @param path The path from with the load the file.
          */
-        file(std::string_view path);
+        explicit file(std::string_view path);
 
         /**
          * The location of the file on disk. Will be empty if this is a blank file.
          * @return A string representing a file path.
          */
-        auto path() const -> std::string;
+        [[nodiscard]] auto path() const -> std::string;
 
         /**
          * The contents of the file as a string
@@ -62,7 +56,7 @@ namespace kdl
          * Set the contents of the file without saving the changes to disk.
          * @param contents The new contents of the file.
          */
-        auto set_contents(const std::string contents) -> void;
+        auto set_contents(const std::string& contents) -> void;
 
         /**
          * The contents of the file as a vector.
@@ -74,8 +68,11 @@ namespace kdl
          */
         auto save(std::optional<std::string> path = {}) -> void;
 
+    private:
+        std::string m_path;
+        uint8_t *m_raw;
+        uint64_t m_length;
+
     };
 
 };
-
-#endif //KDL_FILE_HPP

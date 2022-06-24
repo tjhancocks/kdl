@@ -18,26 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_FILE_LIST_PARSER_HPP)
-#define KDL_FILE_LIST_PARSER_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 #include "parser/sema/component/component.hpp"
 
-namespace kdl::sema {
+namespace kdl::sema
+{
 
     class file_list_parser
     {
-    private:
-        parser& m_parser;
-        std::weak_ptr<target> m_target;
-
     public:
         file_list_parser(parser& parser, std::weak_ptr<target> target);
 
         auto parse() -> std::vector<component::file>;
+
+    private:
+        parser& m_parser;
+        std::weak_ptr<target> m_target;
+
     };
 
 }
-
-#endif //KDL_FILE_LIST_PARSER_HPP

@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_CONVERSION_PARSER_HPP)
-#define KDL_CONVERSION_PARSER_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 
@@ -29,15 +28,14 @@ namespace kdl::sema
     class conversion_parser
     {
     public:
-        parser& m_parser;
-        std::shared_ptr<target> m_target;
-
-    public:
         conversion_parser(parser& parser, std::weak_ptr<target> target);
 
         auto parse() -> std::tuple<lexeme, lexeme>;
+
+    private:
+        parser& m_parser;
+        std::shared_ptr<target> m_target;
+
     };
 
 }
-
-#endif //KDL_CONVERSION_PARSER_HPP

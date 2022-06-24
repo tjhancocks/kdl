@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_FIELD_DEFINITION_PARSER_HPP)
-#define KDL_FIELD_DEFINITION_PARSER_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 #include "target/new/type_field.hpp"
@@ -29,17 +28,16 @@ namespace kdl::sema
 
     class field_definition_parser
     {
+    public:
+        field_definition_parser(parser& parser, std::weak_ptr<target> target, build_target::type_template tmpl);
+
+        auto parse() -> build_target::type_field;
+
     private:
         parser& m_parser;
         std::shared_ptr<target> m_target;
         build_target::type_template m_tmpl;
 
-    public:
-        field_definition_parser(parser& parser, std::weak_ptr<target> target, build_target::type_template tmpl);
-
-        auto parse() -> build_target::type_field;
     };
 
 }
-
-#endif //KDL_FIELD_PARSER_HPP

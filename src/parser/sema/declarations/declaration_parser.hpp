@@ -18,28 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_DECLARATION_PARSER_HPP)
-#define KDL_DECLARATION_PARSER_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 #include "target/new/resource_instance.hpp"
 #include "target/new/type_container.hpp"
 
-namespace kdl::sema {
+namespace kdl::sema
+{
 
     class declaration_parser
     {
-    private:
-        parser& m_parser;
-        std::weak_ptr<target> m_target;
-        bool m_discards { false };
-
     public:
         declaration_parser(parser& parser, std::weak_ptr<target> target, bool discards = false);
 
         auto parse() -> std::vector<build_target::resource_instance>;
+
+    private:
+        parser& m_parser;
+        std::weak_ptr<target> m_target;
+        bool m_discards { false };
     };
 
 }
 
-#endif //KDL_DECLARATION_PARSER_HPP

@@ -49,7 +49,7 @@ kdl::sema::file_type_parser::file_type_parser(kdl::sema::parser &parser, kdl::bu
 auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &instance) -> void
 {
     std::vector<lexeme> file_lx;
-    std::vector<std::vector<char>> file_contents;
+    std::vector<graphite::data::block> file_contents;
     auto target = m_target.lock();
     auto import_file = false;
 
@@ -58,16 +58,21 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
         import_file = true;
     }
 
-    auto string_to_vector = [](std::string s) -> std::vector<char> {
+    auto string_to_vector = [](const std::string& s) -> std::vector<char> {
         std::vector<char> v;
         std::copy(s.begin(), s.end(), std::back_inserter(v));
         return v;
     };
 
-    auto vector_to_string = [](std::vector<char> v) -> std::string {
+    auto vector_to_string = [](const std::vector<char>& v) -> std::string {
         std::string s;
         std::copy(v.begin(), v.end(), std::back_inserter(s));
         return s;
+    };
+
+    auto block_to_string = [&](const graphite::data::block& block) -> std::string {
+        graphite::data::reader reader(&block);
+        return vector_to_string(std::move(reader.read_bytes(reader.size())));
     };
 
     // Build a list of file contents, or file paths if import was specified
@@ -126,7 +131,7 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
             for (const auto& f : file_contents) {
                 conversion.add_input_data(f);
             }
-            content_value = conversion.perform_conversion();
+            content_value = std::move(conversion.perform_conversion());
         }
         else {
             content_value = kdl::media::conversion(content_value, input_format, output_format).perform_conversion();
@@ -145,11 +150,11 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
             if (content_value.size() > 255) {
                 log::fatal_error(string_lx, 1, "String too large for value type.");
             }
-            instance.write_pstr(m_field, m_field_value, vector_to_string(content_value), 0);
+            instance.write_pstr(m_field, m_field_value, block_to_string(content_value), 0);
             break;
         }
         case build_target::CSTR: {
-            instance.write_cstr(m_field, m_field_value, vector_to_string(content_value));
+            instance.write_cstr(m_field, m_field_value, block_to_string(content_value));
             break;
         }
         case build_target::Cnnn: {
@@ -157,7 +162,7 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
             if (content_value.size() > size) {
                 log::fatal_error(string_lx, 1, "String too large for value type.");
             }
-            instance.write_cstr(m_field, m_field_value, vector_to_string(content_value), size);
+            instance.write_cstr(m_field, m_field_value, block_to_string(content_value), size);
             break;
         }
 //        case build_target::P0nn: {

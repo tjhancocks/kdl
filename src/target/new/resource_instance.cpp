@@ -27,16 +27,20 @@
 
 // MARK: - Constructors
 
-kdl::build_target::resource_instance::resource_instance(const int64_t& id, std::string code,
-                                                        std::string name, kdl::build_target::type_template tmpl)
-    : m_id(id), m_name(std::move(name)), m_code(std::move(code)), m_tmpl(std::move(tmpl))
+kdl::build_target::resource_instance::resource_instance(graphite::rsrc::resource::identifier id,
+                                                        const std::string& code,
+                                                        const std::string& name,
+                                                        kdl::build_target::type_template tmpl)
+    : m_id(id), m_name(name), m_code(code), m_tmpl(std::move(tmpl))
 {
 
 }
 
-kdl::build_target::resource_instance::resource_instance(const int64_t &id, std::string code, std::string name,
-                                                        std::string contents)
-    : m_id(id), m_name(std::move(name)), m_code(std::move(code))
+kdl::build_target::resource_instance::resource_instance(graphite::rsrc::resource::identifier id,
+                                                        const std::string& code,
+                                                        const std::string& name,
+                                                        const std::string& contents)
+    : m_id(id), m_name(name), m_code(code)
 {
     // We're pulling contents directly, so we need to synthesize a template to represent a singular CSTR field.
     kdl::lexeme data_lexeme("data", lexeme::identifier);
@@ -48,25 +52,40 @@ kdl::build_target::resource_instance::resource_instance(const int64_t &id, std::
     write("data", std::make_tuple(contents.size(), contents));
 }
 
+kdl::build_target::resource_instance::resource_instance(graphite::rsrc::resource::identifier id,
+                                                        const std::string& code,
+                                                        const std::string& name,
+                                                        const graphite::data::block& data)
+    : m_id(id), m_name(name), m_code(code)
+{
+    // We're pulling contents directly, so we need to synthesize a template to represent a singular CSTR field.
+    kdl::lexeme data_lexeme("data", lexeme::identifier);
+    kdl::build_target::type_template::binary_field data_field(data_lexeme, binary_type::CSTR);
+
+    m_tmpl.add_binary_field(data_field);
+
+    // Add the contents to the field.
+    write("data", std::make_tuple(data.size(), data));
+}
 
 // MARK: - Accessor
 
-auto kdl::build_target::resource_instance::type_code() const -> std::string
+auto kdl::build_target::resource_instance::type_code() const -> const std::string&
 {
     return m_code;
 }
 
-auto kdl::build_target::resource_instance::id() const -> int64_t
+auto kdl::build_target::resource_instance::id() const -> graphite::rsrc::resource::identifier
 {
     return m_id;
 }
 
-auto kdl::build_target::resource_instance::name() const -> std::string
+auto kdl::build_target::resource_instance::name() const -> const std::string&
 {
     return m_name;
 }
 
-auto kdl::build_target::resource_instance::get_type_template() const -> kdl::build_target::type_template
+auto kdl::build_target::resource_instance::get_type_template() const -> const kdl::build_target::type_template&
 {
     return m_tmpl;
 }
@@ -99,9 +118,9 @@ auto kdl::build_target::resource_instance::reset_acquisition_locks() -> void
 
 // MARK: - Name Extensions
 
-auto kdl::build_target::resource_instance::available_name_extensions(const type_field& field) const -> std::map<std::string, lexeme>
+auto kdl::build_target::resource_instance::available_name_extensions(const type_field& field) const -> std::unordered_map<std::string, lexeme>
 {
-    std::map<std::string, lexeme> vars;
+    std::unordered_map<std::string, lexeme> vars;
 
     if (m_field_counts.find(field.name().text()) != m_field_counts.end()) {
         vars.emplace("FieldNumber", lexeme(std::to_string(m_field_counts.at(field.name().text())), lexeme::integer));
@@ -208,6 +227,11 @@ auto kdl::build_target::resource_instance::write_data(const type_field& field, c
     write(field_value.extended_name(available_name_extensions(field)).text(), data);
 }
 
+auto kdl::build_target::resource_instance::write_data(const type_field& field, const type_field_value& field_value, const graphite::data::block& data) -> void
+{
+    write(field_value.extended_name(available_name_extensions(field)).text(), data);
+}
+
 auto kdl::build_target::resource_instance::write_rect(const type_field& field, const type_field_value& field_value, const int16_t& t, const int16_t& l, const int16_t& b, const int16_t& r) -> void
 {
     write(field_value.extended_name(available_name_extensions(field)).text(), std::tuple(t, l, b, r));
@@ -286,10 +310,9 @@ auto kdl::build_target::resource_instance::assemble_field(graphite::data::writer
     }
 }
 
-auto kdl::build_target::resource_instance::assemble() const -> std::shared_ptr<graphite::data::data>
+auto kdl::build_target::resource_instance::assemble() const -> graphite::data::block
 {
-    auto data = std::make_shared<graphite::data::data>();
-    graphite::data::writer writer(data);
+    graphite::data::writer writer;
 
     for (auto n = 0; n < m_tmpl.binary_field_count(); ++n) {
         auto field = m_tmpl.binary_field_at(n);
@@ -328,12 +351,12 @@ auto kdl::build_target::resource_instance::assemble() const -> std::shared_ptr<g
         }
     }
 
-    return data;
+    return std::move(*const_cast<graphite::data::block *>(writer.data()));
 }
 
-auto kdl::build_target::resource_instance::synthesize_variables() const -> std::map<std::string, lexeme>
+auto kdl::build_target::resource_instance::synthesize_variables() const -> std::unordered_map<std::string, lexeme>
 {
-    std::map<std::string, lexeme> vars;
+    std::unordered_map<std::string, lexeme> vars;
 
     vars.emplace("id", lexeme(std::to_string(m_id), lexeme::res_id));
     vars.emplace("name", lexeme(m_name, lexeme::string));
@@ -396,7 +419,7 @@ auto kdl::build_target::resource_instance::synthesize_variables() const -> std::
 
 // MARK: - Attributes
 
-auto kdl::build_target::resource_instance::set_attributes(const std::map<std::string, std::string>& attributes) -> void
+auto kdl::build_target::resource_instance::set_attributes(const std::unordered_map<std::string, std::string>& attributes) -> void
 {
     m_attributes = attributes;
 }
@@ -406,7 +429,7 @@ auto kdl::build_target::resource_instance::set_attribute(const std::string& name
     m_attributes[name] = value;
 }
 
-auto kdl::build_target::resource_instance::attributes() const -> std::map<std::string, std::string>
+auto kdl::build_target::resource_instance::attributes() const -> std::unordered_map<std::string, std::string>
 {
     return m_attributes;
 }

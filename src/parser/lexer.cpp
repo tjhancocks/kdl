@@ -27,7 +27,6 @@
 kdl::lexer::lexer(std::shared_ptr<file> source)
     : m_source(source)
 {
-
 }
 
 // MARK: - Lexical Analysis
@@ -241,9 +240,9 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
 
 // MARK: - Private Lexer
 
-auto kdl::lexer::dummy(const long offset) const -> kdl::lexeme
+auto kdl::lexer::dummy(long offset) const -> kdl::lexeme
 {
-    return lexeme("(dummy)", lexeme::star, m_pos + offset, m_offset + offset, m_line, m_source);
+    return { "(dummy)", lexeme::star, m_pos + offset, m_offset + offset, m_line, m_source };
 }
 
 auto kdl::lexer::length() const -> std::size_t
@@ -251,20 +250,20 @@ auto kdl::lexer::length() const -> std::size_t
     return m_source->contents().size();
 }
 
-auto kdl::lexer::advance(const long offset) -> void
+auto kdl::lexer::advance(long offset) -> void
 {
     m_pos += offset;
     m_offset += offset;
 }
 
-auto kdl::lexer::available(const long offset, std::size_t length) const -> bool
+auto kdl::lexer::available(long offset, std::size_t length) const -> bool
 {
     auto start = m_pos + offset;
     auto end = start + length;
     return (end <= this->length());
 }
 
-auto kdl::lexer::peek(const long offset, std::size_t length) const -> std::string
+auto kdl::lexer::peek(long offset, std::size_t length) const -> std::string
 {
     if (!available(offset, length)) {
         kdl::log::fatal_error(dummy(offset), 1, "Failed to peek '" + std::to_string(length) + "' characters from source.");
@@ -272,19 +271,19 @@ auto kdl::lexer::peek(const long offset, std::size_t length) const -> std::strin
     return m_source->contents().substr(m_pos + offset, length);
 }
 
-auto kdl::lexer::read(const long offset, std::size_t length) -> std::string
+auto kdl::lexer::read(long offset, std::size_t length) -> std::string
 {
     auto str = peek(offset, length);
     advance(offset + length);
     return str;
 }
 
-auto kdl::lexer::test_if(std::function<auto(const std::string) -> bool> fn, const long offset, std::size_t length) const -> bool
+auto kdl::lexer::test_if(const std::function<auto(const std::string&) -> bool>& fn, long offset, std::size_t length) const -> bool
 {
     return fn(peek(offset, length));
 }
 
-auto kdl::lexer::consume_while(std::function<auto(const std::string) -> bool> fn, const std::size_t size) -> bool
+auto kdl::lexer::consume_while(const std::function<auto(const std::string&) -> bool>& fn, std::size_t size) -> bool
 {
     m_slice.clear();
     while (fn(peek(0, size))) {
@@ -296,20 +295,20 @@ auto kdl::lexer::consume_while(std::function<auto(const std::string) -> bool> fn
 // MARK: -
 
 template<char c>
-auto kdl::match<c>::yes(const std::string __Chk) -> bool
+auto kdl::match<c>::yes(const std::string& __Chk) -> bool
 {
     return __Chk == std::string(1, c);
 }
 
 
 template <char c>
-auto kdl::match<c>::no(const std::string __Chk) -> bool
+auto kdl::match<c>::no(const std::string& __Chk) -> bool
 {
     return !yes(__Chk);
 }
 
 template<char tC,char...ttC>
-auto kdl::sequence<tC, ttC...>::yes(const std::string __Chk) -> bool
+auto kdl::sequence<tC, ttC...>::yes(const std::string& __Chk) -> bool
 {
     std::vector<char> v = {tC, ttC...};
     for (auto i = 0; i < v.size(); ++i) {
@@ -321,13 +320,13 @@ auto kdl::sequence<tC, ttC...>::yes(const std::string __Chk) -> bool
 }
 
 template<char tC,char...ttC>
-auto kdl::sequence<tC, ttC...>::no(const std::string __Chk) -> bool
+auto kdl::sequence<tC, ttC...>::no(const std::string& __Chk) -> bool
 {
     return !yes(__Chk);
 }
 
 template <char lc, char uc>
-auto kdl::range<lc, uc>::contains(const std::string __Chk) -> bool
+auto kdl::range<lc, uc>::contains(const std::string& __Chk) -> bool
 {
     for (auto __ch : __Chk) {
         if (__ch < lc || __ch > uc) {
@@ -338,13 +337,13 @@ auto kdl::range<lc, uc>::contains(const std::string __Chk) -> bool
 }
 
 template <char lc, char uc>
-auto kdl::range<lc, uc>::not_contains(const std::string __Chk) -> bool
+auto kdl::range<lc, uc>::not_contains(const std::string& __Chk) -> bool
 {
     return !contains(__Chk);
 }
 
 template<char tC, char... ttC>
-auto kdl::set<tC, ttC...>::contains(const std::string __Chk) -> bool
+auto kdl::set<tC, ttC...>::contains(const std::string& __Chk) -> bool
 {
     std::vector<char> v = {tC, ttC...};
 
@@ -358,12 +357,12 @@ auto kdl::set<tC, ttC...>::contains(const std::string __Chk) -> bool
 }
 
 template<char tC, char... ttC>
-auto kdl::set<tC, ttC...>::not_contains(const std::string __Chk) -> bool
+auto kdl::set<tC, ttC...>::not_contains(const std::string& __Chk) -> bool
 {
     return !contains(__Chk);
 }
 
-auto kdl::identifier_set::contains(const std::string __Chk) -> bool
+auto kdl::identifier_set::contains(const std::string& __Chk) -> bool
 {
     for (auto __ch : __Chk) {
         auto condition = (__ch >= 'A' && __ch <= 'Z') || (__ch >= 'a' && __ch <= 'z')  || (__ch >= '0' && __ch <= '9') || __ch == '_';
@@ -374,7 +373,7 @@ auto kdl::identifier_set::contains(const std::string __Chk) -> bool
     return true;
 }
 
-auto kdl::identifier_set::limited_contains(const std::string __Chk) -> bool
+auto kdl::identifier_set::limited_contains(const std::string& __Chk) -> bool
 {
     for (auto __ch : __Chk) {
         auto condition = (__ch >= 'A' && __ch <= 'Z') || (__ch >= 'a' && __ch <= 'z')  || __ch == '_';
@@ -385,7 +384,7 @@ auto kdl::identifier_set::limited_contains(const std::string __Chk) -> bool
     return true;
 }
 
-auto kdl::decimal_set::contains(const std::string __Chk) -> bool
+auto kdl::decimal_set::contains(const std::string& __Chk) -> bool
 {
     for (auto __ch : __Chk) {
         auto condition = (__ch >= '0' && __ch <= '9');
@@ -396,7 +395,7 @@ auto kdl::decimal_set::contains(const std::string __Chk) -> bool
     return true;
 }
 
-auto kdl::hexadecimal_set::contains(const std::string __Chk) -> bool
+auto kdl::hexadecimal_set::contains(const std::string& __Chk) -> bool
 {
     for (auto __ch : __Chk) {
         auto condition = (__ch >= 'A' && __ch <= 'F') || (__ch >= 'a' && __ch <= 'f') || (__ch >= '0' && __ch <= '9');

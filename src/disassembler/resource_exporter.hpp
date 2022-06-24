@@ -19,8 +19,7 @@
 // SOFTWARE.
 
 
-#if !defined(KDL_RESOURCE_EXPORTER_HPP)
-#define KDL_RESOURCE_EXPORTER_HPP
+#pragma once
 
 #include <any>
 #include <string>
@@ -30,25 +29,29 @@
 #include "target/target.hpp"
 #include "disassembler/task.hpp"
 
-namespace kdl { namespace disassembler {
+namespace kdl::disassembler
+{
 
     class resource_exporter
     {
     public:
+        resource_exporter(task& task, kdl_exporter& exporter, build_target::type_container& type);
+
+        auto disassemble(graphite::rsrc::resource& resource) -> void;
 
     private:
-        int64_t m_id;
+        graphite::rsrc::resource::identifier m_id;
         task& m_task;
         kdl_exporter& m_exporter;
         build_target::type_container& m_container;
         std::map<int, std::any> m_extracted_values;
         std::map<int, int> m_visited_template_fields;
-        std::map<int, std::tuple<std::vector<char>, std::string>> m_file_exports;
+        std::map<int, std::tuple<graphite::data::block, std::string>> m_file_exports;
         std::map<int, std::string> m_final_values;
         std::map<int, std::string> m_final_field_assoc;
         std::map<int, std::vector<std::string>> m_final_field_repeat;
 
-        auto find_substitutions(const build_target::type_field& field, const std::any& value) const -> std::vector<lexeme>;
+        [[nodiscard]] auto find_substitutions(const build_target::type_field& field, const std::any& value) const -> std::vector<lexeme>;
 
         auto write_field_value(const build_target::type_template::binary_field& tmpl_field_info,
                                const std::any& extracted_value) -> std::string;
@@ -58,13 +61,6 @@ namespace kdl { namespace disassembler {
 
         auto export_kdl_field(const build_target::type_field& field, int pass = 1) -> void;
         auto repeat_kdl_field_export(const build_target::type_field& field) -> void;
-
-    public:
-        resource_exporter(task& task, kdl_exporter& exporter, build_target::type_container& type);
-
-        auto disassemble(std::shared_ptr<graphite::rsrc::resource> resource) -> void;
     };
 
-}};
-
-#endif //KDL_RESOURCE_EXPORTER_HPP
+}

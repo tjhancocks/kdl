@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Tom Hancocks
+// Copyright (c) 2019-2022 Tom Hancocks
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,14 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TGA_HPP)
-#define KDL_TGA_HPP
+#pragma once
 
 #include <vector>
-#include "libGraphite/quickdraw/internal/surface.hpp"
-#include "libGraphite/data/data.hpp"
+#include <libGraphite/data/data.hpp>
+#include <libGraphite/quickdraw/support/surface.hpp>
 
-namespace kdl { namespace media { namespace image {
+namespace kdl::media::image
+{
 
     /**
      * The `kdl::media::image::tga` class allows reading/writing and working with TGA
@@ -33,49 +33,39 @@ namespace kdl { namespace media { namespace image {
      */
     class tga
     {
-    protected:
+    public:
+        explicit tga(const std::string& path);
+        explicit tga(const graphite::data::block& data);
+        explicit tga(graphite::quickdraw::surface& surface);
 
+        [[nodiscard]] auto surface() const -> const graphite::quickdraw::surface&;
+        [[nodiscard]] auto data() const -> graphite::data::block;
+
+    protected:
         struct header
         {
-            uint8_t id_length;
-            uint8_t color_map_type;
-            uint8_t data_type_code;
-            uint16_t color_map_origin;
-            uint16_t color_map_length;
-            uint8_t color_map_depth;
-            uint16_t x_origin;
-            uint16_t y_origin;
-            uint16_t width;
-            uint16_t height;
-            uint8_t bits_per_pixel;
-            uint8_t image_descriptor;
-        };
-
-        struct pixel
-        {
-            uint8_t r;
-            uint8_t g;
-            uint8_t b;
-            uint8_t a;
+            std::uint8_t id_length;
+            std::uint8_t color_map_type;
+            std::uint8_t data_type_code;
+            std::uint16_t color_map_origin;
+            std::uint16_t color_map_length;
+            std::uint8_t color_map_depth;
+            std::uint16_t x_origin;
+            std::uint16_t y_origin;
+            std::uint16_t width;
+            std::uint16_t height;
+            std::uint8_t bits_per_pixel;
+            std::uint8_t image_descriptor;
         };
 
     private:
-        std::shared_ptr<graphite::qd::surface> m_surface;
+        std::string m_path;
+        graphite::quickdraw::surface m_surface;
 
         auto decode(graphite::data::reader& reader) -> bool;
-        auto merge_bytes(const int position, const std::vector<char> bytes, const int offset, const int size) -> void;
+        auto merge_bytes(std::int32_t position, const std::vector<char>& bytes, std::int32_t offset, std::size_t size) -> void;
 
-        auto encode(graphite::data::writer& writer) -> void;
-
-    public:
-        tga(const std::string path);
-        tga(std::shared_ptr<std::vector<char>> data);
-        tga(std::shared_ptr<graphite::qd::surface> surface);
-
-        auto surface() -> std::weak_ptr<graphite::qd::surface>;
-        auto data() -> std::vector<char>;
+        auto encode(graphite::data::writer& writer) const -> void;
     };
 
-}}};
-
-#endif //KDL_TGA_HPP
+}

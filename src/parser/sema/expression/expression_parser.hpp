@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_EXPRESSION_PARSER_HPP)
-#define KDL_EXPRESSION_PARSER_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 
@@ -28,6 +27,11 @@ namespace kdl::sema
 
     class expression_parser
     {
+    public:
+        expression_parser(parser& parser, std::weak_ptr<target> target, std::map<std::string, kdl::lexeme> vars);
+
+        auto parse() -> kdl::lexeme;
+
     private:
         parser& m_parser;
         std::shared_ptr<target> m_target;
@@ -35,13 +39,6 @@ namespace kdl::sema
 
         [[nodiscard]] auto resolve_variable_named(const kdl::lexeme& var) const -> kdl::lexeme;
 
-    public:
-        expression_parser(parser& parser, std::weak_ptr<target> target, std::map<std::string, kdl::lexeme> vars);
-
-        auto parse() -> kdl::lexeme;
-
     };
 
 }
-
-#endif //KDL_EXPRESSION_PARSER_HPP

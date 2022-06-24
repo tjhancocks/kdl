@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_LEXEME_HPP)
-#define KDL_LEXEME_HPP
+#pragma once
 
 #include <memory>
 #include <string>
@@ -48,21 +47,13 @@ namespace kdl
             directive, var, l_expr, r_expr, percentage, exclaim
         };
 
-    private:
-        std::weak_ptr<file> m_owner;
-        std::string m_text;
-        std::size_t m_pos;
-        std::size_t m_offset;
-        std::size_t m_line;
-        type m_type;
-
     public:
         /**
          * Constructs a new lexeme.
          * @param text The source text value from which this lexeme is being created.
          * @param type The lexical type that the token is
          */
-        lexeme(std::string  text, enum type type)
+        lexeme(const std::string& text, enum type type)
             : m_text(std::move(text)), m_type(type), m_owner({}), m_pos(0), m_offset(0), m_line(0)
         {
 
@@ -77,7 +68,7 @@ namespace kdl
          * @param line The line that the token was found.
          * @param owner The file from which the token originated.
          */
-        lexeme(std::string text, enum type type, std::size_t pos, std::size_t offset, std::size_t line, std::weak_ptr<file> owner)
+        lexeme(const std::string& text, enum type type, std::size_t pos, std::size_t offset, std::size_t line, std::weak_ptr<file> owner)
             : m_text(std::move(text)), m_type(type), m_pos(pos), m_offset(offset), m_line(line), m_owner(owner)
         {
 
@@ -131,7 +122,7 @@ namespace kdl
          * @param value The value to test for.
          * @return true if matching
          */
-        [[nodiscard]] auto is(const enum type type, const std::string value) const -> bool
+        [[nodiscard]] auto is(const enum type type, const std::string& value) const -> bool
         {
             return is(type) && is(value);
         }
@@ -217,7 +208,13 @@ namespace kdl
                     return true;
             }
         }
+
+    private:
+        std::weak_ptr<file> m_owner;
+        std::string m_text;
+        std::size_t m_pos;
+        std::size_t m_offset;
+        std::size_t m_line;
+        enum type m_type;
     };
 };
-
-#endif //KDL_LEXEME_HPP

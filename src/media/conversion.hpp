@@ -18,33 +18,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_CONVERSION_HPP)
-#define KDL_CONVERSION_HPP
+#pragma one
 
 #include <vector>
 #include <memory>
 #include "parser/lexeme.hpp"
-#include "libGraphite/data/reader.hpp"
+#include <libGraphite/data/reader.hpp>
 
-namespace kdl { namespace media {
+namespace kdl::media
+{
 
     class conversion
     {
+    public:
+        conversion(const std::vector<char>& input_file_contents, lexeme input, lexeme output);
+        conversion(const graphite::data::block& input_file_contents, lexeme input, lexeme output);
+        conversion(lexeme input, lexeme output);
+
+        auto add_input_file(const std::string& contents) -> void;
+        auto add_input_data(const std::vector<char>&) -> void;
+        auto add_input_data(const graphite::data::block& data) -> void;
+
+        [[nodiscard]] auto perform_conversion() const -> graphite::data::block;
+
     private:
-        std::vector<std::shared_ptr<std::vector<char>>> m_input_file_contents;
+        std::vector<graphite::data::block> m_input_file_contents;
         lexeme m_input_file_format;
         lexeme m_output_file_format;
-
-    public:
-        conversion(const std::vector<char> m_input_file_contents, const lexeme input, const lexeme output);
-        conversion(const lexeme input, const lexeme output);
-
-        auto add_input_file(const std::string contents) -> void;
-        auto add_input_data(std::vector<char>) -> void;
-
-        auto perform_conversion() const -> std::vector<char>;
     };
 
-}}
-
-#endif //KDL_CONVERSION_HPP
+}

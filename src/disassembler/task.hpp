@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TASK_HPP)
-#define KDL_TASK_HPP
+#pragma once
 
 #include <string>
 #include <memory>
@@ -28,29 +27,29 @@
 
 namespace kdl { class target; }
 
-namespace kdl { namespace disassembler {
+namespace kdl::disassembler
+{
 
     class task
     {
+    public:
+        task(const std::string& destination_dir, std::shared_ptr<target> target);
+
+        auto set_preferred_image_formats(const std::vector<lexeme>& formats) -> void;
+        auto set_preferred_sound_formats(const std::vector<lexeme>& formats) -> void;
+
+        [[nodiscard]] auto format_priority(const lexeme& format) const -> int;
+        [[nodiscard]] auto appropriate_conversion_format(const lexeme& input, int priority) const -> std::optional<lexeme>;
+        [[nodiscard]] auto format_extension(const lexeme& format) const -> std::string;
+
+        auto disassemble_resources() -> void;
+
     private:
         std::string m_destination_dir;
         std::vector<lexeme> m_preferred_image_export_format {};
         std::vector<lexeme> m_preferred_sound_export_format {};
         std::shared_ptr<target> m_target;
 
-    public:
-        task(const std::string& destination_dir, std::shared_ptr<target>);
-
-        auto set_preferred_image_formats(std::vector<lexeme> formats) -> void;
-        auto set_preferred_sound_formats(std::vector<lexeme> formats) -> void;
-
-        auto format_priority(const lexeme& format) const -> int;
-        auto appropriate_conversion_format(const lexeme& input, int priority) const -> std::optional<lexeme>;
-        auto format_extension(const lexeme& format) const -> std::string;
-
-        auto disassemble_resources() -> void;
     };
 
-}};
-
-#endif //KDL_TASK_HPP
+}

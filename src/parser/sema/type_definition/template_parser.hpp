@@ -18,26 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TEMPLATE_PARSER_HPP)
-#define KDL_TEMPLATE_PARSER_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 #include "target/new/type_template.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema
+{
 
     class template_parser
     {
-    private:
-        kdl::sema::parser& m_parser;
-
     public:
         template_parser(parser& parser);
 
         auto parse() -> kdl::build_target::type_template;
+
+    private:
+        kdl::sema::parser& m_parser;
+
     };
 
-}};
-
-
-#endif //KDL_TEMPLATE_PARSER_HPP
+}

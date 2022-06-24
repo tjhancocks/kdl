@@ -25,8 +25,8 @@
 
 // MARK: - Construction
 
-kdl::resource_tracking::importer::importer(std::string code, const int64_t &id)
-    : m_code(std::move(code)), m_id(id)
+kdl::resource_tracking::importer::importer(const std::string& code, int64_t id)
+    : m_code(code), m_id(id)
 {
 
 }
@@ -37,15 +37,15 @@ auto kdl::resource_tracking::importer::populate(kdl::build_target::resource_inst
 {
     // Find and load the resource. Try to load it from the target file first, and then fallback on the imported
     // resource files.
-    auto res = file.find(m_code, m_id, {}).lock();
+    auto res = file.find(m_code, m_id);
     if (!res) {
-        res = graphite::rsrc::manager::shared_manager().find(m_code, m_id).lock();
+        return false;
     }
 
     if (res) {
         // We need the type template of the resource in order to parse out the binary data into the instance.
         auto tmpl = instance.get_type_template();
-        graphite::data::reader reader(res->data());
+        graphite::data::reader reader(&res->data());
 
         for (auto i = 0; i < tmpl.binary_field_count(); ++i) {
             auto field = tmpl.binary_field_at(i);
@@ -96,7 +96,7 @@ auto kdl::resource_tracking::importer::populate(kdl::build_target::resource_inst
                 }
                 case kdl::build_target::binary_type::PSTR: {
                     instance.write(i, std::tuple<std::size_t, std::string>(
-                            reader.read_byte(0, graphite::data::reader::peek),
+                            reader.read_byte(0, graphite::data::reader::mode::peek),
                             reader.read_pstr()
                     ));
                     break;

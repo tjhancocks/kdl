@@ -18,13 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_ASSERTION_PARSER_HPP)
-#define KDL_ASSERTION_PARSER_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 #include "target/assertion.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema
+{
 
     class assertion_parser
     {
@@ -32,6 +32,4 @@ namespace kdl { namespace sema {
         static auto parse(parser& parser) -> std::vector<kdl::assertion>;
     };
 
-}};
-
-#endif //KDL_ASSERTION_PARSER_HPP
+}

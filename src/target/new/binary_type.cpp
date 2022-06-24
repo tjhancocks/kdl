@@ -143,7 +143,7 @@ auto kdl::build_target::binary_type_for_name(const std::string& name) -> enum bi
     return binary_type::INVALID;
 };
 
-auto kdl::build_target::binary_type_base_size(const enum kdl::build_target::binary_type& type) -> std::size_t
+auto kdl::build_target::binary_type_base_size(enum kdl::build_target::binary_type type) -> std::size_t
 {
     switch (type & ~0xFFF) {
         case binary_type::CSTR:

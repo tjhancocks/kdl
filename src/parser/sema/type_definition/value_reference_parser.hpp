@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_VALUE_REFERENCE_PARSER_HPP)
-#define KDL_VALUE_REFERENCE_PARSER_HPP
+#pragma once
 
 #include <stdexcept>
 #include "parser/parser.hpp"
@@ -31,17 +30,16 @@ namespace kdl::sema
 
     class value_reference_parser
     {
+    public:
+        value_reference_parser(parser& parser, std::weak_ptr<target> target, build_target::type_template tmpl);
+
+        auto parse() -> build_target::type_field_value;
+
     private:
         parser& m_parser;
         std::shared_ptr<target> m_target;
         build_target::type_template m_tmpl;
 
-    public:
-        value_reference_parser(parser& parser, std::weak_ptr<target> target, build_target::type_template tmpl);
-
-        auto parse() -> build_target::type_field_value;
     };
 
 }
-
-#endif //KDL_VALUE_REFERENCE_PARSER_HPP

@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_BINARY_TYPE_HPP)
-#define KDL_BINARY_TYPE_HPP
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -89,8 +88,6 @@ namespace kdl::build_target
     };
 
     auto binary_type_for_name(const std::string& name) -> enum binary_type;
-    auto binary_type_base_size(const enum binary_type& type) -> std::size_t;
+    auto binary_type_base_size(enum binary_type type) -> std::size_t;
 
 };
-
-#endif //KDL_BINARY_TYPE_HPP

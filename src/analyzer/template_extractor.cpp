@@ -19,13 +19,13 @@
 // SOFTWARE.
 
 #include <iostream>
-#include "libGraphite/data/reader.hpp"
+#include <libGraphite/data/reader.hpp>
 #include "parser/file.hpp"
 #include "analyzer/template_extractor.hpp"
 
 // MARK: - Constructor
 
-kdl::analyzer::template_extractor::template_extractor(const std::string in, const std::string out)
+kdl::analyzer::template_extractor::template_extractor(const std::string& in, const std::string& out)
     : m_in(in), m_out_dir(out)
 {
     if (m_out_dir.substr(m_out_dir.size() - 1) == "/") {
@@ -37,10 +37,10 @@ kdl::analyzer::template_extractor::template_extractor(const std::string in, cons
 
 auto kdl::analyzer::template_extractor::build_type_definitions() -> void
 {
-    if (auto tmpl = m_in.type_container("TMPL").lock()) {
-        for (auto res : tmpl->resources()) {
-            auto code = res->name();
-            auto data = graphite::data::reader(res->data());
+    if (auto tmpl = const_cast<graphite::rsrc::type *>(m_in.type("TMPL"))) {
+        for (auto& res : *tmpl) {
+            auto code = res.name();
+            auto data = graphite::data::reader(&res.data());
 
             // Build the KDL Code for the template.
             std::string kdl_code;

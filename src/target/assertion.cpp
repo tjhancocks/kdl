@@ -23,15 +23,14 @@
 
 // MARK: - Constructor
 
-kdl::assertion::assertion(const lexeme lhs, assertion::operation op, const lexeme rhs)
+kdl::assertion::assertion(const lexeme& lhs, assertion::operation op, const lexeme& rhs)
     : m_lhs(lhs), m_operation(op), m_rhs(rhs)
 {
-
 }
 
 // MARK: - Evaluation
 
-static auto __resolve_variable(const kdl::lexeme var, std::map<std::string, kdl::lexeme> table) -> kdl::lexeme
+static auto __resolve_variable(const kdl::lexeme& var, std::unordered_map<std::string, kdl::lexeme> table) -> kdl::lexeme
 {
     if (!var.is(kdl::lexeme::var)) {
         return var;
@@ -44,7 +43,7 @@ static auto __resolve_variable(const kdl::lexeme var, std::map<std::string, kdl:
     return table.at(var.text());
 }
 
-auto kdl::assertion::evaluate(std::map<std::string, lexeme> variables) const -> bool
+auto kdl::assertion::evaluate(std::unordered_map<std::string, lexeme> variables) const -> bool
 {
     auto lhs = __resolve_variable(m_lhs, variables);
     auto rhs = __resolve_variable(m_rhs, variables);

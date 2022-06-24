@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TYPE_DEFINITION_PARSER_HPP)
-#define KDL_TYPE_DEFINITION_PARSER_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 #include "target/new/type_container.hpp"
@@ -29,16 +28,15 @@ namespace kdl::sema
 
     class type_definition_parser
     {
-    private:
-        parser& m_parser;
-        std::shared_ptr<target> m_target;
-
     public:
         type_definition_parser(parser& parser, std::weak_ptr<target> target);
 
         auto parse(bool directive = false) -> build_target::type_container;
+
+    private:
+        parser& m_parser;
+        std::shared_ptr<target> m_target;
+
     };
 
 }
-
-#endif //KDL_TYPE_DEFINITION_PARSER_HPP

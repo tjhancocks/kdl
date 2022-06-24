@@ -45,3 +45,8 @@ auto kdl::sema::component_file::file() const -> std::string
 {
     return m_file;
 }
+
+auto kdl::sema::component_file::has_name() const -> bool
+{
+    return m_name.has_value();
+}

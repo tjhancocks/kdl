@@ -22,49 +22,68 @@
 #include "media/image/tga.hpp"
 #include "media/image/png.hpp"
 #include "media/sound/wav.hpp"
-#include "libGraphite/quickdraw/pict.hpp"
-#include "libGraphite/quickdraw/cicn.hpp"
-#include "libGraphite/quickdraw/ppat.hpp"
-#include "libGraphite/quickdraw/rle.hpp"
-#include "libGraphite/resources/sound.hpp"
+
+#include <libGraphite/quickdraw/format/pict.hpp>
+#include <libGraphite/quickdraw/format/cicn.hpp>
+#include <libGraphite/quickdraw/format/rle.hpp>
+#include <libGraphite/quickdraw/format/ppat.hpp>
+#include <libGraphite/sound/sound.hpp>
+
 #include "diagnostic/fatal.hpp"
 
 // MARK: - Constructors
 
-kdl::media::conversion::conversion(const std::vector<char> m_input_file_contents, const kdl::lexeme input,
-                                          const kdl::lexeme output)
-    : m_input_file_format(input), m_output_file_format(output),
-      m_input_file_contents({ std::make_shared<std::vector<char>>(m_input_file_contents) })
+kdl::media::conversion::conversion(const std::vector<char>& input_file_contents, kdl::lexeme input, kdl::lexeme output)
+    : m_input_file_format(input), m_output_file_format(output)
+{
+    // Convert from std::vector<char> to graphite::data::block
+    m_input_file_contents.emplace_back(
+        graphite::data::block(input_file_contents, graphite::data::byte_order::lsb)
+    );
+}
+
+kdl::media::conversion::conversion(kdl::lexeme input, kdl::lexeme output)
+    : m_input_file_format(input), m_output_file_format(output)
 {
 }
 
-kdl::media::conversion::conversion(const kdl::lexeme input, const kdl::lexeme output)
-    : m_input_file_format(input), m_output_file_format(output)
+kdl::media::conversion::conversion(const graphite::data::block &input_file_contents, lexeme input, lexeme output)
+    : m_input_file_contents({ std::move(input_file_contents) }), m_input_file_format(input), m_output_file_format(output)
 {
 }
 
 // MARK: - Adding input data
 
-auto kdl::media::conversion::add_input_data(std::vector<char> data) -> void
+auto kdl::media::conversion::add_input_data(const std::vector<char>& data) -> void
 {
-    m_input_file_contents.emplace_back(std::make_shared<std::vector<char>>(data));
+    m_input_file_contents.emplace_back(graphite::data::block(data, graphite::data::byte_order::lsb));
+}
+
+auto kdl::media::conversion::add_input_data(const graphite::data::block &data) -> void
+{
+    m_input_file_contents.emplace_back(data);
 }
 
 // MARK: - Adding input files
 
-auto kdl::media::conversion::add_input_file(const std::string contents) -> void
+auto kdl::media::conversion::add_input_file(const std::string& contents) -> void
 {
-    m_input_file_contents.emplace_back(std::make_shared<std::vector<char>>(contents.begin(), contents.end()));
+    std::vector<char> str(contents.begin(), contents.end());
+    m_input_file_contents.emplace_back(graphite::data::block(str, graphite::data::byte_order::lsb));
 }
 
 // MARK: - Conversion
 
 static inline auto is_image_type(const kdl::lexeme& type) -> bool
 {
-    return type.is("PICT") || type.is("cicn") || type.is("PNG") || type.is("TGA") || type.is("ppat");
+    return type.is("PICT")
+        || type.is("cicn")
+        || type.is("PNG")
+        || type.is("TGA")
+        || type.is("ppat");
 }
 
-auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
+auto kdl::media::conversion::perform_conversion() const -> graphite::data::block
 {
     if (is_image_type(m_input_file_format) && is_image_type(m_output_file_format)) {
         if (m_input_file_contents.size() != 1) {
@@ -72,60 +91,46 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
         }
 
         // Handle image-to-image conversions
-        std::shared_ptr<graphite::qd::surface> surface;
+        graphite::quickdraw::surface surface;
         if (m_input_file_format.is("TGA")) {
             image::tga tga(m_input_file_contents[0]);
-            surface = tga.surface().lock();
+            surface = std::move(tga.surface());
         }
         else if (m_input_file_format.is("PNG")) {
             image::png png(m_input_file_contents[0]);
-            surface = png.surface().lock();
+            surface = std::move(png.surface());
         }
         else if (m_input_file_format.is("PICT")) {
-            auto data = m_input_file_contents[0];
-            auto data_ptr = std::make_shared<graphite::data::data>(data, data->size());
-            graphite::qd::pict pict(data_ptr);
-            surface = pict.image_surface().lock();
+            graphite::quickdraw::pict pict(m_input_file_contents[0]);
+            surface = std::move(pict.surface());
         }
         else if (m_input_file_format.is("cicn")) {
-            auto data = m_input_file_contents[0];
-            auto data_ptr = std::make_shared<graphite::data::data>(data, data->size());
-            graphite::qd::cicn cicn(data_ptr);
-            surface = cicn.surface().lock();
+            graphite::quickdraw::cicn cicn(m_input_file_contents[0]);
+            surface = std::move(cicn.surface());
         }
         else {
             log::fatal_error(m_input_file_format, 1, "Unable to handle input format '" + m_input_file_format.text() + "'");
         }
 
         if (m_output_file_format.is("PICT")) {
-            graphite::qd::pict pict(surface);
-            auto pict_data = pict.data();
-
-            return std::vector<char>(pict_data->get()->begin(), pict_data->get()->end());
+            graphite::quickdraw::pict pict(surface);
+            return std::move(pict.data());
         }
         else if (m_output_file_format.is("cicn")) {
-            graphite::qd::cicn cicn(surface);
-            auto cicn_data = cicn.data();
-
-            return std::vector<char>(cicn_data->get()->begin(), cicn_data->get()->end());
+            graphite::quickdraw::cicn cicn(surface);
+            return std::move(cicn.data());
         }
         else if (m_output_file_format.is("PNG")) {
             image::png png(surface);
-            auto png_data = png.data();
-
-            return std::vector<char>(png_data->get()->begin(), png_data->get()->end());
+            return std::move(png.data());
         }
         else if (m_output_file_format.is("TGA")) {
             image::tga tga(surface);
-            auto tga_data = tga.data();
-
-            return std::vector<char>(tga_data.begin(), tga_data.end());
+            return std::move(tga.data());
         }
         else if (m_output_file_format.is("ppat")) {
-            graphite::qd::ppat ppat(surface);
-            auto ppat_data = ppat.data();
-
-            return std::vector<char>(ppat_data->get()->begin(), ppat_data->get()->end());
+            graphite::quickdraw::ppat ppat(surface);
+            return std::move(ppat.data());
         }
         else {
             log::fatal_error(m_output_file_format, 1, "Unable to handle output format '" + m_output_file_format.text() + "'");
@@ -137,44 +142,42 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
         }
 
         sound::wav wav(m_input_file_contents[0]);
-        graphite::resources::sound snd(wav.sample_rate(), wav.sample_bits(), wav.samples());
-        auto snd_data = snd.data();
-
-        return std::vector<char>(snd_data->get()->begin(), snd_data->get()->end());
+        graphite::sound_manager::sound snd(wav.sample_rate(), wav.sample_bits(), wav.samples());
+        return snd.samples();
     }
     else if (is_image_type(m_input_file_format) && m_output_file_format.is("rleD")) {
         if (m_input_file_contents.size() == 0) {
             log::fatal_error(m_output_file_format, 1, "Must have at least one input file for format '" + m_output_file_format.text() + "'");
         }
 
-        std::shared_ptr<graphite::qd::surface> surface;
+        graphite::quickdraw::surface surface;
 
         // Load the first image to determine the frame size
         if (m_input_file_format.is("TGA")) {
             image::tga tga(m_input_file_contents[0]);
-            surface = tga.surface().lock();
+            surface = std::move(tga.surface());
         }
         else if (m_input_file_format.is("PNG")) {
             image::png png(m_input_file_contents[0]);
-            surface = png.surface().lock();
+            surface = std::move(png.surface());
         }
-        auto frame_size = surface->size();
-        graphite::qd::rle rle(frame_size, m_input_file_contents.size());
+
+        auto frame_size = surface.size();
+        graphite::quickdraw::rle rle(surface.size(), m_input_file_contents.size());
         rle.write_frame(0, surface);
 
         // Load subsequent frames and make sure they're the same size as the first
         for (auto i = 1; i <  m_input_file_contents.size(); i++) {
             if (m_input_file_format.is("TGA")) {
                 image::tga tga(m_input_file_contents[i]);
-                surface = tga.surface().lock();
+                surface = std::move(tga.surface());
             }
             else if (m_input_file_format.is("PNG")) {
                 image::png png(m_input_file_contents[i]);
-                surface = png.surface().lock();
+                surface = std::move(png.surface());
             }
 
-            if (surface->size().width() != frame_size.width() ||
-                    surface->size().height() != frame_size.height()) {
+            if (surface.size().width != frame_size.width || surface.size().height != frame_size.height) {
                 log::fatal_error(m_output_file_format, 1, "Frame " + std::to_string(i) + " has incorrect size");
             }
 
@@ -182,28 +185,21 @@ auto kdl::media::conversion::perform_conversion() const -> std::vector<char>
         }
 
         // Encode the rleD resource
-        auto rled_data = rle.data();
-        return std::vector<char>(rled_data->get()->begin(), rled_data->get()->end());
+        return std::move(rle.data());
     }
     else if (m_input_file_format.is("rleD") && is_image_type(m_output_file_format)) {
-        auto data = m_input_file_contents[0];
-        auto data_ptr = std::make_shared<graphite::data::data>(data, data->size());
-        graphite::qd::rle rle(data_ptr);
-        if (auto surface = rle.surface().lock()) {
+        graphite::quickdraw::rle rle(m_input_file_contents[0]);
+        auto surface = rle.surface();
 
-            if (m_output_file_format.is("PNG")) {
-                image::png png(surface);
-                auto png_data = png.data();
-                return std::vector<char>(png_data->get()->begin(), png_data->get()->end());
-            }
-
-            return {};
+        if (m_output_file_format.is("PNG")) {
+            image::png png(surface);
+            return std::move(png.data());
         }
+
+        return {};
     }
     else {
-        return {};
         log::fatal_error(m_output_file_format, 1, "Unable to convert from '" + m_input_file_format.text() +
                          "' to '" + m_output_file_format.text() + "'");
     }
-    return {};
 }

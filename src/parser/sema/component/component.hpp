@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_COMPONENT_HPP)
-#define KDL_COMPONENT_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -34,22 +33,13 @@ namespace kdl::sema
     {
     public:
         struct file
-        {
+            {
             std::string path;
             std::optional<std::string> name;
 
             explicit file(std::string path) : path(std::move(path)), name({}) {};
             file(std::string path, std::string name) : path(std::move(path)), name(std::move(name)) {};
-        };
-
-    private:
-        std::string m_name { "Untitled Component" };
-        bool m_scene { false };
-        std::string m_path_prefix;
-        std::string m_namespace;
-        kdl::lexeme m_as_type { "", lexeme::identifier };
-        int64_t m_base_id { 128 };
-        std::vector<file> m_files;
+            };
 
     public:
         component() = default;
@@ -75,8 +65,15 @@ namespace kdl::sema
         [[nodiscard]] auto files() const -> std::vector<file>;
 
         auto generate_resources(std::shared_ptr<target> target) const -> void;
+
+    private:
+        std::string m_name { "Untitled Component" };
+        bool m_scene { false };
+        std::string m_path_prefix;
+        std::string m_namespace;
+        kdl::lexeme m_as_type { "", lexeme::identifier };
+        std::int64_t m_base_id { 128 };
+        std::vector<file> m_files;
     };
 
 }
-
-#endif //KDL_COMPONENT_HPP

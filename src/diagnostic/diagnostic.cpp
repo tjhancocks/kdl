@@ -21,7 +21,7 @@
 #include <iostream>
 #include "diagnostic/fatal.hpp"
 
-auto kdl::log::fatal_error(const kdl::lexeme& lx, const int code, const std::string message) -> void
+auto kdl::log::fatal_error(const kdl::lexeme& lx, int code, const std::string& message) -> void
 {
     std::cerr << lx.location() << " - " << message << std::endl;
     exit(code);

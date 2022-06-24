@@ -22,7 +22,7 @@
 
 // MARK: - Constructors
 
-kdl::build_target::kdl_type::kdl_type(const bool& is_reference, const kdl::lexeme& name)
+kdl::build_target::kdl_type::kdl_type(bool is_reference, const kdl::lexeme& name)
     : m_reference(is_reference), m_type_name(name)
 {
 
@@ -30,7 +30,7 @@ kdl::build_target::kdl_type::kdl_type(const bool& is_reference, const kdl::lexem
 
 // MARK: - Reference Type : '&'
 
-auto kdl::build_target::kdl_type::set_reference(const bool& reference) -> void
+auto kdl::build_target::kdl_type::set_reference(bool reference) -> void
 {
     m_reference = reference;
 }

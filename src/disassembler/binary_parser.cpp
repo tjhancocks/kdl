@@ -26,7 +26,6 @@
 kdl::disassembler::binary_parser::binary_parser(kdl::build_target::type_template &tmpl)
     : m_tmpl(tmpl)
 {
-
 }
 
 // MARK: - Primary Parser

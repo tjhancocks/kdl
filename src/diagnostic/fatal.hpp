@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_FATAL_HPP)
-#define KDL_FATAL_HPP
+#pragma once
 
 #include <string>
 #include "parser/lexeme.hpp"
@@ -33,8 +32,6 @@ namespace kdl::log
      * @param code The exit code to be raised.
      * @param message A message to show to the user about why the error occured.
      */
-    [[noreturn]] auto fatal_error(const kdl::lexeme& lx, const int code, const std::string message) -> void;
+    [[noreturn]] auto fatal_error(const kdl::lexeme& lx, int code, const std::string& message) -> void;
 
 }
-
-#endif //KDL_FATAL_HPP

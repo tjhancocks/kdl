@@ -18,27 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_RESOURCE_IMPORTER_HPP)
-#define KDL_RESOURCE_IMPORTER_HPP
+#pragma once
 
 #include <string>
 #include <libGraphite/rsrc/file.hpp>
 #include "target/new/resource_instance.hpp"
 
-namespace kdl::resource_tracking {
+namespace kdl::resource_tracking
+{
 
     struct importer
     {
+    public:
+        importer(const std::string& code, int64_t id);
+
+        auto populate(kdl::build_target::resource_instance& instance, graphite::rsrc::file& file) -> bool;
+
     private:
         std::string m_code;
         int64_t m_id;
 
-    public:
-        importer(std::string code, const int64_t& id);
-
-        auto populate(kdl::build_target::resource_instance& instance, graphite::rsrc::file& file) -> bool;
     };
 
 }
-
-#endif //KDL_RESOURCE_IMPORTER_HPP

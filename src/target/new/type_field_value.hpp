@@ -18,37 +18,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TYPE_FIELD_VALUE_HPP)
-#define KDL_TYPE_FIELD_VALUE_HPP
+#pragma once
 
 #include <vector>
 #include <optional>
 #include <tuple>
 #include <map>
+#include <unordered_map>
 #include "parser/lexeme.hpp"
 #include "target/new/kdl_type.hpp"
 #include "target/new/binary_type.hpp"
 #include "target/new/type_template.hpp"
 
-namespace kdl::build_target {
+namespace kdl::build_target
+{
 
     struct type_field_value
     {
-    private:
-        lexeme m_base_name;
-        std::optional<kdl_type> m_explicit_type;
-        std::optional<lexeme> m_default_value;
-        std::vector<std::tuple<lexeme, lexeme>> m_symbols;
-        std::vector<lexeme> m_name_extensions;
-        std::optional<std::tuple<lexeme, lexeme>> m_conversion_map;
-        std::vector<type_field_value> m_joined_values;
-        bool m_assemble_sprite_sheet { false };
-
     public:
-        explicit type_field_value(lexeme base_name);
+        explicit type_field_value(const lexeme& base_name);
 
         [[nodiscard]] auto base_name() const -> lexeme;
-        [[nodiscard]] auto extended_name(const std::map<std::string, lexeme>& vars) const -> lexeme;
+        [[nodiscard]] auto extended_name(const std::unordered_map<std::string, lexeme>& vars) const -> lexeme;
 
         auto set_explicit_type(const kdl_type& type) -> void;
         [[nodiscard]] auto explicit_type() const -> std::optional<kdl::build_target::kdl_type>;
@@ -69,13 +60,22 @@ namespace kdl::build_target {
 
         auto join_value(const type_field_value& value) -> void;
         [[nodiscard]] auto joined_value_count() const -> std::size_t;
-        [[nodiscard]] auto joined_value_at(const int& i) -> type_field_value;
+        [[nodiscard]] auto joined_value_at(int i) -> type_field_value;
         [[nodiscard]] auto joined_value_for(const lexeme& symbol) const -> std::optional<std::tuple<int, lexeme>>;
 
         auto set_assemble_sprite_sheet() -> void;
         [[nodiscard]] auto assemble_sprite_sheet() const -> bool;
+
+    private:
+        lexeme m_base_name;
+        std::optional<kdl_type> m_explicit_type;
+        std::optional<lexeme> m_default_value;
+        std::vector<std::tuple<lexeme, lexeme>> m_symbols;
+        std::vector<lexeme> m_name_extensions;
+        std::optional<std::tuple<lexeme, lexeme>> m_conversion_map;
+        std::vector<type_field_value> m_joined_values;
+        bool m_assemble_sprite_sheet { false };
+
     };
 
 }
-
-#endif //KDL_TYPE_FIELD_VALUE_HPP

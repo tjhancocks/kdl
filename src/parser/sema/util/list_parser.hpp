@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_LIST_PARSER_HPP)
-#define KDL_LIST_PARSER_HPP
+#pragma once
 
 #include <tuple>
 #include <optional>
@@ -32,14 +31,6 @@ namespace kdl::sema
 
     class list_parser
     {
-    private:
-        parser& m_parser;
-        std::shared_ptr<target> m_target;
-        enum lexeme::type m_list_start { lexeme::l_angle };
-        enum lexeme::type m_list_end { lexeme::r_angle };
-        enum lexeme::type m_delimit { lexeme::comma };
-        std::vector<std::tuple<enum lexeme::type, std::optional<std::string>>> m_valid_lexemes;
-
     public:
         explicit list_parser(parser& parser, std::weak_ptr<target> target);
 
@@ -51,8 +42,15 @@ namespace kdl::sema
         auto add_valid_list_item(enum lexeme::type lx, const std::string& text) -> void;
 
         auto parse() -> std::vector<lexeme>;
+
+    private:
+        parser& m_parser;
+        std::shared_ptr<target> m_target;
+        enum lexeme::type m_list_start { lexeme::l_angle };
+        enum lexeme::type m_list_end { lexeme::r_angle };
+        enum lexeme::type m_delimit { lexeme::comma };
+        std::vector<std::tuple<enum lexeme::type, std::optional<std::string>>> m_valid_lexemes;
+
     };
 
 }
-
-#endif //KDL_LIST_PARSER_HPP

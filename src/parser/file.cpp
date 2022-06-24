@@ -13,7 +13,6 @@
 #include <cstring>
 #include "parser/file.hpp"
 
-
 #if (_WIN32 || _WIN64)
     // Windows Specific
 #   include <windows.h>
@@ -159,7 +158,7 @@ auto kdl::file::copy_file(std::string_view src, std::string_view dst) -> void
     dst_file << src_file.rdbuf();
 }
 
-auto kdl::file::glob(std::string path) -> std::shared_ptr<std::vector<std::string>>
+auto kdl::file::glob(const std::string& path) -> std::shared_ptr<std::vector<std::string>>
 {
     auto files = std::make_shared<std::vector<std::string>>();
 
@@ -248,7 +247,7 @@ auto kdl::file::vector() -> std::vector<char>
     return v;
 }
 
-auto kdl::file::set_contents(const std::string contents) -> void
+auto kdl::file::set_contents(const std::string& contents) -> void
 {
     if (m_raw) {
         delete[] m_raw;

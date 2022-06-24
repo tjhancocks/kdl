@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_PARSER_HPP)
-#define KDL_PARSER_HPP
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -37,19 +36,13 @@ namespace kdl::sema
      */
     class parser
     {
-    private:
-        std::weak_ptr<target> m_target;
-        std::size_t m_ptr { 0 };
-        std::vector<lexeme> m_lexemes;
-        std::vector<lexeme> m_tmp_lexemes;
-
     public:
         /**
          * Construct a new parser for the specified target and with the provided lexeme stream.
          * @param target The destination target of the parser.
          * @param lexemes The lexemes to be parsed.
          */
-        parser(std::weak_ptr<target> target, std::vector<lexeme> lexemes);
+        parser(std::weak_ptr<target> target, const std::vector<lexeme>& lexemes);
 
         /**
          * Parse the lexeme stream into/against the target.
@@ -62,7 +55,7 @@ namespace kdl::sema
          * @param count The required number of lexemes to be considered.
          * @return true if all required lexemes are present.
          */
-        auto finished(const long offset = 0, const long count = 1) const -> bool;
+        [[nodiscard]] auto finished(long offset = 0, long count = 1) const -> bool;
 
         /**
          * Keep consuming lexemes from the stream, until the expectation is no longer being met.
@@ -75,7 +68,7 @@ namespace kdl::sema
          * Advance the lexeme stream by the specified amount.
          * @param delta The number of lexemes to advance by.
          */
-        auto advance(const long delta = 1) -> void;
+        auto advance(long delta = 1) -> void;
 
         /**
          * Temporarily push a lexeme to the parser to be read via a peek(0) or read(0). This lexeme
@@ -90,7 +83,7 @@ namespace kdl::sema
          * @param offset The offset from the current position in the token stream.
          * @return A lexeme.
          */
-        auto peek(const long offset = 0) const -> lexeme;
+        [[nodiscard]] auto peek(long offset = 0) const -> lexeme;
 
         /**
          * Read a lexeme from the lexeme stream, and advance the position to the next token after the one that was
@@ -98,7 +91,7 @@ namespace kdl::sema
          * @param offset The offset from the current position in the token stream.
          * @return A lexeme.
          */
-        auto read(const long offset = 0) -> lexeme;
+        auto read(long offset = 0) -> lexeme;
 
         /**
          * Validate a sequence of lexemes with the specified list of expectations. There is a one to one mapping
@@ -106,15 +99,15 @@ namespace kdl::sema
          * @param expect A list of expectations.
          * @return true if all lexemes met their expectations.
          */
-        auto expect(std::initializer_list<expectation::function> expect) const -> bool;
+        [[nodiscard]] auto expect(std::initializer_list<expectation::function> expect) const -> bool;
 
         /**
          * Validate the next lexeme with any of the specified expectations.
          * @param expect A list of possible expectations.
          * @return true if the next lexeme met any of the expectations.
          */
-        auto expect_any(std::initializer_list<expectation::function> expect) const -> bool;
-        auto expect_any(std::vector<expectation::function> expect) const -> bool;
+        [[nodiscard]] auto expect_any(std::initializer_list<expectation::function> expect) const -> bool;
+        [[nodiscard]] auto expect_any(std::vector<expectation::function> expect) const -> bool;
 
         /**
          * Validate a sequence of lexemes with the specified list of expectations. There is a one to one mapping
@@ -129,10 +122,14 @@ namespace kdl::sema
          * Insert new lexemes into the parser at the current location.
          * @param lexemes The list of lexemes to be inserted.
          */
-        auto insert(std::vector<lexeme> lexemes, const int offset = 0) -> void;
+        auto insert(std::vector<lexeme> lexemes, int offset = 0) -> void;
+
+    private:
+        std::weak_ptr<target> m_target;
+        std::size_t m_ptr { 0 };
+        std::vector<lexeme> m_lexemes;
+        std::vector<lexeme> m_tmp_lexemes;
 
     };
 
 }
-
-#endif //KDL_PARSER_COMPONENT_HPP

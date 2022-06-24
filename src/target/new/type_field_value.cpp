@@ -21,8 +21,8 @@
 #include "diagnostic/fatal.hpp"
 #include "type_field_value.hpp"
 
-kdl::build_target::type_field_value::type_field_value(kdl::lexeme base_name)
-    : m_base_name(std::move(base_name))
+kdl::build_target::type_field_value::type_field_value(const kdl::lexeme& base_name)
+    : m_base_name(base_name)
 {
 
 }
@@ -34,7 +34,7 @@ auto kdl::build_target::type_field_value::base_name() const -> lexeme
     return m_base_name;
 }
 
-auto kdl::build_target::type_field_value::extended_name(const std::map<std::string, lexeme>& vars) const -> lexeme
+auto kdl::build_target::type_field_value::extended_name(const std::unordered_map<std::string, lexeme>& vars) const -> lexeme
 {
     std::string name(m_base_name.text());
     for (const auto& ext : m_name_extensions) {
@@ -42,7 +42,7 @@ auto kdl::build_target::type_field_value::extended_name(const std::map<std::stri
             name.append(vars.at(ext.text()).text());
         }
     }
-    return lexeme(name, lexeme::identifier);
+    return { name, lexeme::identifier };
 }
 
 // MARK: - Explicit Types
@@ -156,7 +156,7 @@ auto kdl::build_target::type_field_value::joined_value_for(const kdl::lexeme& sy
     log::fatal_error(symbol, 1, "Unrecognised symbol name '" + symbol.text() + "'");
 }
 
-auto kdl::build_target::type_field_value::joined_value_at(const int& i) -> kdl::build_target::type_field_value
+auto kdl::build_target::type_field_value::joined_value_at(int i) -> kdl::build_target::type_field_value
 {
     return m_joined_values.at(i);
 }

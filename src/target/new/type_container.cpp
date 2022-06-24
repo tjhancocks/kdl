@@ -99,7 +99,7 @@ auto kdl::build_target::type_container::all_fields() const -> std::vector<type_f
 
 auto kdl::build_target::type_container::new_instance(const int64_t& id, std::optional<std::string> name) -> resource_instance
 {
-    return resource_instance(id, m_code, name.has_value() ? name.value() : "", m_tmpl);
+    return std::move(resource_instance(id, m_code, name.has_value() ? name.value() : "", m_tmpl));
 }
 
 // MARK: - Assertions

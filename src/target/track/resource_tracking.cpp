@@ -24,8 +24,8 @@
 
 // MARK: - Instance Construction
 
-kdl::resource_tracking::table::instance::instance(std::string file, std::string type, int64_t id, std::string name)
-    : file(std::move(file)), type_code(std::move(type)), id(id), name(std::move(name))
+kdl::resource_tracking::table::instance::instance(const std::string& file, const std::string& type, int64_t id, const std::string& name)
+    : file(file), type_code(type), id(id), name(name)
 {
 
 }
@@ -35,13 +35,13 @@ kdl::resource_tracking::table::instance::instance(std::string file, std::string 
 
 auto kdl::resource_tracking::table::add_instance(const std::string &file,
                                                  const std::string &type,
-                                                 const int64_t &id,
+                                                 int64_t id,
                                                  const std::string &name) -> void
 {
     m_instances.emplace_back(instance(file, type, id, name));
 }
 
-auto kdl::resource_tracking::table::instance_exists(const std::string &type, const int64_t &id) -> bool
+auto kdl::resource_tracking::table::instance_exists(const std::string &type, int64_t id) -> bool
 {
     return std::any_of(m_instances.begin(), m_instances.end(), [type, id] (const instance& i) {
         return (i.type_code == type) && (i.id == id);

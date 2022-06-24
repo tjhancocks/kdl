@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_IMPLICIT_VALUE_PARSER_HPP)
-#define KDL_IMPLICIT_VALUE_PARSER_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 
@@ -28,20 +27,19 @@ namespace kdl::sema
 
     class implicit_value_parser
     {
-    private:
-        parser& m_parser;
-        std::shared_ptr<target> m_target;
-        build_target::type_field& m_field;
-        build_target::type_field_value& m_field_value;
-        build_target::type_template::binary_field m_binary_field;
     public:
         implicit_value_parser(parser& parser, std::weak_ptr<target> target, build_target::type_field& field,
                               build_target::type_field_value& field_value,
                               build_target::type_template::binary_field binary_field);
 
         auto parse(build_target::resource_instance& instance) -> void;
+
+    private:
+        parser& m_parser;
+        std::shared_ptr<target> m_target;
+        build_target::type_field& m_field;
+        build_target::type_field_value& m_field_value;
+        build_target::type_template::binary_field m_binary_field;
     };
 
 }
-
-#endif //KDL_IMPLICIT_VALUE_PARSER_HPP

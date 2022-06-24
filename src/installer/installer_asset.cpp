@@ -27,7 +27,7 @@
 // MARK: - Constructor
 
 kdl::installer::asset::asset(std::string_view name, enum asset::flags flags, std::string_view destination, std::vector<char> data)
-    : m_name(name), m_flags(flags), m_destination(destination), m_data(data)
+    : m_name(name), m_flags(flags), m_destination(destination), m_data(std::move(data))
 {
 
 }
@@ -41,16 +41,16 @@ auto kdl::installer::asset::load_assets(std::string_view path) -> std::vector<as
     auto resolved_path = std::string(path);
     graphite::rsrc::file file(resolved_path);
 
-    if (auto container = file.type_container("ASET").lock()) {
-        for (auto raw_asset : container->resources()) {
-            graphite::data::reader reader(raw_asset->data());
+    if (auto raw_assets = const_cast<graphite::rsrc::type *>(file.type("ASET"))) {
+        for (const auto& raw_asset : *raw_assets) {
+            graphite::data::reader reader(&raw_asset.data());
 
             auto flags = static_cast<enum asset::flags>(reader.read_byte());
             auto destination = reader.read_pstr();
             auto data = reader.read_bytes(reader.size() - reader.position());
 
-            installer::asset asset(raw_asset->name(), flags, destination, data);
-            assets.emplace_back(asset);
+            installer::asset asset(raw_asset.name(), flags, destination, data);
+            assets.emplace_back(std::move(asset));
         }
     }
     else {

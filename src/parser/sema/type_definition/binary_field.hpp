@@ -18,25 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_BINARY_FIELD_HPP)
-#define KDL_BINARY_FIELD_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 #include "target/new/type_template.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema
+{
 
     class binary_field
     {
     public:
-        parser& m_parser;
-
-    public:
         binary_field(parser& parser);
 
         auto parse() -> kdl::build_target::type_template::binary_field;
+
+    private:
+        parser& m_parser;
+
     };
 
-}};
-
-#endif //KDL_BINARY_FIELD_HPP
+}

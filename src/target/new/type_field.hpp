@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TYPE_FIELD_HPP)
-#define KDL_TYPE_FIELD_HPP
+#pragma once
 
 #include <optional>
 #include <tuple>
@@ -33,12 +32,6 @@ namespace kdl::build_target {
 
     struct type_field
     {
-    private:
-        lexeme m_name;
-        std::vector<type_field_value> m_values;
-        bool m_repeatable { false };
-        int m_repeatable_lower { 0 };
-        int m_repeatable_upper { 0 };
 
     public:
         explicit type_field(lexeme name);
@@ -48,14 +41,19 @@ namespace kdl::build_target {
 
         auto add_value(const type_field_value& value) -> void;
         [[nodiscard]] auto expected_values() const -> std::size_t;
-        [[nodiscard]] auto value_at(const int& n) const -> type_field_value;
+        [[nodiscard]] auto value_at(int n) const -> type_field_value;
 
-        auto make_repeatable(const int& lower, const int& upper) -> void;
+        auto make_repeatable(int lower, int upper) -> void;
         [[nodiscard]] auto lower_repeat_bound() const -> int;
         [[nodiscard]] auto upper_repeat_bound() const -> int;
         [[nodiscard]] auto is_repeatable() const -> bool;
+
+    private:
+        lexeme m_name;
+        std::vector<type_field_value> m_values;
+        bool m_repeatable { false };
+        int m_repeatable_lower { 0 };
+        int m_repeatable_upper { 0 };
     };
 
 };
-
-#endif //KDL_TYPE_FIELD_HPP

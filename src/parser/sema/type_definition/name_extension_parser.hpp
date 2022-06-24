@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_NAME_EXTENSION_PARSER_HPP)
-#define KDL_NAME_EXTENSION_PARSER_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 
@@ -33,5 +32,3 @@ namespace kdl::sema
     };
 
 }
-
-#endif //KDL_NAME_EXTENSION_PARSER_HPP

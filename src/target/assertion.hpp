@@ -18,10 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_ASSERTION_HPP)
-#define KDL_ASSERTION_HPP
+#pragma once
 
-#include <map>
+#include <unordered_map>
 #include "parser/lexeme.hpp"
 
 namespace kdl
@@ -31,20 +30,18 @@ namespace kdl
     {
     public:
         enum operation { lt, lteq, eq, neq, gteq, gt };
+    public:
+        assertion(const lexeme& lhs, enum operation op, const lexeme& rhs);
+
+        [[nodiscard]] auto evaluate(std::unordered_map<std::string, lexeme> variables) const -> bool;
+
+        [[nodiscard]] auto failure_text() const -> std::string;
 
     private:
         lexeme m_lhs;
         lexeme m_rhs;
         enum operation m_operation;
 
-    public:
-        assertion(const lexeme lhs, enum operation op, const lexeme rhs);
-
-        auto evaluate(std::map<std::string, lexeme> variables) const -> bool;
-
-        auto failure_text() const -> std::string;
     };
 
 };
-
-#endif //KDL_ASSERTION_HPP

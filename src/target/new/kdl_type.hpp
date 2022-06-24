@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_KDL_TYPE_HPP)
-#define KDL_KDL_TYPE_HPP
+#pragma once
 
 #include <string>
 #include <optional>
@@ -28,18 +27,14 @@
 
 namespace kdl::build_target {
 
+
     struct kdl_type
     {
-    private:
-        bool m_reference { false };
-        std::optional<lexeme> m_type_name {};
-        std::vector<lexeme> m_type_hints {};
-
     public:
         kdl_type() = default;
-        kdl_type(const bool& is_reference, const lexeme& name);
+        kdl_type(bool is_reference, const lexeme& name);
 
-        auto set_reference(const bool& reference) -> void;
+        auto set_reference(bool reference) -> void;
         [[nodiscard]] auto is_reference() const -> bool;
 
         auto set_name(const lexeme& name) -> void;
@@ -48,8 +43,11 @@ namespace kdl::build_target {
         auto set_type_hints(const std::vector<lexeme>& hints) -> void;
         [[nodiscard]] auto type_hints() const -> std::vector<lexeme>;
 
+    private:
+        bool m_reference { false };
+        std::optional<lexeme> m_type_name {};
+        std::vector<lexeme> m_type_hints {};
+
     };
 
 };
-
-#endif //KDL_KDL_TYPE_HPP

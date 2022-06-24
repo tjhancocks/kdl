@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TARGET_HPP)
-#define KDL_TARGET_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -29,7 +28,7 @@
 #include "disassembler/task.hpp"
 #include "target/new/type_container.hpp"
 #include "target/new/resource_instance.hpp"
-#include "libGraphite/rsrc/file.hpp"
+#include <libGraphite/rsrc/file.hpp>
 #include "target/track/resource_tracking.hpp"
 
 namespace kdl
@@ -42,28 +41,6 @@ namespace kdl
      */
     class target : public std::enable_shared_from_this<target>
     {
-    private:
-        std::string m_name { "Untitled Project" };
-        std::string m_version { "1.0" };
-        std::vector<std::string> m_authors {};
-        std::string m_dst_root;
-        std::string m_dst_file;
-        std::string m_src_root;
-        std::string m_scenario_root;
-        graphite::rsrc::file::format m_format { graphite::rsrc::file::format::classic };
-        std::optional<graphite::rsrc::file::format> m_required_format{};
-        std::vector<build_target::type_container> m_type_containers;
-        std::vector<build_target::type_container> m_attributed_type_containers;
-        graphite::rsrc::file m_file;
-        std::shared_ptr<kdl::resource_tracking::table> m_resource_tracking_table {};
-        std::map<std::string, kdl::lexeme> m_globals {};
-
-        std::optional<disassembler::task> m_disassembler;
-        std::vector<lexeme> m_disassembler_image_format { lexeme("PNG", lexeme::identifier) };
-        std::vector<lexeme> m_disassembler_sound_format { lexeme("WAV", lexeme::identifier) };
-
-        auto target_file_path() const -> std::string;
-
     public:
         target();
 
@@ -79,14 +56,14 @@ namespace kdl
         auto scenario_manifest(std::string_view scenario_name) -> std::string;
 
         auto set_format(const std::string& format) -> void;
-        auto set_required_format(const graphite::rsrc::file::format& format) -> bool;
+        auto set_required_format(const enum graphite::rsrc::file::format& format) -> bool;
 
         auto set_src_root(const std::string& src_root) -> void;
         auto resolve_src_path(const std::string& path) const -> std::string;
 
         auto add_type_container(const build_target::type_container& container) -> void;
         auto type_container_count() const -> std::size_t;
-        auto type_container_at(const int& i) const -> build_target::type_container;
+        auto type_container_at(int i) const -> build_target::type_container;
         auto type_container_named(const kdl::lexeme& name) const -> build_target::type_container;
 
         auto add_resource(const build_target::resource_instance& resource) -> void;
@@ -103,8 +80,29 @@ namespace kdl
         auto resource_tracker() const -> std::shared_ptr<kdl::resource_tracking::table>;
 
         auto save() -> void;
+
+    private:
+        std::string m_name { "Untitled Project" };
+        std::string m_version { "1.0" };
+        std::vector<std::string> m_authors {};
+        std::string m_dst_root;
+        std::string m_dst_file;
+        std::string m_src_root;
+        std::string m_scenario_root;
+        enum graphite::rsrc::file::format m_format { graphite::rsrc::file::format::classic };
+        std::optional<enum graphite::rsrc::file::format> m_required_format {};
+        std::vector<build_target::type_container> m_type_containers;
+        std::vector<build_target::type_container> m_attributed_type_containers;
+        graphite::rsrc::file m_file;
+        std::shared_ptr<kdl::resource_tracking::table> m_resource_tracking_table {};
+        std::map<std::string, kdl::lexeme> m_globals {};
+
+        std::optional<disassembler::task> m_disassembler;
+        std::vector<lexeme> m_disassembler_image_format { lexeme("PNG", lexeme::identifier) };
+        std::vector<lexeme> m_disassembler_sound_format { lexeme("WAV", lexeme::identifier) };
+
+        auto target_file_path() const -> std::string;
+
     };
 
 };
-
-#endif //KDL_TARGET_HPP

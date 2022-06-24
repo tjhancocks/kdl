@@ -28,7 +28,7 @@
 
 // MARK: - Constructor
 
-kdl::sema::parser::parser(std::weak_ptr<kdl::target> target, std::vector<kdl::lexeme> lexemes)
+kdl::sema::parser::parser(std::weak_ptr<kdl::target> target, const std::vector<kdl::lexeme>& lexemes)
     : m_target(target), m_lexemes(lexemes), m_ptr(0)
 {
 
@@ -71,7 +71,7 @@ auto kdl::sema::parser::parse() -> void
 
 // MARK: - Parser Private
 
-auto kdl::sema::parser::finished(const long offset, const long count) const -> bool
+auto kdl::sema::parser::finished(long offset, long count) const -> bool
 {
     auto ptr = (m_ptr + offset);
     auto end_ptr = (ptr + count);
@@ -88,7 +88,7 @@ auto kdl::sema::parser::consume(kdl::sema::expectation::function expect) -> std:
     return v;
 }
 
-auto kdl::sema::parser::advance(const long delta) -> void
+auto kdl::sema::parser::advance(long delta) -> void
 {
     m_ptr += delta;
     for (auto n = 0; n < delta; ++n) {
@@ -108,7 +108,7 @@ auto kdl::sema::parser::clear_pushed_lexemes() -> void
     m_tmp_lexemes.clear();
 }
 
-auto kdl::sema::parser::peek(const long offset) const -> kdl::lexeme
+auto kdl::sema::parser::peek(long offset) const -> kdl::lexeme
 {
     if (!m_tmp_lexemes.empty() && (offset >= 0 || offset < m_tmp_lexemes.size())) {
         return m_tmp_lexemes.at(offset);
@@ -119,7 +119,7 @@ auto kdl::sema::parser::peek(const long offset) const -> kdl::lexeme
     return m_lexemes[m_ptr + offset];
 }
 
-auto kdl::sema::parser::read(const long offset) -> kdl::lexeme
+auto kdl::sema::parser::read(long offset) -> kdl::lexeme
 {
     auto Tk = peek(offset);
     if (m_tmp_lexemes.empty() || (offset >= m_tmp_lexemes.size())) {

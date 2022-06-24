@@ -18,27 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_COMPONENT_PARSER_HPP)
-#define KDL_COMPONENT_PARSER_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 #include "parser/sema/component/component.hpp"
 
-namespace kdl::sema {
+namespace kdl::sema
+{
 
     class component_parser
     {
-    private:
-        parser& m_parser;
-        std::weak_ptr<target> m_target;
-        component m_component;
-
     public:
         component_parser(parser& parser, std::weak_ptr<target> target);
 
         auto parse() -> void;
+
+    private:
+        parser& m_parser;
+        std::weak_ptr<target> m_target;
+        component m_component;
     };
 
 }
-
-#endif //KDL_COMPONENT_PARSER_HPP

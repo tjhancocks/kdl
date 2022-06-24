@@ -21,19 +21,21 @@
 #include <map>
 #include <algorithm>
 #include <stdexcept>
-#include <limits.h>
+#include <climits>
 #include "disassembler/binary_parser.hpp"
 #include "disassembler/resource_exporter.hpp"
-#include "libGraphite/data/reader.hpp"
+#include <libGraphite/data/reader.hpp>
 #include "media/conversion.hpp"
 
 // MARK: - Construction
 
 kdl::disassembler::resource_exporter::resource_exporter(task& task, kdl::disassembler::kdl_exporter &exporter,
                                                         build_target::type_container& type)
-    : m_exporter(exporter), m_container(type), m_task(task)
+    : m_exporter(exporter),
+      m_container(type),
+      m_task(task),
+      m_id( std::numeric_limits<graphite::rsrc::resource::identifier>::max())
 {
-
 }
 
 // MARK: - Extraction
@@ -42,7 +44,7 @@ auto kdl::disassembler::resource_exporter::extract_kdl_field(const build_target:
 {
     // Field names can be "expanded" so we need to account for this... This is actually exposed in the
     // "type_field_value" as a name expansion.
-    std::map<std::string, lexeme> expansion_vars {
+    std::unordered_map<std::string, lexeme> expansion_vars {
         std::make_pair("FieldNumber", lexeme(std::to_string(pass), lexeme::integer))
     };
 
@@ -77,7 +79,7 @@ auto kdl::disassembler::resource_exporter::extract_kdl_field(const build_target:
 
         // Check if the template field has been visited already. If it has check if this value has a higher
         // priority than the previous. If it does then replace the previous visitation with this one.
-        auto priority = static_cast<int>(INT_MAX); // Default the "higest value"/"lowest priority".
+        auto priority = std::numeric_limits<std::int32_t>::max(); // Default the "higest value"/"lowest priority".
         auto is_file = false;
         if (expected_value.explicit_type().has_value() && expected_value.explicit_type()->name()->is("File")) {
             // The type hints here denote a file format. If no type hints exist, then use the default priority above.
@@ -111,12 +113,12 @@ auto kdl::disassembler::resource_exporter::extract_kdl_field(const build_target:
 
             media::conversion conv(expected_value.conversion_output(), output_format.value());
             conv.add_input_data(std::any_cast<std::vector<char>>(extracted_value));
-            const auto result = conv.perform_conversion();
+            auto result = conv.perform_conversion();
 
             // Now that the conversion has been defined setup a file export for this data. We can't immediately save
             // this data though, as this may not be the final result.
             std::string export_path(m_container.name() + "-" + std::to_string(m_id) + "." + m_task.format_extension(output_format.value()));
-            m_file_exports.emplace(tmpl_field_index, std::make_tuple(result, export_path));
+            m_file_exports.emplace(tmpl_field_index, std::make_tuple(std::move(result), export_path));
             m_final_values.emplace(tmpl_field_index, "import \"" + export_path + "\"");
             return;
         }
@@ -259,7 +261,7 @@ auto kdl::disassembler::resource_exporter::export_kdl_field(const kdl::build_tar
 {
     // Field names can be "expanded" so we need to account for this... This is actually exposed in the
     // "type_field_value" as a name expansion.
-    std::map<std::string, lexeme> expansion_vars {
+    std::unordered_map<std::string, lexeme> expansion_vars {
         std::make_pair("FieldNumber", lexeme(std::to_string(pass), lexeme::integer))
     };
 
@@ -307,23 +309,23 @@ auto kdl::disassembler::resource_exporter::repeat_kdl_field_export(const build_t
 
 // MARK: - Disassembler
 
-auto kdl::disassembler::resource_exporter::disassemble(std::shared_ptr<graphite::rsrc::resource> resource) -> void
+auto kdl::disassembler::resource_exporter::disassemble(graphite::rsrc::resource& resource) -> void
 {
-    m_id = resource->id();
+    m_id = resource.id();
 
     // The first task is to read all values out of the resource fork. This will make it easier to handle
     // merging and splitting of values required by fields.
-    graphite::data::reader r(resource->data());
+    graphite::data::reader r(&resource.data());
     m_extracted_values = binary_parser(m_container.internal_template()).parse(r);
 
     // We now have a list of all the values for the resource, iterate over the fields, and work out what needs to be
     // done.
-    for (auto field : m_container.all_fields()) {
+    for (const auto& field : m_container.all_fields()) {
         repeat_kdl_field_extraction(field);
     }
 
     // Now that all values have been extracted and formatted, do a second pass and actually build the output
-    for (auto field : m_container.all_fields()) {
+    for (const auto& field : m_container.all_fields()) {
         repeat_kdl_field_export(field);
     }
 
@@ -339,6 +341,5 @@ auto kdl::disassembler::resource_exporter::find_substitutions(const kdl::build_t
                                                               const std::any &value) const -> std::vector<lexeme>
 {
     std::vector<lexeme> subs;
-
     return subs;
 }

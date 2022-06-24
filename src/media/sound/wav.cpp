@@ -19,30 +19,31 @@
 // SOFTWARE.
 
 #include <iostream>
-#include "wav.hpp"
+#include "media/sound/wav.hpp"
 
 // MARK: - Constructors
 
-kdl::media::sound::wav::wav(const std::string path)
+kdl::media::sound::wav::wav(const std::string& path)
+    : m_path(path)
 {
-    graphite::data::reader reader(path);
+    graphite::data::block data(m_path);
+    graphite::data::reader reader(&data);
 
     // TODO: Possibly handle any errors that occur?
     decode(reader);
 }
 
-kdl::media::sound::wav::wav(std::shared_ptr<std::vector<char>> data)
+kdl::media::sound::wav::wav(const graphite::data::block& data)
     : m_sample_rate(1), m_sample_bits(8)
 {
-    auto ptr = std::make_shared<graphite::data::data>(data, data->size(), 0, graphite::data::lsb);
-    graphite::data::reader reader(ptr, 0);
+    graphite::data::reader reader(&data);
+    reader.change_byte_order(graphite::data::byte_order::lsb);
     decode(reader);
 }
 
 kdl::media::sound::wav::wav(uint32_t sample_rate, uint8_t sample_bits, std::vector<std::vector<uint32_t>> sample_data)
     : m_sample_rate(sample_rate), m_sample_bits(sample_bits), m_sample_data(sample_data)
 {
-
 }
 
 // MARK: - Decoding
@@ -137,7 +138,7 @@ auto kdl::media::sound::wav::decode(graphite::data::reader &reader) -> bool
 
 auto kdl::media::sound::wav::encode(graphite::data::writer &writer) -> void
 {
-    writer.data()->set_byte_order(graphite::data::lsb);
+    writer.change_byte_order(graphite::data::byte_order::lsb);
 
     auto num_channels = m_sample_data.size();
     if (!num_channels) {

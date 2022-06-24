@@ -18,25 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_DIRECTIVE_PARSER_HPP)
-#define KDL_DIRECTIVE_PARSER_HPP
+#pragma once
 
 #include "parser/parser.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema
+{
 
     class asm_directive
     {
-    private:
-        parser& m_parser;
-        std::weak_ptr<target> m_target;
-
     public:
         asm_directive(parser& parser, std::weak_ptr<target> target);
 
         auto parse() -> void;
+
+    private:
+        parser& m_parser;
+        std::weak_ptr<target> m_target;
+
     };
 
-}};
-
-#endif //KDL_DIRECTIVE_PARSER_HPP
+}

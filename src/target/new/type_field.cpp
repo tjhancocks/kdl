@@ -68,14 +68,14 @@ auto kdl::build_target::type_field::expected_values() const -> std::size_t
     return m_values.size();
 }
 
-auto kdl::build_target::type_field::value_at(const int& n) const -> kdl::build_target::type_field_value
+auto kdl::build_target::type_field::value_at(int n) const -> kdl::build_target::type_field_value
 {
     return m_values.at(n);
 }
 
 // MARK: - Repeatable
 
-auto kdl::build_target::type_field::make_repeatable(const int& lower, const int& upper) -> void
+auto kdl::build_target::type_field::make_repeatable(int lower, int upper) -> void
 {
     m_repeatable_lower = lower;
     m_repeatable_upper = upper;

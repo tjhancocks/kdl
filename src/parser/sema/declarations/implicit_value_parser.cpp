@@ -87,11 +87,11 @@ auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_instanc
 
         case build_target::RECT: {
             if (!m_parser.expect({
-                                       expectation(lexeme::integer).be_true(),
-                                       expectation(lexeme::integer).be_true(),
-                                       expectation(lexeme::integer).be_true(),
-                                       expectation(lexeme::integer).be_true()
-                               })) {
+                expectation(lexeme::integer).be_true(),
+                expectation(lexeme::integer).be_true(),
+                expectation(lexeme::integer).be_true(),
+                expectation(lexeme::integer).be_true()
+            })) {
                 auto lx = m_parser.peek();
                 log::fatal_error(lx, 1, "Expected 4 integer literals for field '" + m_field.name().text() + "'.");
             }

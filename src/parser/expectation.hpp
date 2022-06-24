@@ -18,35 +18,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_EXPECTATION_HPP)
-#define KDL_EXPECTATION_HPP
+#pragma once
 
 #include <functional>
 #include <string>
 #include "parser/lexeme.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema
+{
 
     struct expectation
     {
     public:
         typedef std::function<auto(lexeme) -> bool> function;
 
+    public:
+        explicit expectation(enum lexeme::type Ty);
+        explicit expectation(const std::string& Tx);
+        expectation(enum lexeme::type Ty, const std::string& Tx);
+
+        [[nodiscard]] auto to_be( bool r) const -> function;
+
+        [[nodiscard]] auto be_true() const -> function;
+        [[nodiscard]] auto be_false() const -> function;
+
     private:
         enum lexeme::type m_Ty;
         std::string m_Tx;
 
-    public:
-        expectation(enum lexeme::type Ty);
-        expectation(const std::string Tx);
-        expectation(enum lexeme::type Ty, const std::string Tx);
-
-        auto to_be(const bool r) const -> function;
-
-        auto be_true() const -> function;
-        auto be_false() const -> function;
     };
 
-}};
-
-#endif //KDL_CONDITION_HPP
+}

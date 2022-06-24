@@ -18,14 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_SYMBOL_LIST_PARSER_HPP)
-#define KDL_SYMBOL_LIST_PARSER_HPP
+#pragma once
 
 #include <tuple>
 #include <vector>
 #include "parser/parser.hpp"
 
-namespace kdl { namespace sema {
+namespace kdl::sema
+{
 
     class symbol_list_parser
     {
@@ -33,6 +33,4 @@ namespace kdl { namespace sema {
         static auto parse(parser& parser) -> std::vector<std::tuple<lexeme, lexeme>>;
     };
 
-}};
-
-#endif //KDL_SYMBOL_LIST_PARSER_HPP
+}

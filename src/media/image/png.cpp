@@ -19,30 +19,32 @@
 // SOFTWARE.
 
 #include <iostream>
-#include "png.hpp"
-#include "lodepng.hpp"
+#include "media/image/png.hpp"
+#include "media/image/lodepng.hpp"
 
 // MARK: - Constructors
 
-kdl::media::image::png::png(const std::string path)
+kdl::media::image::png::png(const std::string& path)
+    : m_path(path)
 {
-    graphite::data::reader reader(path);
+    // TODO: Double check that this actually wants to be MSB?
+    graphite::data::block data(m_path, graphite::data::byte_order::msb);
+    graphite::data::reader reader(&data);
 
     // TODO: Possibly handle any errors that occur?
     decode(reader);
 }
 
-kdl::media::image::png::png(std::shared_ptr<std::vector<char>> data)
+kdl::media::image::png::png(const graphite::data::block& data)
 {
-    auto ptr = std::make_shared<graphite::data::data>(data, data->size(), 0, graphite::data::lsb);
-    graphite::data::reader reader(ptr, 0);
+    graphite::data::reader reader(&data);
+    reader.change_byte_order(graphite::data::byte_order::msb);
     decode(reader);
 }
 
-kdl::media::image::png::png(std::shared_ptr<graphite::qd::surface> surface)
-        : m_surface(surface)
+kdl::media::image::png::png(graphite::quickdraw::surface& surface)
+    : m_surface(surface)
 {
-
 }
 
 // MARK: - Decoding
@@ -51,9 +53,9 @@ auto kdl::media::image::png::decode(graphite::data::reader &reader) -> bool
 {
     std::vector<unsigned char> image;
     unsigned int width, height;
-    std::shared_ptr<std::vector<char>> data = reader.get().get()->get();
 
-    auto error = lodepng::decode(image, width, height, std::vector<unsigned char>(data->begin(), data->end()));
+    auto bytes = reader.read_bytes(reader.size());
+    auto error = lodepng::decode(image, width, height, std::vector<unsigned char>(bytes.begin(), bytes.end()));
 
     if (error) {
         std::cerr << "PNG Decoder: Decode failed with error " << error << std::endl;
@@ -62,10 +64,12 @@ auto kdl::media::image::png::decode(graphite::data::reader &reader) -> bool
 
     // Setup a QuickDraw surface for the image to be read into. The buffer should be completely
     // black by default. This will be the "default" image in the event we fail to read.
-    m_surface = std::make_shared<graphite::qd::surface>(width, height);
+    m_surface = graphite::quickdraw::surface(width, height);
 
     for (auto i = 0, offset = 0; i < width * height; i++, offset += 4) {
-        m_surface->set(i, graphite::qd::color(image[offset], image[offset + 1], image[offset + 2], image[offset + 3]));
+        m_surface.set(i, graphite::quickdraw::rgb(
+            image[offset], image[offset + 1], image[offset + 2], image[offset + 3]
+        ));
     }
 
     // Finished
@@ -74,22 +78,22 @@ auto kdl::media::image::png::decode(graphite::data::reader &reader) -> bool
 
 // MARK: - Encoding
 
-auto kdl::media::image::png::encode(graphite::data::writer &writer) -> void
+auto kdl::media::image::png::encode(graphite::data::writer &writer) const -> void
 {
-    auto width = m_surface->size().width(), height = m_surface->size().height();
+    auto size = m_surface.size();
     std::vector<unsigned char> png;
-    std::vector<unsigned char> image(width * height * 4);
+    std::vector<unsigned char> image(size.width, size.height * 4);
 
-    for (auto y = 0; y < height; y++) {
-        for (auto x = 0; x < width; x++) {
-            image[width * y * 4 + x * 4 + 0] = m_surface->at(x, y).red_component();
-            image[width * y * 4 + x * 4 + 1] = m_surface->at(x, y).green_component();
-            image[width * y * 4 + x * 4 + 2] = m_surface->at(x, y).blue_component();
-            image[width * y * 4 + x * 4 + 3] = m_surface->at(x, y).alpha_component();
+    for (auto y = 0; y < size.height; y++) {
+        for (auto x = 0; x < size.width; x++) {
+            image[size.width * y * 4 + x * 4 + 0] = m_surface.at(x, y).components.red;
+            image[size.width * y * 4 + x * 4 + 1] = m_surface.at(x, y).components.green;
+            image[size.width * y * 4 + x * 4 + 2] = m_surface.at(x, y).components.blue;
+            image[size.width * y * 4 + x * 4 + 3] = m_surface.at(x, y).components.alpha;
         }
     }
 
-    auto error = lodepng::encode(png, image, width, height);
+    auto error = lodepng::encode(png, image, size.width, size.height);
     writer.write_bytes(png);
 
     if (error) {
@@ -99,15 +103,16 @@ auto kdl::media::image::png::encode(graphite::data::writer &writer) -> void
 
 // MARK: - Accessors
 
-auto kdl::media::image::png::surface() -> std::weak_ptr<graphite::qd::surface>
+auto kdl::media::image::png::surface() const -> const graphite::quickdraw::surface&
 {
     return m_surface;
 }
 
-auto kdl::media::image::png::data() -> std::shared_ptr<graphite::data::data>
+auto kdl::media::image::png::data() const -> graphite::data::block
 {
-    auto data = std::make_shared<graphite::data::data>();
-    graphite::data::writer writer(data);
+    graphite::data::block data;
+    graphite::data::writer writer(&data);
+    writer.change_byte_order(graphite::data::byte_order::msb);
     encode(writer);
-    return data;
+    return std::move(data);
 }

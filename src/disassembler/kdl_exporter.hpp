@@ -18,17 +18,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
-#if !defined(KDL_KDL_EXPORTER_HPP)
-#define KDL_KDL_EXPORTER_HPP
+#pragma once
 
 #include <string>
+#include <libGraphite/rsrc/resource.hpp>
 #include "parser/lexeme.hpp"
 
-namespace kdl { namespace disassembler {
+namespace kdl::disassembler
+{
 
     class kdl_exporter
     {
+    public:
+        explicit kdl_exporter(const std::string& path);
+
+        auto save() -> void;
+        auto export_file(const std::string& name, const std::string& contents) -> void;
+        auto export_file(const std::string& name, const std::vector<char>& contents) -> void;
+        auto export_file(const std::string& name, const graphite::data::block& data) -> void;
+
+        auto insert_comment(const std::string& text) -> void;
+
+        auto begin_declaration(const std::string& name) -> void;
+        auto end_declaration() -> void;
+
+        auto begin_resource(graphite::rsrc::resource::identifier id, const std::string& name) -> void;
+        auto end_resource() -> void;
+
+        auto add_field(const std::string& name, std::vector<std::string> values) -> void;
+
     private:
         std::string m_path;
         std::string m_dir;
@@ -36,25 +54,9 @@ namespace kdl { namespace disassembler {
 
         auto insert_line(const std::string& line, int indent = 0) -> void;
 
-    public:
-        kdl_exporter(const std::string& path);
-
-        auto save() -> void;
-        auto export_file(const std::string& name, const std::string& contents) -> void;
-        auto export_file(const std::string &name, const std::vector<char>& contents) -> void;
-
-        auto insert_comment(const std::string& text) -> void;
-
-        auto begin_declaration(const std::string& name) -> void;
-        auto end_declaration() -> void;
-
-        auto begin_resource(int64_t id, const std::string& name) -> void;
-        auto end_resource() -> void;
-
-        auto add_field(const std::string& name, std::vector<std::string> values) -> void;
     };
 
-}};
+}
 
 // MARK: - Helpers
 
@@ -70,4 +72,3 @@ static auto escape_strings(const std::string& str) -> std::string
     return out;
 }
 
-#endif //KDL_KDL_EXPORTER_HPP

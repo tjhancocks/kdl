@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_COMPONENT_FILE_HPP)
-#define KDL_COMPONENT_FILE_HPP
+#pragma once
 
 #include <string>
 #include <optional>
@@ -29,10 +28,6 @@ namespace kdl::sema
 
     struct component_file
     {
-    private:
-        std::string m_file;
-        std::optional<std::string> m_name;
-
     public:
         component_file(const std::string& file);
         component_file(const std::string& file, const std::string& name);
@@ -40,8 +35,11 @@ namespace kdl::sema
         [[nodiscard]] auto file() const -> std::string;
         [[nodiscard]] auto has_name() const -> bool;
         [[nodiscard]] auto name() const -> std::string;
+
+    private:
+        std::string m_file;
+        std::optional<std::string> m_name;
+
     };
 
 }
-
-#endif //KDL_COMPONENT_FILE_HPP

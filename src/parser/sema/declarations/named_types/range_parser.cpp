@@ -29,11 +29,11 @@ kdl::sema::range_parser::range_parser(kdl::sema::parser &parser, kdl::build_targ
                                       kdl::build_target::type_field_value &field_value,
                                       kdl::build_target::type_template::binary_field binary_field,
                                       kdl::build_target::kdl_type &type)
-        : m_parser(parser),
-          m_field(field),
-          m_field_value(field_value),
-          m_binary_field(std::move(binary_field)),
-          m_explicit_type(type)
+    : m_parser(parser),
+      m_field(field),
+      m_field_value(field_value),
+      m_binary_field(std::move(binary_field)),
+      m_explicit_type(type)
 {
 
 }
@@ -41,7 +41,7 @@ kdl::sema::range_parser::range_parser(kdl::sema::parser &parser, kdl::build_targ
 // MARK: - Parser
 
 template<typename T>
-static auto validate_range(const kdl::lexeme value, const kdl::lexeme lower, const kdl::lexeme upper) -> T
+static auto validate_range(const kdl::lexeme& value, const kdl::lexeme& lower, const kdl::lexeme& upper) -> T
 {
     auto v = value.value<T>();
     auto lV = lower.value<T>();

@@ -18,18 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_INSTALLER_ASSET_HPP)
-#define KDL_INSTALLER_ASSET_HPP
+#pragma once
 
 #include <vector>
 #include <string>
 
-namespace kdl { namespace installer {
+namespace kdl::installer
+{
 
     struct asset
     {
     public:
-        enum flags : uint8_t {
+        enum flags : std::uint8_t {
             overwrite = 0x01,
             hidden = 0x02,
             directory = 0x04,
@@ -38,20 +38,18 @@ namespace kdl { namespace installer {
             intermediates = 0x20,
         };
 
-    private:
-        std::string m_name;
-        enum flags m_flags { 0 };
-        std::string m_destination;
-        std::vector<char> m_data;
-
     public:
         asset(std::string_view name, enum flags flags, std::string_view destination, std::vector<char> data);
 
         static auto load_assets(std::string_view path) -> std::vector<asset>;
 
         auto install() const -> void;
+
+    private:
+        std::string m_name;
+        enum flags m_flags { 0 };
+        std::string m_destination;
+        std::vector<char> m_data;
     };
 
-}};
-
-#endif //KDL_INSTALLER_ASSET_HPP
+}

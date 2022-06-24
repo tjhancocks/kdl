@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_TYPE_TEMPLATE_HPP)
-#define KDL_TYPE_TEMPLATE_HPP
+#pragma once
 
 #include <vector>
 #include <tuple>
@@ -27,7 +26,8 @@
 #include "target/new/binary_type.hpp"
 #include "parser/lexeme.hpp"
 
-namespace kdl::build_target {
+namespace kdl::build_target
+{
 
     /**
      * The type template is a structure that defines what the binary layout and structure of a resource
@@ -49,11 +49,8 @@ namespace kdl::build_target {
             lexeme label;
             binary_type type;
 
-            binary_field(lexeme label, const binary_type& type);
+            binary_field(const lexeme& label, const binary_type& type);
         };
-
-    private:
-        std::vector<binary_field> m_fields;
 
     public:
         type_template() = default;
@@ -66,8 +63,10 @@ namespace kdl::build_target {
         [[nodiscard]] auto binary_field_named(const lexeme& lx) const -> binary_field;
         [[nodiscard]] auto binary_field_index(const std::string& name) const -> int;
         [[nodiscard]] auto binary_field_index(const lexeme& lx) const -> int;
+
+    private:
+        std::vector<binary_field> m_fields;
+
     };
 
 }
-
-#endif //KDL_TYPE_TEMPLATE_HPP

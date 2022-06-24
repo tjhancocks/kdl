@@ -20,6 +20,7 @@
 
 #include <fstream>
 #include "disassembler/kdl_exporter.hpp"
+#include <libGraphite/data/reader.hpp>
 
 // MARK: - Construction
 
@@ -57,6 +58,12 @@ auto kdl::disassembler::kdl_exporter::export_file(const std::string &name, const
     out.close();
 }
 
+auto kdl::disassembler::kdl_exporter::export_file(const std::string &name, const graphite::data::block &data) -> void
+{
+    graphite::data::reader reader(&data);
+    return export_file(name, reader.read_bytes(reader.size()));
+}
+
 // MARK: - Code Generation
 
 auto kdl::disassembler::kdl_exporter::insert_line(const std::string &line, int indent) -> void
@@ -82,7 +89,7 @@ auto kdl::disassembler::kdl_exporter::end_declaration() -> void
     insert_line("};");
 }
 
-auto kdl::disassembler::kdl_exporter::begin_resource(int64_t id, const std::string &name) -> void
+auto kdl::disassembler::kdl_exporter::begin_resource(graphite::rsrc::resource::identifier id, const std::string &name) -> void
 {
     if (name.empty()) {
         insert_line("new (#" + std::to_string(id) + ") {", 1);

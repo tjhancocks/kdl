@@ -18,14 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_RESOURCE_INSTANCE_HPP)
-#define KDL_RESOURCE_INSTANCE_HPP
+#pragma once
 
 #include <any>
 #include <string>
 #include <optional>
 #include <string>
-#include <map>
+#include <unordered_map>
 #include "parser/lexeme.hpp"
 #include "target/new/type_template.hpp"
 #include "target/new/type_field.hpp"
@@ -33,37 +32,25 @@
 #include "libGraphite/data/data.hpp"
 #include "libGraphite/data/writer.hpp"
 
-namespace kdl::build_target {
+namespace kdl::build_target
+{
 
     class resource_instance
     {
-    private:
-        int64_t m_id { INT64_MIN };
-        std::string m_code { "NULL" };
-        std::string m_name;
-        std::map<std::string, int> m_field_counts;
-        type_template m_tmpl;
-        std::map<int, std::vector<std::any>> m_values;
-        std::map<std::string, std::string> m_attributes;
-
-        auto assemble_field(graphite::data::writer& writer, const enum binary_type& type, const std::any& wrapped_value) const -> void;
-        auto write(const std::string& field, const std::any& value) -> void;
-        [[nodiscard]] auto index_of(const std::string& field) const -> int;
-        [[nodiscard]] auto available_name_extensions(const type_field& field) const -> std::map<std::string, lexeme>;
-
     public:
-        resource_instance(const int64_t& id, std::string code, std::string name, kdl::build_target::type_template tmpl);
-        resource_instance(const int64_t& id, std::string code, std::string name, std::string contents);
+        resource_instance(graphite::rsrc::resource::identifier id, const std::string& code, const std::string& name, kdl::build_target::type_template tmpl);
+        resource_instance(graphite::rsrc::resource::identifier id, const std::string& code, const std::string& name, const std::string& contents);
+        resource_instance(graphite::rsrc::resource::identifier id, const std::string& code, const std::string& name, const graphite::data::block& data);
 
-        [[nodiscard]] auto type_code() const -> std::string;
-        [[nodiscard]] auto id() const -> int64_t;
-        [[nodiscard]] auto name() const -> std::string;
+        [[nodiscard]] auto type_code() const -> const std::string&;
+        [[nodiscard]] auto id() const -> graphite::rsrc::resource::identifier;
+        [[nodiscard]] auto name() const -> const std::string&;
 
-        auto set_attributes(const std::map<std::string, std::string>& attributes) -> void;
+        auto set_attributes(const std::unordered_map<std::string, std::string>& attributes) -> void;
         auto set_attribute(const std::string& name, const std::string& value) -> void;
-        [[nodiscard]] auto attributes() const -> std::map<std::string, std::string>;
+        [[nodiscard]] auto attributes() const -> std::unordered_map<std::string, std::string>;
 
-        [[nodiscard]] auto get_type_template() const -> kdl::build_target::type_template;
+        [[nodiscard]] auto get_type_template() const -> const kdl::build_target::type_template&;
 
         [[nodiscard]] auto field_use_count(const lexeme& field) const -> int;
         [[nodiscard]] auto acquire_field(const lexeme& field, const int& initial_count = 0) -> int;
@@ -84,14 +71,28 @@ namespace kdl::build_target {
         auto write_cstr(const type_field& field, const type_field_value& field_value, const std::string& value, const std::size_t& len = 0) -> void;
         auto write_data(const type_field& field, const type_field_value& field_value, const std::vector<char>& data) -> void;
         auto write_data(const type_field& field, const type_field_value& field_value, const std::vector<uint8_t>& data) -> void;
+        auto write_data(const type_field& field, const type_field_value& field_value, const graphite::data::block& data) -> void;
         auto write_rect(const type_field& field, const type_field_value& field_value, const int16_t& t, const int16_t& l, const int16_t &b, const int16_t& r) -> void;
 
         auto write(const int& field_index, const std::any& value) -> void;
 
-        [[nodiscard]] auto assemble() const -> std::shared_ptr<graphite::data::data>;
-        [[nodiscard]] auto synthesize_variables() const -> std::map<std::string, lexeme>;
+        [[nodiscard]] auto assemble() const -> graphite::data::block;
+        [[nodiscard]] auto synthesize_variables() const -> std::unordered_map<std::string, lexeme>;
+
+    private:
+        graphite::rsrc::resource::identifier m_id { INT64_MIN };
+        std::string m_code { "NULL" };
+        std::string m_name;
+        std::map<std::string, int> m_field_counts;
+        type_template m_tmpl;
+        std::unordered_map<int, std::vector<std::any>> m_values;
+        std::unordered_map<std::string, std::string> m_attributes;
+
+        auto assemble_field(graphite::data::writer& writer, const enum binary_type& type, const std::any& wrapped_value) const -> void;
+        auto write(const std::string& field, const std::any& value) -> void;
+        [[nodiscard]] auto index_of(const std::string& field) const -> int;
+        [[nodiscard]] auto available_name_extensions(const type_field& field) const -> std::unordered_map<std::string, lexeme>;
+
     };
 
 };
-
-#endif //KDL_RESOURCE_INSTANCE_HPP

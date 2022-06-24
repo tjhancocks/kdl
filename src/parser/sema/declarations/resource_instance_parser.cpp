@@ -150,7 +150,7 @@ auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource
         m_id = target->resource_tracker()->next_available_id(m_type.code());
     }
 
-    auto instance = m_type.new_instance(m_id, m_name);
+    auto instance = std::move(m_type.new_instance(m_id, m_name));
 
     // Is this resource one that is overriding another? If it is then we need to pre-populate the resource with the data
     // of the original (if it exists.)
