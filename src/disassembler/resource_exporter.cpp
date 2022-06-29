@@ -309,13 +309,13 @@ auto kdl::disassembler::resource_exporter::repeat_kdl_field_export(const build_t
 
 // MARK: - Disassembler
 
-auto kdl::disassembler::resource_exporter::disassemble(graphite::rsrc::resource& resource) -> void
+auto kdl::disassembler::resource_exporter::disassemble(graphite::rsrc::resource *resource) -> void
 {
-    m_id = resource.id();
+    m_id = resource->id();
 
     // The first task is to read all values out of the resource fork. This will make it easier to handle
     // merging and splitting of values required by fields.
-    graphite::data::reader r(&resource.data());
+    graphite::data::reader r(&resource->data());
     m_extracted_values = binary_parser(m_container.internal_template()).parse(r);
 
     // We now have a list of all the values for the resource, iterate over the fields, and work out what needs to be

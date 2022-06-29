@@ -248,7 +248,7 @@ auto kdl::media::image::tga::encode(graphite::data::writer &writer) const -> voi
 
 // MARK: - Accessors
 
-auto kdl::media::image::tga::surface() const -> const graphite::quickdraw::surface&
+auto kdl::media::image::tga::surface() -> graphite::quickdraw::surface&
 {
     return m_surface;
 }

@@ -91,17 +91,17 @@ auto main(int argc, const char **argv) -> int
             }
             else if (arg == "-i" || arg == "--include") {
                 // Look up the data file referenced and read it into the resource manager.
-                graphite::rsrc::file file(kdl::file::resolve_tilde(std::string(argv[i + 1])));
+                auto file = new graphite::rsrc::file(kdl::file::resolve_tilde(std::string(argv[i + 1])));
                 i += 1;
 
                 graphite::rsrc::manager::shared_manager().import_file(file);
 
                 // Import the contents of the file into the resource tracker.
                 auto tracker = target->resource_tracker();
-                for (const auto& type_code: file.type_codes()) {
-                    auto type = const_cast<graphite::rsrc::type *>(file.type(graphite::rsrc::type::hash_for_type_code(type_code)));
+                for (const auto& type_code: file->type_codes()) {
+                    auto type = const_cast<graphite::rsrc::type *>(file->type(graphite::rsrc::type::hash_for_type_code(type_code)));
                     for (auto& resource: *type) {
-                        tracker->add_instance(file.name(), type->code(), resource.id(), resource.name());
+                        tracker->add_instance(file->name(), type->code(), resource->id(), resource->name());
                     }
                 }
             }

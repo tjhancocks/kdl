@@ -37,7 +37,7 @@ namespace kdl::disassembler
     public:
         resource_exporter(task& task, kdl_exporter& exporter, build_target::type_container& type);
 
-        auto disassemble(graphite::rsrc::resource& resource) -> void;
+        auto disassemble(graphite::rsrc::resource *resource) -> void;
 
     private:
         graphite::rsrc::resource::identifier m_id;

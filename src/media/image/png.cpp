@@ -103,7 +103,7 @@ auto kdl::media::image::png::encode(graphite::data::writer &writer) const -> voi
 
 // MARK: - Accessors
 
-auto kdl::media::image::png::surface() const -> const graphite::quickdraw::surface&
+auto kdl::media::image::png::surface() -> graphite::quickdraw::surface&
 {
     return m_surface;
 }

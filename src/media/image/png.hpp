@@ -38,7 +38,7 @@ namespace kdl::media::image
         explicit png(const graphite::data::block& data);
         explicit png(graphite::quickdraw::surface& surface);
 
-        [[nodiscard]] auto surface() const -> const graphite::quickdraw::surface&;
+        auto surface() -> graphite::quickdraw::surface&;
         [[nodiscard]] auto data() const -> graphite::data::block;
 
     private:

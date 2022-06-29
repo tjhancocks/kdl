@@ -39,8 +39,8 @@ auto kdl::analyzer::template_extractor::build_type_definitions() -> void
 {
     if (auto tmpl = const_cast<graphite::rsrc::type *>(m_in.type("TMPL"))) {
         for (auto& res : *tmpl) {
-            auto code = res.name();
-            auto data = graphite::data::reader(&res.data());
+            auto code = res->name();
+            auto data = graphite::data::reader(&res->data());
 
             // Build the KDL Code for the template.
             std::string kdl_code;

@@ -150,7 +150,7 @@ auto kdl::disassembler::task::disassemble_resources() -> void
                 exporter.begin_declaration(type_container.name());
 
                 for (auto& resource : *type) {
-                    exporter.begin_resource(resource.id(), resource.name());
+                    exporter.begin_resource(resource->id(), resource->name());
                     resource_exporter(*this, exporter, type_container).disassemble(resource);
                     exporter.end_resource();
                 }
