@@ -50,6 +50,7 @@ auto kdl::sema::conversion_parser::parse() -> std::tuple<lexeme, lexeme>
     list.add_valid_list_item(lexeme::identifier, "PNG");
     list.add_valid_list_item(lexeme::identifier, "cicn");
     list.add_valid_list_item(lexeme::identifier, "rleD");
+    list.add_valid_list_item(lexeme::identifier, "rleX");
     list.add_valid_list_item(lexeme::identifier, "ppat");
     list.add_valid_list_item(lexeme::identifier, "WAV");
     list.add_valid_list_item(lexeme::identifier, "snd");

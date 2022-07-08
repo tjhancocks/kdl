@@ -163,7 +163,7 @@ auto kdl::media::conversion::perform_conversion() const -> graphite::data::block
         }
 
         auto frame_size = surface.size();
-        graphite::spriteworld::rle rle(surface.size(), m_input_file_contents.size());
+        graphite::spriteworld::rle<16> rle(surface.size(), m_input_file_contents.size());
         rle.write_frame(0, surface);
 
         // Load subsequent frames and make sure they're the same size as the first
@@ -187,8 +187,61 @@ auto kdl::media::conversion::perform_conversion() const -> graphite::data::block
         // Encode the rleD resource
         return std::move(rle.data());
     }
+    else if (is_image_type(m_input_file_format) && m_output_file_format.is("rleX")) {
+        if (m_input_file_contents.empty()) {
+            log::fatal_error(m_output_file_format, 1, "Must have at least one input file for format '" + m_output_file_format.text() + "'");
+        }
+
+        graphite::quickdraw::surface surface;
+
+        // Load the first image to determine the frame size
+        if (m_input_file_format.is("TGA")) {
+            image::tga tga(m_input_file_contents[0]);
+            surface = std::move(tga.surface());
+        }
+        else if (m_input_file_format.is("PNG")) {
+            image::png png(m_input_file_contents[0]);
+            surface = std::move(png.surface());
+        }
+
+        auto frame_size = surface.size();
+        graphite::spriteworld::rle<32> rle(surface.size(), m_input_file_contents.size());
+        rle.write_frame(0, surface);
+
+        // Load subsequent frames and make sure they're the same size as the first
+        for (auto i = 1; i <  m_input_file_contents.size(); i++) {
+            if (m_input_file_format.is("TGA")) {
+                image::tga tga(m_input_file_contents[i]);
+                surface = std::move(tga.surface());
+            }
+            else if (m_input_file_format.is("PNG")) {
+                image::png png(m_input_file_contents[i]);
+                surface = std::move(png.surface());
+            }
+
+            if (surface.size().width != frame_size.width || surface.size().height != frame_size.height) {
+                log::fatal_error(m_output_file_format, 1, "Frame " + std::to_string(i) + " has incorrect size");
+            }
+
+            rle.write_frame(i, surface);
+        }
+
+        // Encode the rleX resource
+        return std::move(rle.data());
+    }
     else if (m_input_file_format.is("rleD") && is_image_type(m_output_file_format)) {
-        graphite::spriteworld::rle rle(m_input_file_contents[0]);
+        graphite::spriteworld::rle<16> rle(m_input_file_contents[0]);
+        auto surface = std::move(rle.surface());
+
+        if (m_output_file_format.is("PNG")) {
+            image::png png(surface);
+            return std::move(png.data());
+        }
+
+        return {};
+    }
+    else if (m_input_file_format.is("rleX") && is_image_type(m_output_file_format)) {
+        graphite::spriteworld::rle<32> rle(m_input_file_contents[0]);
         auto surface = std::move(rle.surface());
 
         if (m_output_file_format.is("PNG")) {
