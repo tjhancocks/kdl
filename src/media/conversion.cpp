@@ -25,8 +25,8 @@
 
 #include <libGraphite/quickdraw/format/pict.hpp>
 #include <libGraphite/quickdraw/format/cicn.hpp>
-#include <libGraphite/quickdraw/format/rle.hpp>
 #include <libGraphite/quickdraw/format/ppat.hpp>
+#include <libGraphite/spriteworld/rle.hpp>
 #include <libGraphite/sound/sound.hpp>
 
 #include "diagnostic/fatal.hpp"
@@ -48,7 +48,7 @@ kdl::media::conversion::conversion(kdl::lexeme input, kdl::lexeme output)
 }
 
 kdl::media::conversion::conversion(const graphite::data::block &input_file_contents, lexeme input, lexeme output)
-    : m_input_file_contents({ std::move(input_file_contents) }), m_input_file_format(input), m_output_file_format(output)
+    : m_input_file_contents({ input_file_contents }), m_input_file_format(input), m_output_file_format(output)
 {
 }
 
@@ -146,7 +146,7 @@ auto kdl::media::conversion::perform_conversion() const -> graphite::data::block
         return snd.samples();
     }
     else if (is_image_type(m_input_file_format) && m_output_file_format.is("rleD")) {
-        if (m_input_file_contents.size() == 0) {
+        if (m_input_file_contents.empty()) {
             log::fatal_error(m_output_file_format, 1, "Must have at least one input file for format '" + m_output_file_format.text() + "'");
         }
 
@@ -163,7 +163,7 @@ auto kdl::media::conversion::perform_conversion() const -> graphite::data::block
         }
 
         auto frame_size = surface.size();
-        graphite::quickdraw::rle rle(surface.size(), m_input_file_contents.size());
+        graphite::spriteworld::rle rle(surface.size(), m_input_file_contents.size());
         rle.write_frame(0, surface);
 
         // Load subsequent frames and make sure they're the same size as the first
@@ -188,8 +188,8 @@ auto kdl::media::conversion::perform_conversion() const -> graphite::data::block
         return std::move(rle.data());
     }
     else if (m_input_file_format.is("rleD") && is_image_type(m_output_file_format)) {
-        graphite::quickdraw::rle rle(m_input_file_contents[0]);
-        auto surface = rle.surface();
+        graphite::spriteworld::rle rle(m_input_file_contents[0]);
+        auto surface = std::move(rle.surface());
 
         if (m_output_file_format.is("PNG")) {
             image::png png(surface);
