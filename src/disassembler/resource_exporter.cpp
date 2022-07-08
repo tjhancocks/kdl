@@ -19,9 +19,9 @@
 // SOFTWARE.
 
 #include <map>
+#include <limits>
 #include <algorithm>
 #include <stdexcept>
-#include <climits>
 #include "disassembler/binary_parser.hpp"
 #include "disassembler/resource_exporter.hpp"
 #include <libGraphite/data/reader.hpp>

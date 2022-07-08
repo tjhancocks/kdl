@@ -20,7 +20,7 @@
 
 #include <iostream>
 #include <algorithm>
-#include <limits.h>
+#include <limits>
 #include "disassembler/task.hpp"
 #include "disassembler/kdl_exporter.hpp"
 #include "disassembler/resource_exporter.hpp"

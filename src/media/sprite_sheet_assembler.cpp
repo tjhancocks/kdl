@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <complex>
+#include <limits>
 #include "media/image/tga.hpp"
 #include "media/image/png.hpp"
 #include "sprite_sheet_assembler.hpp"
