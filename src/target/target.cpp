@@ -86,7 +86,6 @@ auto kdl::target::type_container_named(const kdl::lexeme& name) const -> build_t
     log::fatal_error(name, 1, "Missing definition for type '" + name.text() + "'");
 }
 
-
 // MARK: - Destination Paths
 
 auto kdl::target::set_dst_path(const std::string& dst_path) -> void
@@ -237,8 +236,6 @@ auto kdl::target::add_resource(const build_target::resource_instance& resource) 
                         resource.name(),
                         resource.assemble(),
                         resource.attributes());
-
-
 }
 
 // MARK: - Saving
