@@ -255,9 +255,7 @@ auto kdl::media::image::tga::surface() -> graphite::quickdraw::surface&
 
 auto kdl::media::image::tga::data() const -> graphite::data::block
 {
-    graphite::data::block data;
-    graphite::data::writer writer(&data);
-    writer.change_byte_order(graphite::data::byte_order::lsb);
+    graphite::data::writer writer(graphite::data::byte_order::lsb);
     encode(writer);
-    return std::move(data);
+    return std::move(*const_cast<graphite::data::block *>(writer.data()));
 }

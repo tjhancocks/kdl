@@ -110,9 +110,7 @@ auto kdl::media::image::png::surface() -> graphite::quickdraw::surface&
 
 auto kdl::media::image::png::data() const -> graphite::data::block
 {
-    graphite::data::block data;
-    graphite::data::writer writer(&data);
-    writer.change_byte_order(graphite::data::byte_order::msb);
+    graphite::data::writer writer(graphite::data::byte_order::msb);
     encode(writer);
-    return std::move(data);
+    return std::move(*const_cast<graphite::data::block *>(writer.data()));
 }

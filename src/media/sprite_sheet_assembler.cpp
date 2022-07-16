@@ -196,8 +196,7 @@ auto kdl::media::sprite_sheet_assembler::assemble() const -> graphite::data::blo
     //      uint16_t    height
     //  uint32_t    tga_size
     //  uint8_t...  tga
-    graphite::data::block sprite_sheet_data;
-    graphite::data::writer sprite_sheet_writer(&sprite_sheet_data);
+    graphite::data::writer sprite_sheet_writer(graphite::data::byte_order::lsb);
 
     sprite_sheet_writer.write_short(1);
     sprite_sheet_writer.write_short(sprite_sheet_rects.size());
@@ -212,5 +211,5 @@ auto kdl::media::sprite_sheet_assembler::assemble() const -> graphite::data::blo
     sprite_sheet_writer.write_long(tga_data.size());
     sprite_sheet_writer.write_data(&tga_data);
 
-    return std::move(sprite_sheet_data);
+    return std::move(*const_cast<graphite::data::block *>(sprite_sheet_writer.data()));
 }

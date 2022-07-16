@@ -27,7 +27,6 @@
 #include "analyzer/template_extractor.hpp"
 #include "installer/installer_asset.hpp"
 #include "libGraphite/rsrc/manager.hpp"
-#include "disassembler/task.hpp"
 
 auto main(int argc, const char **argv) -> int
 {
