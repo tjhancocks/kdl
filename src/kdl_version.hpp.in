@@ -18,11 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KDL_VERSION_HPP)
-#define KDL_VERSION_HPP
+#pragma once
 
 #	define KDL_VERSION 		"@KDL_VERSION@"
-#	define KDL_LICENSE		"MIT License Copyright (c) 2019-2020"
+#	define KDL_LICENSE		"MIT License Copyright (c) 2019-2022"
 #	define KDL_AUTHORS 		"Tom Hancocks"
-
-#endif //KDL_KDL_VERSION_HPP
