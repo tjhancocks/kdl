@@ -1,4 +1,4 @@
-[![Version](https://img.shields.io/badge/version-v0.8-blue.svg)](#) [![Version](https://img.shields.io/badge/licennse-MIT-blue.svg)](#)
+[![kdl CI](https://github.com/tjhancocks/kdl/actions/workflows/build.yml/badge.svg)](https://github.com/tjhancocks/kdl/actions/workflows/build.yml) [![Version](https://img.shields.io/badge/version-v0.8-blue.svg)](#) [![Version](https://img.shields.io/badge/licennse-MIT-blue.svg)](#)
 
 # KDL (Kestrel Development Language)
 This is an ancillary project of Kestrel, and acts as the primary development kit
