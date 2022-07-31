@@ -32,18 +32,23 @@ namespace kdl::sema
     class component
     {
     public:
+        enum class mode
+        {
+            import_file, export_lua_as_resource
+        };
+
         struct file
-            {
+        {
             std::string path;
             std::optional<std::string> name;
 
             explicit file(std::string path) : path(std::move(path)), name({}) {};
             file(std::string path, std::string name) : path(std::move(path)), name(std::move(name)) {};
-            };
+        };
 
     public:
         component() = default;
-        explicit component(std::string name);
+        explicit component(std::string name, enum mode mode = mode::import_file);
 
         [[nodiscard]] auto name() const -> std::string;
 
@@ -64,9 +69,13 @@ namespace kdl::sema
         auto set_files(std::vector<file> files) -> void;
         [[nodiscard]] auto files() const -> std::vector<file>;
 
-        auto generate_resources(std::shared_ptr<target> target) const -> void;
+        auto set_export_types(const std::vector<lexeme>& types) -> void;
+
+        auto generate_resources(const std::shared_ptr<target>& target) const -> void;
+        auto synthesize_lua_from_types(const std::shared_ptr<target>& target) const -> void;
 
     private:
+        enum mode m_mode;
         std::string m_name { "Untitled Component" };
         bool m_scene { false };
         std::string m_path_prefix;
@@ -74,6 +83,7 @@ namespace kdl::sema
         kdl::lexeme m_as_type { "", lexeme::identifier };
         std::int64_t m_base_id { 128 };
         std::vector<file> m_files;
+        std::vector<lexeme> m_export_types;
     };
 
 }

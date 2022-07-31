@@ -1,0 +1,49 @@
+@type Fruit : "früt" {
+	template {
+		PSTR Name;
+		HLNG Color1;
+		HLNG Color2;
+		HLNG Color3;
+		HLNG Color4;
+		DWRD Country;
+	};
+	
+	@setter field("Name") {
+		Name;
+	};
+	
+	field("Color") repeatable<1,4> {
+		Color<$FieldNumber> as Color [
+			Red = 0xFF0000,
+			Green = 0x00FF00,
+			Yellow = 0xFFFF00,
+			Orange = 0xFF8800,
+			Purple = 0xFF0088,
+		];
+	};
+	
+	field("Country") {
+		Country as Country& = #-1;
+	};
+};
+
+@type LuaScript : "LuaS" {
+	template {
+		CSTR Script;
+	};
+	
+	field("Script") {
+		Script;	
+	};
+};
+
+@lua_export component "Base Components" {
+	path_prefix = "";
+	namespace = "models";
+	base_id = #1000;
+	as_type = LuaScript;
+	
+	types {
+		Fruit;
+	};
+};

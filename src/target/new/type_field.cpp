@@ -96,3 +96,15 @@ auto kdl::build_target::type_field::is_repeatable() const -> bool
 {
     return m_repeatable;
 }
+
+// MARK: - Lua Setter
+
+auto kdl::build_target::type_field::wants_lua_setter() const -> bool
+{
+    return m_lua_setter;
+}
+
+auto kdl::build_target::type_field::set_lua_setter(bool f) -> void
+{
+    m_lua_setter = f;
+}

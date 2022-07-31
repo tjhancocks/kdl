@@ -69,7 +69,7 @@ auto kdl::sema::type_definition_parser::parse(bool directive) -> kdl::build_targ
         else if (m_parser.expect({ expectation(lexeme::identifier, "assert").be_true() })) {
             type.add_assertions(assertion_parser::parse(m_parser));
         }
-        else if (m_parser.expect({ expectation(lexeme::identifier, "field").be_true() })) {
+        else if (m_parser.expect_any({ expectation(lexeme::identifier, "field").be_true(), expectation(lexeme::directive, "setter").be_true() })) {
             type.add_field(field_definition_parser(m_parser, m_target, type.internal_template()).parse());
         }
         else {

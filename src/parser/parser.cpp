@@ -51,14 +51,14 @@ auto kdl::sema::parser::parse() -> void
             advance();
             declaration_parser(*this, m_target, true).parse();
         }
+        else if (expect_any({ expectation(lexeme::identifier, "component").be_true(), expectation(lexeme::directive, "lua_export").be_true() })) {
+            component_parser(*this, m_target).parse();
+        }
         else if (expect({ expectation(lexeme::directive).be_true() })) {
             asm_directive(*this, m_target).parse();
         }
         else if (expect({ expectation(lexeme::identifier, "declare").be_true() })) {
             declaration_parser(*this, m_target).parse();
-        }
-        else if (expect({ expectation(lexeme::identifier, "component").be_true() })) {
-            component_parser(*this, m_target).parse();
         }
         else {
             auto lx = peek();

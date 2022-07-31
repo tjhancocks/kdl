@@ -23,6 +23,7 @@
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/component/component_parser.hpp"
 #include "parser/sema/component/file_list_parser.hpp"
+#include "parser/sema/component/types_list_parser.hpp"
 #include "parser/sema/component/component_file.hpp"
 
 // MARK: - Constructor
@@ -41,12 +42,18 @@ auto kdl::sema::component_parser::parse() -> void
     }
     auto target = m_target.lock();
 
+    component::mode mode = component::mode::import_file;
+    if (m_parser.expect({ expectation(lexeme::directive, "lua_export").be_true() })) {
+        m_parser.advance();
+        mode = component::mode::export_lua_as_resource;
+    }
+
     m_parser.ensure({ expectation(lexeme::identifier, "component").be_true() });
     if (!m_parser.expect({ expectation(lexeme::string).be_true() })) {
         log::fatal_error(m_parser.peek(), 1, "Component name must be a string.");
     }
     auto component_name = m_parser.read();
-    m_component = component(component_name.text());
+    m_component = component(component_name.text(), mode);
 
     m_parser.ensure({ expectation(lexeme::l_brace).be_true() });
     while (m_parser.expect({ expectation(lexeme::r_brace).be_false() })) {
@@ -94,9 +101,20 @@ auto kdl::sema::component_parser::parse() -> void
             m_parser.advance();
         }
         else if (m_parser.expect({ expectation(lexeme::identifier, "files").be_true() })) {
+            if (mode != component::mode::import_file) {
+                log::fatal_error(m_parser.peek(), 1, "Unexpected 'files' block encountered in component.");
+            }
             m_parser.advance();
             auto files = file_list_parser(m_parser, m_target).parse();
             m_component.set_files(files);
+        }
+        else if (m_parser.expect({ expectation(lexeme::identifier, "types").be_true() })) {
+            if (mode != component::mode::export_lua_as_resource) {
+                log::fatal_error(m_parser.peek(), 1, "Unexpected 'types' block encountered in component.");
+            }
+            m_parser.advance();
+            auto types = types_list_parser(m_parser, m_target).parse();
+            m_component.set_export_types(types);
         }
         else {
             log::fatal_error(m_parser.peek(), 1, "Expected either 'path_prefix', 'namespace', 'is_scene', 'base_id' or 'files'.");
@@ -107,5 +125,15 @@ auto kdl::sema::component_parser::parse() -> void
     m_parser.ensure({ expectation(lexeme::r_brace).be_true() });
 
     // At this point we need to actually do something with the component.
-    m_component.generate_resources(target);
+    switch (mode) {
+        case component::mode::import_file: {
+            m_component.generate_resources(target);
+            break;
+        }
+        case component::mode::export_lua_as_resource: {
+            m_component.synthesize_lua_from_types(target);
+            break;
+        }
+    }
+
 }

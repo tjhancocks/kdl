@@ -18,14 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "component.hpp"
-
+#include <iostream>
 #include <utility>
+#include "parser/sema/component/component.hpp"
+#include "codegen/lua/type_exporter.hpp"
 
 // MARK: - Construction
 
-kdl::sema::component::component(std::string name)
-    : m_name(std::move(name))
+kdl::sema::component::component(std::string name, enum mode mode)
+    : m_name(std::move(name)), m_mode(mode)
 {
 
 }
@@ -97,9 +98,16 @@ auto kdl::sema::component::set_files(std::vector<file> files) -> void
     m_files = std::move(files);
 }
 
+// MARK: - Types
+
+auto kdl::sema::component::set_export_types(const std::vector<lexeme> &types) -> void
+{
+    m_export_types = types;
+}
+
 // MARK: - Resource Generation
 
-auto kdl::sema::component::generate_resources(std::shared_ptr<target> target) const -> void
+auto kdl::sema::component::generate_resources(const std::shared_ptr<target>& target) const -> void
 {
     // Fetch the type container for the resources...
     auto container = target->type_container_named(m_as_type);
@@ -114,6 +122,30 @@ auto kdl::sema::component::generate_resources(std::shared_ptr<target> target) co
                                             container.code(),
                                             file.name.has_value() ? file.name.value() : "",
                                             contents);
+        id++;
+
+        // Set up the attributes of the resource.
+        res.set_attribute("namespace", m_namespace);
+
+        target->add_resource(res);
+    }
+}
+
+// MARK: - Lua Generation
+
+auto kdl::sema::component::synthesize_lua_from_types(const std::shared_ptr<target> &target) const -> void
+{
+    // Fetch the type container for the resources...
+    auto container = target->type_container_named(m_as_type);
+
+    // Iterate through each of the types and produce a resource for it.
+    int64_t id = m_base_id;
+    for (const auto& type_name : m_export_types) {
+        auto type = target->type_container_named(type_name);
+        codegen::lua::type_exporter exporter(type);
+        auto lua = exporter.generate_lua();
+
+        build_target::resource_instance res(id, container.code(), type_name.text(), lua);
         id++;
 
         // Set up the attributes of the resource.

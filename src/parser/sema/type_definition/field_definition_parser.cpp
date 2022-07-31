@@ -38,6 +38,13 @@ kdl::sema::field_definition_parser::field_definition_parser(kdl::sema::parser &p
 
 auto kdl::sema::field_definition_parser::parse() -> kdl::build_target::type_field
 {
+    // Optional '@setter' decorator to indicate a Lua Property setter should be synthesized.
+    bool lua_setter = false;
+    if (m_parser.expect({ expectation(lexeme::directive, "setter").be_true() })) {
+        m_parser.advance();
+        lua_setter = true;
+    }
+
     // Field name.
     m_parser.ensure({
         expectation(lexeme::identifier, "field").be_true(),
@@ -47,6 +54,7 @@ auto kdl::sema::field_definition_parser::parse() -> kdl::build_target::type_fiel
         log::fatal_error(m_parser.peek(), 1, "Field name must be a string");
     }
     kdl::build_target::type_field field(m_parser.read());
+    field.set_lua_setter(lua_setter);
     m_parser.ensure({ expectation(lexeme::r_paren).be_true() });
 
     // Does the body specify a repeatable?

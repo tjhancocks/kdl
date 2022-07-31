@@ -48,12 +48,16 @@ namespace kdl::build_target {
         [[nodiscard]] auto upper_repeat_bound() const -> int;
         [[nodiscard]] auto is_repeatable() const -> bool;
 
+        [[nodiscard]] auto wants_lua_setter() const -> bool;
+        auto set_lua_setter(bool f) -> void;
+
     private:
         lexeme m_name;
         std::vector<type_field_value> m_values;
         bool m_repeatable { false };
         int m_repeatable_lower { 0 };
         int m_repeatable_upper { 0 };
+        bool m_lua_setter { false };
     };
 
 };
