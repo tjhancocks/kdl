@@ -170,22 +170,26 @@ auto kdl::target::set_src_root(const std::string& src_root) -> void
     // Save the path.
     m_src_root = path;
 }
+auto kdl::target::resolve_src_path(const kdl::lexeme& path) const -> std::string
+{
+    return resolve_src_path(path.text(), path.source_directory());
+}
 
-auto kdl::target::resolve_src_path(const std::string& path) const -> std::string
+auto kdl::target::resolve_src_path(const std::string& path, const std::string& source_path) const -> std::string
 {
     // TODO: Improve this so it actually makes more sense.
     std::string rpath("@rpath"); // Root Path (Location of Input File)
-    std::string spath("@spath"); // Scenario Path (Location of Scenario Type Definitions)
+    std::string spath("@spath"); // Source Path (Location of the file containing the lexeme)
     std::string opath("@opath"); // Output Path (Location of Target Output)
 
     if (path.substr(0, rpath.size()) == rpath) {
         return m_src_root + path.substr(rpath.size());
     }
     if (path.substr(0, spath.size()) == spath) {
-        return m_src_root + path.substr(spath.size());
+        return source_path + path.substr(spath.size());
     }
     if (path.substr(0, opath.size()) == opath) {
-        return m_src_root + path.substr(opath.size());
+        return m_dst_root + path.substr(opath.size());
     }
 
     return path;
@@ -299,6 +303,15 @@ auto kdl::target::disassembler() const -> std::optional<disassembler::task>
 auto kdl::target::resource_tracker() const -> std::shared_ptr<kdl::resource_tracking::table>
 {
     return m_resource_tracking_table;
+}
+
+// MARK: - Imported File Tracker
+
+auto kdl::target::track_imported_file(std::weak_ptr<kdl::file> file) -> void
+{
+    if (auto strong = file.lock()) {
+        m_imported_files.emplace_back(strong);
+    }
 }
 
 // MARK: - Global Variables

@@ -38,7 +38,7 @@ auto kdl::sema::import_directive_parser::parse(parser &parser, std::weak_ptr<tar
     auto include_path = parser.read();
 
     // Resolve the path/file to be included.
-    auto resolved_include_path = t->resolve_src_path(include_path.text());
+    auto resolved_include_path = t->resolve_src_path(include_path);
 
     // Open the file and prepare to perform lexical analysis.
     auto file = std::make_shared<kdl::file>(resolved_include_path);
@@ -46,5 +46,6 @@ auto kdl::sema::import_directive_parser::parse(parser &parser, std::weak_ptr<tar
 
     // Perform lexical analysis and insert the lexemes into the parser. As we're still expecting a semi colon to appear,
     // we need to insert the lexemes _after_ it.
+    t->track_imported_file(file);
     parser.insert(lexer.analyze(), 1);
 }

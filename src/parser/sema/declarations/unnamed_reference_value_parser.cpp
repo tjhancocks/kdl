@@ -66,6 +66,9 @@ auto kdl::sema::unnamed_reference_value_parser::parse(kdl::build_target::resourc
 
         ref = symbol_value;
     }
+    else if (ref.is(lexeme::res_id)) {
+        ref = m_parser.read();
+    }
     else if (ref.is(lexeme::l_expr)) {
         expression_parser expr(m_parser, m_target, {
             std::make_pair("_id", kdl::lexeme(std::to_string(instance.id()), lexeme::res_id)),

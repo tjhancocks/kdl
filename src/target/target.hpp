@@ -30,6 +30,7 @@
 #include "target/new/resource_instance.hpp"
 #include <libGraphite/rsrc/file.hpp>
 #include "target/track/resource_tracking.hpp"
+#include "parser/file.hpp"
 
 namespace kdl
 {
@@ -59,7 +60,8 @@ namespace kdl
         auto set_required_format(const enum graphite::rsrc::file::format& format) -> bool;
 
         auto set_src_root(const std::string& src_root) -> void;
-        auto resolve_src_path(const std::string& path) const -> std::string;
+        auto resolve_src_path(const kdl::lexeme& path) const -> std::string;
+        auto resolve_src_path(const std::string& path, const std::string& source_path = "") const -> std::string;
 
         auto add_type_container(const build_target::type_container& container) -> void;
         auto type_container_count() const -> std::size_t;
@@ -75,6 +77,8 @@ namespace kdl
         auto set_disassembler_sound_format(const std::vector<lexeme>& formats) -> void;
         auto initialise_disassembler(const std::string& output_dir) -> void;
         auto disassembler() const -> std::optional<disassembler::task>;
+
+        auto track_imported_file(std::weak_ptr<kdl::file> file) -> void;
 
         auto resource_tracker() const -> std::shared_ptr<kdl::resource_tracking::table>;
 
@@ -95,6 +99,7 @@ namespace kdl
         graphite::rsrc::file m_file;
         std::shared_ptr<kdl::resource_tracking::table> m_resource_tracking_table {};
         std::map<std::string, kdl::lexeme> m_globals {};
+        std::vector<std::shared_ptr<kdl::file>> m_imported_files;
 
         std::optional<disassembler::task> m_disassembler;
         std::vector<lexeme> m_disassembler_image_format { lexeme("PNG", lexeme::identifier) };

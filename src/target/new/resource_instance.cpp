@@ -291,6 +291,10 @@ auto kdl::build_target::resource_instance::assemble_field(graphite::data::writer
                 auto bytes = std::any_cast<std::vector<uint8_t>>(wrapped_value);
                 writer.write_bytes(bytes);
             }
+            else if (wrapped_value.type() == typeid(graphite::data::block)) {
+                auto data = std::any_cast<graphite::data::block>(wrapped_value);
+                writer.write_data(&data);
+            }
             break;
         }
         case build_target::PSTR:{
@@ -312,7 +316,7 @@ auto kdl::build_target::resource_instance::assemble_field(graphite::data::writer
 
 auto kdl::build_target::resource_instance::assemble() const -> graphite::data::block
 {
-    graphite::data::writer writer;
+    graphite::data::writer writer(graphite::data::byte_order::msb);
 
     for (auto n = 0; n < m_tmpl.binary_field_count(); ++n) {
         auto field = m_tmpl.binary_field_at(n);

@@ -82,7 +82,7 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_instance &in
 
         if (import_file) {
             // Pass the resolved paths through glob to expand wildcards
-            auto path = target->resolve_src_path(string_lx.text());
+            auto path = target->resolve_src_path(string_lx);
             auto paths = file::glob(path);
 
             for (const auto& p : *paths) {

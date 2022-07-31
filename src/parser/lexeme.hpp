@@ -75,6 +75,19 @@ namespace kdl
         }
 
         /**
+         * Returns the path to the directory, that contains the file from which the lexeme was extracted.
+         */
+        [[nodiscard]] auto source_directory() const -> std::string
+        {
+            if (auto file = m_owner.lock()) {
+                auto file_path = file->path();
+                auto parent_directory_path = file_path.substr(0, file_path.find_last_of('/'));
+                return parent_directory_path;
+            }
+            return "";
+        }
+
+        /**
          * Returns a string describing the location of the lexeme, for example:
          *
          * path/to/file.kdl:L30:10
