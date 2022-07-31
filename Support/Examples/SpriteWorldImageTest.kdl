@@ -24,7 +24,7 @@
 
 declare SpriteWorldSprite32 {
 	new(#128) {
-		File = import "/Users/tomhancocks/Desktop/ship.png";
+		File = import "@spath/TestImage.png";
 	};
 };
 
