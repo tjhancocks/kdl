@@ -1,11 +1,16 @@
 @type Fruit : "früt" {
 	template {
 		PSTR Name;
-		HLNG Color1;
-		HLNG Color2;
-		HLNG Color3;
-		HLNG Color4;
+		HLNG ColorValue1;
+		HLNG ColorValue2;
+		HLNG ColorValue3;
+		HLNG ColorValue4;
+		PSTR ColorName1;
+		PSTR ColorName2;
+		PSTR ColorName3;
+		PSTR ColorName4;
 		DWRD Country;
+		DBYT Climate;
 	};
 	
 	@setter field("Name") {
@@ -13,17 +18,23 @@
 	};
 	
 	field("Color") repeatable<1,4> {
-		Color<$FieldNumber> as Color [
+		ColorValue<$FieldNumber> as Color [
 			Red = 0xFF0000,
 			Green = 0x00FF00,
 			Yellow = 0xFFFF00,
 			Orange = 0xFF8800,
 			Purple = 0xFF0088,
 		];
+		ColorName<$FieldNumber>;
 	};
 	
 	field("Country") {
 		Country as Country& = #-1;
+		Climate = Temperate [
+			Cold = 0,
+			Temperate = 1,
+			Tropical = 2
+		];
 	};
 };
 

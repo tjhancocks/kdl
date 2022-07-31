@@ -104,11 +104,6 @@ auto kdl::codegen::lua::type_exporter::generate_lua() const -> std::string
         auto lower = field.lower_repeat_bound();
         auto upper = field.upper_repeat_bound();
 
-        if (field.is_repeatable()) {
-            gen.new_line();
-            gen.assign(gen.member(gen.private_symbol(field.name().text()), resource), gen.userdata_literal());
-        }
-
         for (auto n = lower; n <= upper; ++n) {
             auto value_count = field.expected_values();
             for (auto i = 0; i < value_count; ++i) {
@@ -117,9 +112,9 @@ auto kdl::codegen::lua::type_exporter::generate_lua() const -> std::string
                 auto bin_field = m_container.internal_template().binary_field_named(name);
                 auto read_expr = gen.nil();
 
-                ast::ast_node *member_name = gen.private_symbol(name.text());
+                ast::ast_node *member_name = gen.private_symbol(gen.camel_case(name.text()));
                 if (field.is_repeatable()) {
-                    member_name = gen.subscript(gen.private_symbol(field.name().text()), gen.number(n));
+                    member_name = gen.subscript(gen.private_symbol(gen.camel_case(field.name().text())), gen.number(n));
                 }
 
                 if (value.explicit_type().has_value()) {
@@ -220,10 +215,57 @@ auto kdl::codegen::lua::type_exporter::generate_lua() const -> std::string
         auto field = m_container.internal_template().binary_field_at(i);
         auto info = m_fields.at(field.label.text());
 
-        auto member_name = reinterpret_cast<ast::symbol *>(info.first);
+        auto member_name = gen.private_symbol(gen.camel_case(field.label.text()));
         auto read_expr = info.second;
 
         gen.assign(gen.member(member_name, resource), read_expr);
+    }
+
+    for (auto& field : m_container.all_fields()) {
+        if (field.expected_values() <= 1 && !field.is_repeatable()) {
+            continue;
+        }
+        gen.new_line();
+
+        auto object = reinterpret_cast<ast::userdata_literal *>(gen.userdata_literal());
+        gen.assign(gen.member(gen.private_symbol(gen.camel_case(field.name().text())), resource), object);
+        gen.push(object->block());
+
+        if (field.expected_values() == 1 && field.is_repeatable()) {
+            auto value = field.value_at(0);
+            for (auto n = field.lower_repeat_bound(); n <= field.upper_repeat_bound(); ++n) {
+                auto name = value.extended_name({ std::pair("FieldNumber", lexeme(std::to_string(n), lexeme::integer))});
+                auto bin_field = m_container.internal_template().binary_field_named(name);
+                gen.assign(gen.symbol("[" + std::to_string(n) + "]"), gen.comma(gen.member(gen.private_symbol(bin_field.label.text()), resource)));
+            }
+        }
+        else if (field.is_repeatable()) {
+            for (auto n = field.lower_repeat_bound(); n <= field.upper_repeat_bound(); ++n) {
+                auto sub_object = reinterpret_cast<ast::userdata_literal *>(gen.userdata_literal());
+                gen.assign(gen.symbol("[" + std::to_string(n) + "]"), gen.comma(sub_object));
+                gen.push(sub_object->block());
+
+                for (auto i = 0; i < field.expected_values(); ++i) {
+                    auto value = field.value_at(i);
+                    auto name = value.extended_name({std::pair("FieldNumber", lexeme(std::to_string(n), lexeme::integer))});
+                    auto bin_field = m_container.internal_template().binary_field_named(name);
+
+                    gen.assign(gen.symbol(gen.camel_case(value.base_name().text())), gen.comma(gen.member(gen.private_symbol(gen.camel_case(bin_field.label.text())), resource)));
+                }
+
+                gen.pop();
+            }
+        }
+        else {
+            for (auto i = 0; i < field.expected_values(); ++i) {
+                auto value = field.value_at(i);
+                auto bin_field = m_container.internal_template().binary_field_named(value.base_name());
+                gen.assign(gen.symbol(gen.camel_case(value.base_name().text())), gen.comma(gen.member(gen.private_symbol(gen.camel_case(bin_field.label.text())), resource)));
+            }
+        }
+
+        gen.pop();
+
     }
 
     gen.new_line();
@@ -277,7 +319,7 @@ auto kdl::codegen::lua::type_exporter::generate_lua() const -> std::string
     gen.new_line();
 
     for (auto& field : m_container.all_fields()) {
-        auto property = gen.declare_property(klass, gen.symbol(field.name().text()));
+        auto property = gen.declare_property(klass, gen.symbol(gen.camel_case(field.name().text())));
         gen.synthesize_getter(property);
         if (field.wants_lua_setter()) {
             gen.synthesize_setter(property);

@@ -107,16 +107,40 @@ auto kdl::codegen::lua::ast::symbol::generate_lua(std::uint8_t indent) const -> 
     return { indent_line(identifier(), indent) };
 }
 
-auto kdl::codegen::lua::ast::generator::symbol(const std::string &name) -> struct symbol *
+auto kdl::codegen::lua::ast::generator::camel_case(const std::string &name) -> ast::symbol *
+{
+    auto camel_case = name;
+    camel_case[0] = std::tolower(camel_case[0]);
+
+    auto node = new ast::symbol(camel_case);
+    m_nodes.emplace_back(node);
+    return reinterpret_cast<ast::symbol *>(node);
+}
+
+auto kdl::codegen::lua::ast::generator::symbol(const std::string &name) -> ast::symbol *
 {
     auto node = new ast::symbol(name);
     m_nodes.emplace_back(node);
     return reinterpret_cast<ast::symbol *>(node);
 }
 
-auto kdl::codegen::lua::ast::generator::private_symbol(const std::string &name) -> struct symbol *
+auto kdl::codegen::lua::ast::generator::private_symbol(const std::string &name) -> ast::symbol *
 {
     auto node = new ast::symbol("_" + name);
+    m_nodes.emplace_back(node);
+    return reinterpret_cast<ast::symbol *>(node);
+}
+
+auto kdl::codegen::lua::ast::generator::symbol(ast::symbol *name) -> ast::symbol *
+{
+    auto node = new ast::symbol(name->identifier());
+    m_nodes.emplace_back(node);
+    return reinterpret_cast<ast::symbol *>(node);
+}
+
+auto kdl::codegen::lua::ast::generator::private_symbol(ast::symbol *name) -> ast::symbol *
+{
+    auto node = new ast::symbol("_" + name->identifier());
     m_nodes.emplace_back(node);
     return reinterpret_cast<ast::symbol *>(node);
 }

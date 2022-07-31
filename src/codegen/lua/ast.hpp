@@ -64,8 +64,11 @@ namespace kdl::codegen::lua::ast
         auto synthesize_getter(property_definition *property) -> ast_node *;
         auto synthesize_setter(property_definition *property) -> ast_node *;
 
-        auto symbol(const std::string& name) -> symbol *;
-        auto private_symbol(const std::string& name) -> struct symbol *;
+        auto camel_case(const std::string& name) -> ast::symbol *;
+        auto symbol(const std::string& name) -> ast::symbol *;
+        auto private_symbol(const std::string& name) -> ast::symbol *;
+        auto symbol(ast::symbol *symbol) -> ast::symbol *;
+        auto private_symbol(ast::symbol *symbol) -> ast::symbol *;
         auto member(ast_node *member, ast_node *object = nullptr) -> ast_node *;
         auto apply_not(ast_node *expression) -> ast_node *;
         auto nil() -> ast_node *;
