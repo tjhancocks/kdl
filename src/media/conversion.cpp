@@ -26,7 +26,8 @@
 #include <libGraphite/quickdraw/format/pict.hpp>
 #include <libGraphite/quickdraw/format/cicn.hpp>
 #include <libGraphite/quickdraw/format/ppat.hpp>
-#include <libGraphite/spriteworld/rle.hpp>
+#include <libGraphite/spriteworld/rleD.hpp>
+#include <libGraphite/spriteworld/rleX.hpp>
 #include <libGraphite/sound/sound.hpp>
 
 #include "diagnostic/fatal.hpp"
@@ -94,19 +95,19 @@ auto kdl::media::conversion::perform_conversion() const -> graphite::data::block
         graphite::quickdraw::surface surface;
         if (m_input_file_format.is("TGA")) {
             image::tga tga(m_input_file_contents[0]);
-            surface = std::move(tga.surface());
+            surface = tga.surface();
         }
         else if (m_input_file_format.is("PNG")) {
             image::png png(m_input_file_contents[0]);
-            surface = std::move(png.surface());
+            surface = png.surface();
         }
         else if (m_input_file_format.is("PICT")) {
             graphite::quickdraw::pict pict(m_input_file_contents[0]);
-            surface = std::move(pict.surface());
+            surface = pict.surface();
         }
         else if (m_input_file_format.is("cicn")) {
             graphite::quickdraw::cicn cicn(m_input_file_contents[0]);
-            surface = std::move(cicn.surface());
+            surface = cicn.surface();
         }
         else {
             log::fatal_error(m_input_file_format, 1, "Unable to handle input format '" + m_input_file_format.text() + "'");
@@ -155,26 +156,26 @@ auto kdl::media::conversion::perform_conversion() const -> graphite::data::block
         // Load the first image to determine the frame size
         if (m_input_file_format.is("TGA")) {
             image::tga tga(m_input_file_contents[0]);
-            surface = std::move(tga.surface());
+            surface = tga.surface();
         }
         else if (m_input_file_format.is("PNG")) {
             image::png png(m_input_file_contents[0]);
-            surface = std::move(png.surface());
+            surface = png.surface();
         }
 
         auto frame_size = surface.size();
-        graphite::spriteworld::rle<16> rle(surface.size(), m_input_file_contents.size());
+        graphite::spriteworld::rleD rle(surface.size(), m_input_file_contents.size());
         rle.write_frame(0, surface);
 
         // Load subsequent frames and make sure they're the same size as the first
         for (auto i = 1; i <  m_input_file_contents.size(); i++) {
             if (m_input_file_format.is("TGA")) {
                 image::tga tga(m_input_file_contents[i]);
-                surface = std::move(tga.surface());
+                surface = tga.surface();
             }
             else if (m_input_file_format.is("PNG")) {
                 image::png png(m_input_file_contents[i]);
-                surface = std::move(png.surface());
+                surface = png.surface();
             }
 
             if (surface.size().width != frame_size.width || surface.size().height != frame_size.height) {
@@ -197,26 +198,26 @@ auto kdl::media::conversion::perform_conversion() const -> graphite::data::block
         // Load the first image to determine the frame size
         if (m_input_file_format.is("TGA")) {
             image::tga tga(m_input_file_contents[0]);
-            surface = std::move(tga.surface());
+            surface = tga.surface();
         }
         else if (m_input_file_format.is("PNG")) {
             image::png png(m_input_file_contents[0]);
-            surface = std::move(png.surface());
+            surface = png.surface();
         }
 
         auto frame_size = surface.size();
-        graphite::spriteworld::rle<32> rle(surface.size(), m_input_file_contents.size());
+        graphite::spriteworld::rleX rle(surface.size(), m_input_file_contents.size());
         rle.write_frame(0, surface);
 
         // Load subsequent frames and make sure they're the same size as the first
         for (auto i = 1; i <  m_input_file_contents.size(); i++) {
             if (m_input_file_format.is("TGA")) {
                 image::tga tga(m_input_file_contents[i]);
-                surface = std::move(tga.surface());
+                surface = tga.surface();
             }
             else if (m_input_file_format.is("PNG")) {
                 image::png png(m_input_file_contents[i]);
-                surface = std::move(png.surface());
+                surface = png.surface();
             }
 
             if (surface.size().width != frame_size.width || surface.size().height != frame_size.height) {
@@ -230,8 +231,8 @@ auto kdl::media::conversion::perform_conversion() const -> graphite::data::block
         return std::move(rle.data());
     }
     else if (m_input_file_format.is("rleD") && is_image_type(m_output_file_format)) {
-        graphite::spriteworld::rle<16> rle(m_input_file_contents[0]);
-        auto surface = std::move(rle.surface());
+        graphite::spriteworld::rleD rle(m_input_file_contents[0]);
+        auto surface = rle.surface();
 
         if (m_output_file_format.is("PNG")) {
             image::png png(surface);
@@ -241,8 +242,8 @@ auto kdl::media::conversion::perform_conversion() const -> graphite::data::block
         return {};
     }
     else if (m_input_file_format.is("rleX") && is_image_type(m_output_file_format)) {
-        graphite::spriteworld::rle<32> rle(m_input_file_contents[0]);
-        auto surface = std::move(rle.surface());
+        graphite::spriteworld::rleX rle(m_input_file_contents[0]);
+        auto surface =rle.surface();
 
         if (m_output_file_format.is("PNG")) {
             image::png png(surface);

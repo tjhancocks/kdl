@@ -1,0 +1,30 @@
+@type SpriteWorldSprite32 : "rlëX" {
+	template {
+		HEXD Data;
+	};
+
+	field("File") {
+		` The data should be imported from an image file and converted to a
+		` rlëX format. The
+		Data as File<PNG> __conversion($InputFormat, rleX);
+	};
+};
+
+@type SpriteWorldSprite16 : "rlëD" {
+	template {
+		HEXD Data;
+	};
+
+	field("File") {
+		` The data should be imported from an image file and converted to a
+		` rlëX format. The
+		Data as File<PNG> __conversion($InputFormat, rleD);
+	};
+};
+
+declare SpriteWorldSprite32 {
+	new(#128) {
+		File = import "/Users/tomhancocks/Desktop/ship.png";
+	};
+};
+
