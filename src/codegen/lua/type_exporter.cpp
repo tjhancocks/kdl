@@ -236,7 +236,7 @@ auto kdl::codegen::lua::type_exporter::generate_lua() const -> std::string
             for (auto n = field.lower_repeat_bound(); n <= field.upper_repeat_bound(); ++n) {
                 auto name = value.extended_name({ std::pair("FieldNumber", lexeme(std::to_string(n), lexeme::integer))});
                 auto bin_field = m_container.internal_template().binary_field_named(name);
-                gen.assign(gen.symbol("[" + std::to_string(n) + "]"), gen.comma(gen.member(gen.private_symbol(bin_field.label.text()), resource)));
+                gen.assign(gen.symbol("[" + std::to_string(n) + "]"), gen.comma(gen.member(gen.private_symbol(gen.camel_case(bin_field.label.text())), resource)));
             }
         }
         else if (field.is_repeatable()) {

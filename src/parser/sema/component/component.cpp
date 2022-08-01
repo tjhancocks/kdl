@@ -145,8 +145,6 @@ auto kdl::sema::component::synthesize_lua_from_types(const std::shared_ptr<targe
         codegen::lua::type_exporter exporter(type);
         auto lua = exporter.generate_lua();
 
-        std::cout << lua << std::endl;
-
         build_target::resource_instance res(id, container.code(), type_name.text(), lua);
         id++;
 
