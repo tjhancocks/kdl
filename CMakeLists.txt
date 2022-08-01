@@ -52,6 +52,7 @@ target_include_directories(kdl PUBLIC
 	"${CMAKE_BUILD_DIR}"
 )
 target_link_libraries(kdl Graphite)
+set_property(TARGET kdl PROPERTY XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME YES)
 
 ########################################################################################################################
 ## KDL - Version
