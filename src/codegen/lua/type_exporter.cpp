@@ -223,7 +223,7 @@ auto kdl::codegen::lua::type_exporter::generate_lua() const -> std::string
         if (it == m_fields.end()) {
             // Get the size of the field, and skip the bytes.
             auto size = binary_type_base_size(field.type);
-            gen.emit(gen.call(resource, skip, { gen.number(size) }));
+            gen.emit(gen.call(data, skip, { gen.number(size) }));
         }
         else {
             auto info = m_fields.at(field.label.text());
