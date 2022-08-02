@@ -107,39 +107,76 @@ auto kdl::codegen::lua::type_exporter::generate_lua() const -> std::string
         for (auto n = lower; n <= upper; ++n) {
             auto value_count = field.expected_values();
             for (auto i = 0; i < value_count; ++i) {
-                auto value = field.value_at(i);
-                auto name = value.extended_name({ std::pair("FieldNumber", lexeme(std::to_string(n), lexeme::integer))});
-                auto bin_field = m_container.internal_template().binary_field_named(name);
-                auto read_expr = gen.nil();
+                auto base_value = field.value_at(i);
 
-                ast::ast_node *member_name = gen.private_symbol(gen.camel_case(name.text()));
-                if (field.is_repeatable()) {
-                    member_name = gen.subscript(gen.private_symbol(gen.camel_case(field.name().text())), gen.number(n));
-                }
+                for (auto j = 0; j <= base_value.joined_value_count(); ++j) {
+                    auto value = (j == 0) ? base_value : base_value.joined_value_at(j - 1);
+                    auto name = value.extended_name({ std::pair("FieldNumber", lexeme(std::to_string(n), lexeme::integer))});
+                    auto bin_field = m_container.internal_template().binary_field_named(name);
+                    auto read_expr = gen.nil();
 
-                if (value.explicit_type().has_value()) {
-                    auto type = value.explicit_type().value();
-                    if (type.is_reference() && type.name().has_value()) {
-                        auto named_type_code_klass = gen.declare_class(type.name().value().text(), true);
-                        auto named_type_code_function = gen.declare_static_function(true, type_code, named_type_code_klass);
-                        read_expr = gen.call(data, read_typed_reference, { gen.call(named_type_code_function) });
+                    ast::ast_node *member_name = gen.private_symbol(gen.camel_case(name.text()));
+                    if (field.is_repeatable()) {
+                        member_name = gen.subscript(gen.private_symbol(gen.camel_case(field.name().text())), gen.number(n));
                     }
-                    else if (type.is_reference()) {
-                        read_expr = gen.call(data, read_reference);
-                    }
-                    else if (type.name().value().is("Color")) {
-                        read_expr = gen.call(data, read_color);
-                    }
-                    else if (type.name().value().is("File")) {
-                        if (bin_field.type == kdl::build_target::binary_type::PSTR) {
-                            read_expr = gen.call(data, read_pstr);
+
+                    if (value.explicit_type().has_value()) {
+                        auto type = value.explicit_type().value();
+                        if (type.is_reference() && type.name().has_value()) {
+                            auto named_type_code_klass = gen.declare_class(type.name().value().text(), true);
+                            auto named_type_code_function = gen.declare_static_function(true, type_code, named_type_code_klass);
+                            read_expr = gen.call(data, read_typed_reference, { gen.call(named_type_code_function) });
                         }
-                        else if (bin_field.type == kdl::build_target::binary_type::CSTR) {
-                            read_expr = gen.call(data, read_cstr);
+                        else if (type.is_reference()) {
+                            read_expr = gen.call(data, read_reference);
+                        }
+                        else if (type.name().value().is("Color")) {
+                            read_expr = gen.call(data, read_color);
+                        }
+                        else if (type.name().value().is("File")) {
+                            if (bin_field.type == kdl::build_target::binary_type::PSTR) {
+                                read_expr = gen.call(data, read_pstr);
+                            }
+                            else if (bin_field.type == kdl::build_target::binary_type::CSTR) {
+                                read_expr = gen.call(data, read_cstr);
+                            }
+                        }
+                        else if (type.name().value().is("Bitmask") || type.name().value().is("Range")) {
+                            switch (bin_field.type) {
+                                case kdl::build_target::binary_type::DBYT:
+                                    read_expr = gen.call(data, read_signed_byte);
+                                    break;
+                                case kdl::build_target::binary_type::DWRD:
+                                    read_expr = gen.call(data, read_signed_short);
+                                    break;
+                                case kdl::build_target::binary_type::DLNG:
+                                    read_expr = gen.call(data, read_signed_long);
+                                    break;
+                                case kdl::build_target::binary_type::DQAD:
+                                    read_expr = gen.call(data, read_signed_quad);
+                                    break;
+                                case kdl::build_target::binary_type::HBYT:
+                                    read_expr = gen.call(data, read_byte);
+                                    break;
+                                case kdl::build_target::binary_type::HWRD:
+                                    read_expr = gen.call(data, read_short);
+                                    break;
+                                case kdl::build_target::binary_type::HLNG:
+                                    read_expr = gen.call(data, read_long);
+                                    break;
+                                case kdl::build_target::binary_type::HQAD:
+                                    read_expr = gen.call(data, read_quad);
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
                     }
-                    else if (type.name().value().is("Bitmask") || type.name().value().is("Range")) {
+                    else {
                         switch (bin_field.type) {
+                            case kdl::build_target::binary_type::PSTR:
+                                read_expr = gen.call(data, read_pstr);
+                                break;
                             case kdl::build_target::binary_type::DBYT:
                                 read_expr = gen.call(data, read_signed_byte);
                                 break;
@@ -164,47 +201,14 @@ auto kdl::codegen::lua::type_exporter::generate_lua() const -> std::string
                             case kdl::build_target::binary_type::HQAD:
                                 read_expr = gen.call(data, read_quad);
                                 break;
-                            default:
+                            case kdl::build_target::binary_type::RECT:
+                                read_expr = gen.call(data, read_macintosh_rect);
                                 break;
                         }
                     }
-                }
-                else {
-                    switch (bin_field.type) {
-                        case kdl::build_target::binary_type::PSTR:
-                            read_expr = gen.call(data, read_pstr);
-                            break;
-                        case kdl::build_target::binary_type::DBYT:
-                            read_expr = gen.call(data, read_signed_byte);
-                            break;
-                        case kdl::build_target::binary_type::DWRD:
-                            read_expr = gen.call(data, read_signed_short);
-                            break;
-                        case kdl::build_target::binary_type::DLNG:
-                            read_expr = gen.call(data, read_signed_long);
-                            break;
-                        case kdl::build_target::binary_type::DQAD:
-                            read_expr = gen.call(data, read_signed_quad);
-                            break;
-                        case kdl::build_target::binary_type::HBYT:
-                            read_expr = gen.call(data, read_byte);
-                            break;
-                        case kdl::build_target::binary_type::HWRD:
-                            read_expr = gen.call(data, read_short);
-                            break;
-                        case kdl::build_target::binary_type::HLNG:
-                            read_expr = gen.call(data, read_long);
-                            break;
-                        case kdl::build_target::binary_type::HQAD:
-                            read_expr = gen.call(data, read_quad);
-                            break;
-                        case kdl::build_target::binary_type::RECT:
-                            read_expr = gen.call(data, read_macintosh_rect);
-                            break;
-                    }
-                }
 
-                m_fields.emplace(std::pair(name.text(), std::pair(member_name, read_expr)));
+                    m_fields.emplace(std::pair(name.text(), std::pair(member_name, read_expr)));
+                }
             }
         }
     }
@@ -283,32 +287,40 @@ auto kdl::codegen::lua::type_exporter::generate_lua() const -> std::string
     for (auto& field : m_container.all_fields()) {
         auto value_count = field.expected_values();
         for (auto n = 0; n < value_count; ++n) {
-            auto value = field.value_at(n);
-            if (value.symbols().empty()) {
-                continue;
-            }
+            auto base_value = field.value_at(n);
 
-            auto value_object = reinterpret_cast<ast::userdata_literal *>(gen.userdata_literal());
-            gen.assign(gen.symbol(value.base_name().text()), gen.comma(value_object));
-            gen.push(value_object->block());
+            for (auto j = 0; j <= base_value.joined_value_count(); ++j) {
+                auto value = (j == 0) ? base_value : base_value.joined_value_at(j - 1);
 
-            for (const auto& it : value.symbols()) {
-                auto const_name = std::get<0>(it);
-                auto const_value = std::get<1>(it);
-
-                ast::ast_node *node = gen.nil();
-
-                if (const_value.is(lexeme::string)) {
-                    node = gen.string(const_value.text());
-                }
-                else if (const_value.is(lexeme::integer)) {
-                    node = gen.number(const_value.value<int64_t>());
+                if (value.symbols().empty()) {
+                    continue;
                 }
 
-                gen.assign(gen.symbol(const_name.text()), gen.comma(node));
-            }
+                auto value_object = reinterpret_cast<ast::userdata_literal *>(gen.userdata_literal());
+                gen.assign(gen.symbol(value.base_name().text()), gen.comma(value_object));
+                gen.push(value_object->block());
 
-            gen.pop();
+                for (const auto& it : value.symbols()) {
+                    auto const_name = std::get<0>(it);
+                    auto const_value = std::get<1>(it);
+
+                    ast::ast_node *node = gen.nil();
+
+                    if (const_value.is(lexeme::string)) {
+                        node = gen.string(const_value.text());
+                    }
+                    else if (const_value.is(lexeme::integer)) {
+                        node = gen.number(const_value.value<int64_t>());
+                    }
+                    else if (const_value.is(lexeme::res_id)) {
+                        node = gen.number(const_value.value<int64_t>());
+                    }
+
+                    gen.assign(gen.symbol(const_name.text()), gen.comma(node));
+                }
+
+                gen.pop();
+            }
         }
     }
 
