@@ -81,6 +81,11 @@ kdl::codegen::lua::ast::comment::comment(const std::string &text)
     }
 }
 
+auto kdl::codegen::lua::ast::generator::emit(ast_node *node) -> void
+{
+    m_scope->add_node(node);
+}
+
 auto kdl::codegen::lua::ast::comment::generate_lua(std::uint8_t indentation) const -> std::vector<std::string>
 {
     std::vector<std::string> result;
@@ -417,7 +422,7 @@ auto kdl::codegen::lua::ast::function_call::generate_lua(uint8_t indentation) co
     }
     result += ")";
 
-    return { result };
+    return { indent_line(result, indentation) };
 }
 
 auto kdl::codegen::lua::ast::generator::call(function_definition *function, const std::vector<struct ast_node *> &arguments) -> ast_node *

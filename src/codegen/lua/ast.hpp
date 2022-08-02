@@ -89,6 +89,8 @@ namespace kdl::codegen::lua::ast
         auto push(ast::block *block) -> void;
         auto pop() -> void;
 
+        auto emit(ast_node *node) -> void;
+
     private:
         std::vector<struct ast_node *> m_nodes;
         block *m_file { nullptr };

@@ -56,6 +56,7 @@ auto kdl::codegen::lua::type_exporter::generate_lua() const -> std::string
     auto read_rect = gen.declare_function(true, gen.symbol("readRect"), resource_reader);
     auto read_point = gen.declare_function(true, gen.symbol("readPoint"), resource_reader);
     auto read_size = gen.declare_function(true, gen.symbol("readSize"), resource_reader);
+    auto skip = gen.declare_function(true, gen.symbol("skip"), resource_reader);
 
     // Start building the Lua for this type.
 
@@ -217,12 +218,21 @@ auto kdl::codegen::lua::type_exporter::generate_lua() const -> std::string
     auto field_count = m_container.internal_template().binary_field_count();
     for (auto i = 0; i < field_count; ++i) {
         auto field = m_container.internal_template().binary_field_at(i);
-        auto info = m_fields.at(field.label.text());
 
-        auto member_name = gen.private_symbol(gen.camel_case(field.label.text()));
-        auto read_expr = info.second;
+        auto it = m_fields.find(field.label.text());
+        if (it == m_fields.end()) {
+            // Get the size of the field, and skip the bytes.
+            auto size = binary_type_base_size(field.type);
+            gen.emit(gen.call(resource, skip, { gen.number(size) }));
+        }
+        else {
+            auto info = m_fields.at(field.label.text());
 
-        gen.assign(gen.member(member_name, resource), read_expr);
+            auto member_name = gen.private_symbol(gen.camel_case(field.label.text()));
+            auto read_expr = info.second;
+
+            gen.assign(gen.member(member_name, resource), read_expr);
+        }
     }
 
     for (auto& field : m_container.all_fields()) {
