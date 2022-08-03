@@ -236,7 +236,7 @@ auto kdl::codegen::lua::type_exporter::generate_lua() const -> std::string
     }
 
     for (auto& field : m_container.all_fields()) {
-        if (field.expected_values() <= 1 && !field.is_repeatable()) {
+        if (field.expected_values() <= 1 && !field.is_repeatable() && field.value_at(0).joined_value_count() == 0) {
             continue;
         }
         gen.new_line();
@@ -251,6 +251,14 @@ auto kdl::codegen::lua::type_exporter::generate_lua() const -> std::string
                 auto name = value.extended_name({ std::pair("FieldNumber", lexeme(std::to_string(n), lexeme::integer))});
                 auto bin_field = m_container.internal_template().binary_field_named(name);
                 gen.assign(gen.symbol("[" + std::to_string(n) + "]"), gen.comma(gen.member(gen.private_symbol(gen.camel_case(bin_field.label.text())), resource)));
+            }
+        }
+        else if (field.expected_values() == 1 && field.value_at(0).joined_value_count() > 0) {
+            auto base_value = field.value_at(0);
+            for (auto i = 0; i <= base_value.joined_value_count(); ++i) {
+                auto value = (i == 0) ? base_value : base_value.joined_value_at(i - 1);
+                auto bin_field = m_container.internal_template().binary_field_named(value.base_name());
+                gen.assign(gen.symbol(gen.camel_case(value.base_name().text())), gen.comma(gen.member(gen.private_symbol(gen.camel_case(bin_field.label.text())), resource)));
             }
         }
         else if (field.is_repeatable()) {
