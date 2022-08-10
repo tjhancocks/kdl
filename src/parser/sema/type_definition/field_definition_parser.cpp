@@ -66,13 +66,26 @@ auto kdl::sema::field_definition_parser::parse() -> kdl::build_target::type_fiel
         list.set_list_end(lexeme::r_angle);
         list.set_delimiter(lexeme::comma);
         list.add_valid_list_item(lexeme::integer);
+        list.add_valid_list_item(lexeme::identifier);
         auto items = list.parse();
 
-        if (items.size() == 2) {
+        if (items.size() == 3) {
+            field.make_repeatable(items[0].value<int>(), items[1].value<int>());
+            if (!items[2].is(lexeme::identifier)) {
+                log::fatal_error(items[2], 1, "Count field name for field repeatable clause should be an identifier.");
+            }
+            field.set_repeatable_count_field(items[2]);
+        }
+        else if (items.size() == 2) {
             field.make_repeatable(items[0].value<int>(), items[1].value<int>());
         }
-        else if (items.size() == 1) {
+        else if (items.size() == 1 && items[0].is(lexeme::integer)) {
             field.make_repeatable(0, items[0].value<int>());
+        }
+        else if (items.size() == 1 && items[0].is(lexeme::identifier)) {
+            auto list_field = m_tmpl.binary_field_named(items[0]);
+            field.make_repeatable(1, static_cast<int>(std::pow(2, build_target::binary_type_base_size(list_field.type) << 3)));
+            field.set_repeatable_count_field(items[0]);
         }
         else {
             log::fatal_error(lx, 1, "Field repeatable clause has incorrect number of arguments.");

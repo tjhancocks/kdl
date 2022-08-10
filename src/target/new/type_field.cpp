@@ -97,6 +97,21 @@ auto kdl::build_target::type_field::is_repeatable() const -> bool
     return m_repeatable;
 }
 
+auto kdl::build_target::type_field::has_repeatable_count_field() const -> bool
+{
+    return m_repeatable_count_field.has_value();
+}
+
+auto kdl::build_target::type_field::set_repeatable_count_field(const lexeme &field) -> void
+{
+    m_repeatable_count_field = field;
+}
+
+auto kdl::build_target::type_field::repeatable_count_field() const -> lexeme
+{
+    return m_repeatable_count_field.value();
+}
+
 // MARK: - Lua Setter
 
 auto kdl::build_target::type_field::wants_lua_setter() const -> bool

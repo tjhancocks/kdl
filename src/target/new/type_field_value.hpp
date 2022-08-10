@@ -41,6 +41,9 @@ namespace kdl::build_target
         [[nodiscard]] auto base_name() const -> lexeme;
         [[nodiscard]] auto extended_name(const std::unordered_map<std::string, lexeme>& vars) const -> lexeme;
 
+        [[nodiscard]] auto export_name() const -> std::optional<lexeme>;
+        auto set_export_name(const lexeme& name) -> void;
+
         auto set_explicit_type(const kdl_type& type) -> void;
         [[nodiscard]] auto explicit_type() const -> std::optional<kdl::build_target::kdl_type>;
 
@@ -67,6 +70,7 @@ namespace kdl::build_target
         [[nodiscard]] auto assemble_sprite_sheet() const -> bool;
 
     private:
+        std::optional<lexeme> m_export_name;
         lexeme m_base_name;
         std::optional<kdl_type> m_explicit_type;
         std::optional<lexeme> m_default_value;

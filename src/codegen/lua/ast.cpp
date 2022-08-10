@@ -514,6 +514,29 @@ auto kdl::codegen::lua::ast::generator::condition(ast_node *condition) -> ast_no
     return node;
 }
 
+// MARK: - For Loop
+
+kdl::codegen::lua::ast::for_loop::for_loop(ast_node *index, ast_node *lower, ast_node *upper)
+    : m_index(index), m_lower(lower), m_upper(upper)
+{}
+
+auto kdl::codegen::lua::ast::for_loop::generate_lua(uint8_t indentation) const -> std::vector<std::string>
+{
+    auto index = m_index->generate_lua(0).front();
+    auto lower = m_lower->generate_lua(0).front();
+    auto upper = m_upper->generate_lua(0).front();
+    return {
+        indent_line("for " + index + " = " + lower + "," + upper  + " do", indentation)
+    };
+}
+
+auto kdl::codegen::lua::ast::generator::for_loop(ast_node *index, ast_node *lower, ast_node *upper) -> ast_node *
+{
+    auto node = m_scope->add_node(new struct for_loop(index, lower, upper));
+    m_nodes.emplace_back(node);
+    return node;
+}
+
 // MARK: - Nil Literal
 
 auto kdl::codegen::lua::ast::nil_literal::generate_lua(uint8_t indentation) const -> std::vector<std::string>
@@ -780,9 +803,16 @@ kdl::codegen::lua::ast::subscript_expression::subscript_expression(ast_node *val
 
 auto kdl::codegen::lua::ast::subscript_expression::generate_lua(uint8_t indentation) const -> std::vector<std::string>
 {
-    auto value = m_value->generate_lua(0).front();
-    auto key = m_key->generate_lua(0).front();
-    return { value + "[" + key + "]" };
+    if (m_value) {
+        auto value = m_value->generate_lua(0).front();
+        auto key = m_key->generate_lua(0).front();
+        return { value + "[" + key + "]" };
+    }
+    else {
+        auto key = m_key->generate_lua(0).front();
+        return { "[" + key + "]" };
+    }
+
 }
 
 auto kdl::codegen::lua::ast::generator::subscript(ast_node *value, ast_node *index) -> ast_node *

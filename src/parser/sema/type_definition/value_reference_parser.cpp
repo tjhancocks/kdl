@@ -41,11 +41,22 @@ kdl::sema::value_reference_parser::value_reference_parser(kdl::sema::parser &par
 
 auto kdl::sema::value_reference_parser::parse() -> kdl::build_target::type_field_value
 {
+    std::optional<lexeme> export_name;
+    if (m_parser.expect({ expectation(lexeme::directive, "name").be_true(), expectation(lexeme::l_paren).be_true(), expectation(lexeme::identifier).be_true(), expectation(lexeme::r_paren).be_true() })) {
+        m_parser.advance(2);
+        export_name = m_parser.read();
+        m_parser.advance();
+    }
+
     if (!m_parser.expect({ expectation(lexeme::identifier).be_true() })) {
         log::fatal_error(m_parser.peek(), 1, "Expected an identifier to define a field value.");
     }
     auto tmpl_field_base_name = m_parser.read();
     build_target::type_field_value ref(tmpl_field_base_name);
+
+    if (export_name.has_value()) {
+        ref.set_export_name(export_name.value());
+    }
 
     // Check for any name extensions.
     if (m_parser.expect({ expectation(lexeme::l_angle).be_true() })) {

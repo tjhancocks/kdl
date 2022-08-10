@@ -76,6 +76,7 @@ namespace kdl::codegen::lua::ast
         auto number(int64_t n) -> ast_node *;
         auto string(const std::string& str) -> ast_node *;
         auto condition(ast_node *condition) -> ast_node *;
+        auto for_loop(ast_node *index, ast_node *lower, ast_node *upper) -> ast_node *;
         auto return_statement(ast_node *expression) -> ast_node *;
         auto local_assign(struct symbol *var, ast_node *expression) -> ast_node *;
         auto assign(ast_node *lhs, ast_node *expression) -> ast_node *;
@@ -435,7 +436,23 @@ namespace kdl::codegen::lua::ast
     // -----
 
 //    struct while_loop;
-//    struct for_loop;
+
+    // -----
+
+    struct for_loop: public ast_node
+    {
+    public:
+        for_loop(ast_node *index, ast_node *lower, ast_node *upper);
+
+        [[nodiscard]] auto generate_lua(uint8_t indentation) const -> std::vector<std::string> override;
+    private:
+        ast_node *m_index { nullptr };
+        ast_node *m_lower { nullptr };
+        ast_node *m_upper { nullptr };
+    };
+
+    // -----
+
 //    struct object_definition;
 
     // -----

@@ -49,7 +49,21 @@ auto kdl::build_target::type_template::binary_field_named(const std::string& nam
 
 auto kdl::build_target::type_template::binary_field_named(const kdl::lexeme& lx) const -> kdl::build_target::type_template::binary_field
 {
-    return binary_field_at(binary_field_index(lx));
+    auto i = 0;
+    for (const auto& f : m_fields) {
+        if (lx.is(f.label.text())) {
+            return f;
+        }
+        else {
+            for (const auto& lf : f.list_fields) {
+                if (lx.is(lf.label.text())) {
+                    return lf;
+                }
+            }
+        }
+        ++i;
+    }
+    log::fatal_error(lx, 1, "Could not find binary field '" + lx.text() + "' inside template.");
 }
 
 auto kdl::build_target::type_template::binary_field_index(const std::string& name) const -> int

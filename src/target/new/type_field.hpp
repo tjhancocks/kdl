@@ -47,6 +47,9 @@ namespace kdl::build_target {
         [[nodiscard]] auto lower_repeat_bound() const -> int;
         [[nodiscard]] auto upper_repeat_bound() const -> int;
         [[nodiscard]] auto is_repeatable() const -> bool;
+        auto set_repeatable_count_field(const lexeme& field) -> void;
+        [[nodiscard]] auto repeatable_count_field() const -> lexeme;
+        [[nodiscard]] auto has_repeatable_count_field() const -> bool;
 
         [[nodiscard]] auto wants_lua_setter() const -> bool;
         auto set_lua_setter(bool f) -> void;
@@ -57,6 +60,7 @@ namespace kdl::build_target {
         bool m_repeatable { false };
         int m_repeatable_lower { 0 };
         int m_repeatable_upper { 0 };
+        std::optional<lexeme> m_repeatable_count_field;
         bool m_lua_setter { false };
     };
 

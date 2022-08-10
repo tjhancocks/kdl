@@ -45,6 +45,16 @@ auto kdl::build_target::type_field_value::extended_name(const std::unordered_map
     return { name, lexeme::identifier };
 }
 
+auto kdl::build_target::type_field_value::export_name() const -> std::optional<lexeme>
+{
+    return m_export_name;
+}
+
+auto kdl::build_target::type_field_value::set_export_name(const lexeme &name) -> void
+{
+    m_export_name = name;
+}
+
 // MARK: - Explicit Types
 
 auto kdl::build_target::type_field_value::set_explicit_type(const kdl::build_target::kdl_type& type) -> void

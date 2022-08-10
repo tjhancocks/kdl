@@ -127,18 +127,18 @@ auto kdl::build_target::binary_type_for_name(const std::string& name) -> enum bi
 //    else if (name == "LSTZ") {
 //        return binary_type::LSTZ;
 //    }
-//    else if (name == "LSTE") {
-//        return binary_type::LSTE;
-//    }
+    else if (name == "LSTE") {
+        return binary_type::LSTE;
+    }
 //    else if (name == "ZCNT") {
 //        return binary_type::ZCNT;
 //    }
 //    else if (name == "LSTC") {
 //        return binary_type::LSTC;
 //    }
-//    else if (name == "LSTB") {
-//        return binary_type::LSTB;
-//    }
+    else if (name == "LSTB") {
+        return binary_type::LSTB;
+    }
 
     return binary_type::INVALID;
 };

@@ -20,6 +20,7 @@
 
 #include "parser/sema/type_definition/template_parser.hpp"
 #include "parser/sema/type_definition/binary_field.hpp"
+#include "diagnostic/fatal.hpp"
 
 // MARK: - Constructor
 
@@ -42,8 +43,37 @@ auto kdl::sema::template_parser::parse() -> kdl::build_target::type_template
 
     binary_field field_parser(m_parser);
     while (m_parser.expect({ expectation(lexeme::r_brace).be_false() })) {
-        tmpl.add_binary_field(field_parser.parse());
+        auto binary_field = field_parser.parse();
         m_parser.ensure({ expectation(lexeme::semi).be_true() });
+
+
+        // We need to handle lists slightly differently.
+        if (binary_field.type == build_target::OCNT) {
+            // The next field must be an LSTB typed field, with all subsequent fields being attached to the original
+            // OCNT field.
+            auto list_start_field = field_parser.parse();
+            m_parser.ensure({ expectation(lexeme::semi).be_true() });
+
+            if (list_start_field.type != build_target::LSTB) {
+                log::fatal_error(list_start_field.label, 1, "First template field after an OCNT field should be LSTB");
+            }
+
+            do {
+                auto list_field = field_parser.parse();
+                m_parser.ensure({ expectation(lexeme::semi).be_true() });
+
+                if (list_field.type == build_target::LSTE) {
+                    break;
+                }
+                else {
+                    binary_field.list_fields.emplace_back(list_field);
+                }
+
+            } while (true);
+        }
+
+        tmpl.add_binary_field(binary_field);
+
     }
 
     m_parser.ensure({

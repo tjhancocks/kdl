@@ -80,10 +80,10 @@ namespace kdl::build_target
         // List support
         OCNT = 0x00210000U,
 //        LSTZ = 0x00220000,
-//        LSTE = 0x00230000,
+        LSTE = 0x00230000U,
 //        ZCNT = 0x00240000,
 //        LSTC = 0x00250000,
-//        LSTB = 0x00260000,
+        LSTB = 0x00260000U,
 
     };
 

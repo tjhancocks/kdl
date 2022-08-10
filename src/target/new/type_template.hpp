@@ -48,6 +48,7 @@ namespace kdl::build_target
         public:
             lexeme label;
             binary_type type;
+            std::vector<binary_field> list_fields;
 
             binary_field(const lexeme& label, const binary_type& type);
         };
