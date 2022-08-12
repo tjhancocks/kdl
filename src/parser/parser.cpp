@@ -90,10 +90,12 @@ auto kdl::sema::parser::consume(kdl::sema::expectation::function expect) -> std:
 
 auto kdl::sema::parser::advance(long delta) -> void
 {
-    m_ptr += delta;
     for (auto n = 0; n < delta; ++n) {
         if (!m_tmp_lexemes.empty()) {
             m_tmp_lexemes.erase(m_tmp_lexemes.begin());
+        }
+        else {
+            m_ptr++;
         }
     }
 }
