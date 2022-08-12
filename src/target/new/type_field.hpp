@@ -42,6 +42,7 @@ namespace kdl::build_target {
         auto add_value(const type_field_value& value) -> void;
         [[nodiscard]] auto expected_values() const -> std::size_t;
         [[nodiscard]] auto value_at(int n) const -> type_field_value;
+        [[nodiscard]] auto value_named(const lexeme& name) const -> type_field_value;
 
         auto make_repeatable(int lower, int upper) -> void;
         [[nodiscard]] auto lower_repeat_bound() const -> int;

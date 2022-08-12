@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "type_field.hpp"
-
+#include "target/new/type_field.hpp"
+#include "diagnostic/fatal.hpp"
 #include <utility>
 
 // MARK: - Constructors
@@ -71,6 +71,19 @@ auto kdl::build_target::type_field::expected_values() const -> std::size_t
 auto kdl::build_target::type_field::value_at(int n) const -> kdl::build_target::type_field_value
 {
     return m_values.at(n);
+}
+
+auto kdl::build_target::type_field::value_named(const lexeme &name) const -> type_field_value
+{
+    for (const auto& value : m_values) {
+        if (value.base_name().is(name.text())) {
+            return value;
+        }
+        else if (value.export_name().has_value() && value.export_name()->is(name.text())) {
+            return value;
+        }
+    }
+    log::fatal_error(name, 1, "Could not find value named '" + name.text() + "' in field '" + this->name().text() + "'");
 }
 
 // MARK: - Repeatable
