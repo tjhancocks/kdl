@@ -32,6 +32,7 @@ namespace kdl::sema
         field_parser(parser& parser, build_target::type_container& type, build_target::resource_instance& instance, std::weak_ptr<target> target);
 
         auto parse() -> void;
+
         auto apply_defaults_for_field(const lexeme& field_name) -> void;
 
     private:
@@ -39,6 +40,10 @@ namespace kdl::sema
         build_target::type_container& m_type;
         build_target::resource_instance& m_instance;
         std::weak_ptr<target> m_target;
+
+        auto parse_value(kdl::build_target::type_field& field, kdl::build_target::type_field_value& field_value, std::int32_t field_number = -1) -> void;
+        auto parse_explicit_typed_value(kdl::build_target::type_field& field, kdl::build_target::type_field_value& field_value, std::vector<build_target::type_template::binary_field>&) -> void;
+        auto parse_implicitly_typed_value(kdl::build_target::type_field& field, kdl::build_target::type_field_value& field_value, std::vector<build_target::type_template::binary_field>&) -> void;
     };
 
 }
