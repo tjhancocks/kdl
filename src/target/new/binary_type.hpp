@@ -82,8 +82,8 @@ namespace kdl::build_target
 //        LSTZ = 0x00220000,
         LSTE = 0x00230000U,
 //        ZCNT = 0x00240000,
-//        LSTC = 0x00250000,
-        LSTB = 0x00260000U,
+        LSTC = 0x00250000U,
+//        LSTB = 0x00260000U,
 
     };
 
