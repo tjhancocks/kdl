@@ -109,6 +109,11 @@ namespace kdl
             return result;
         }
 
+        [[nodiscard]] auto is(const lexeme& lx) const -> bool
+        {
+            return (lx.m_text == m_text) && (lx.m_type == m_type);
+        }
+
         /**
          * Check if the lexeme is of a specific type.
          * @param type A lexeme type.
