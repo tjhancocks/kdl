@@ -65,6 +65,11 @@ namespace kdl::build_target
         [[nodiscard]] auto binary_field_index(const std::string& name) const -> int;
         [[nodiscard]] auto binary_field_index(const lexeme& lx) const -> int;
 
+        [[nodiscard]] auto has_binary_field_named(const lexeme& lx) const -> bool;
+        [[nodiscard]] auto has_binary_field_named(const std::string& name) const -> bool;
+
+        [[nodiscard]] auto fields() const -> const std::vector<binary_field>&;
+
     private:
         std::vector<binary_field> m_fields;
 

@@ -22,7 +22,7 @@
 
 #include <string>
 #include <libGraphite/rsrc/file.hpp>
-#include "target/new/resource_instance.hpp"
+#include "target/new/resource.hpp"
 
 namespace kdl::resource_tracking
 {
@@ -32,7 +32,7 @@ namespace kdl::resource_tracking
     public:
         importer(const std::string& code, int64_t id);
 
-        auto populate(kdl::build_target::resource_instance& instance, graphite::rsrc::file& file) -> bool;
+        auto populate(kdl::build_target::resource_constructor& instance, graphite::rsrc::file& file) -> bool;
 
     private:
         std::string m_code;

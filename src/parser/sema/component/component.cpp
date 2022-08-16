@@ -118,16 +118,15 @@ auto kdl::sema::component::generate_resources(const std::shared_ptr<target>& tar
         const auto& path = target->resolve_src_path(m_path_prefix + file.path);
         const auto& contents = kdl::file(path).contents();
 
-        build_target::resource_instance res(id,
-                                            container.code(),
-                                            file.name.has_value() ? file.name.value() : "",
-                                            contents);
-        id++;
+        build_target::resource_constructor resource(id++,
+                                                    container.code(),
+                                                    file.name.has_value() ? file.name.value() : "",
+                                                    contents);
 
         // Set up the attributes of the resource.
-        res.set_attribute("namespace", m_namespace);
+        resource.set_attribute("namespace", m_namespace);
 
-        target->add_resource(res);
+        target->add_resource(resource);
     }
 }
 
@@ -145,12 +144,14 @@ auto kdl::sema::component::synthesize_lua_from_types(const std::shared_ptr<targe
         codegen::lua::type_exporter exporter(type);
         auto lua = exporter.generate_lua();
 
-        build_target::resource_instance res(id, container.code(), type_name.text(), lua);
-        id++;
+        build_target::resource_constructor resource(id++,
+                                                    container.code(),
+                                                    type_name.text(),
+                                                    lua);
 
         // Set up the attributes of the resource.
-        res.set_attribute("namespace", m_namespace);
+        resource.set_attribute("namespace", m_namespace);
 
-        target->add_resource(res);
+        target->add_resource(resource);
     }
 }

@@ -34,7 +34,7 @@ namespace kdl::sema
                            build_target::kdl_type& type,
                            std::weak_ptr<kdl::target> target);
 
-        auto parse(build_target::resource_instance& instance) -> void;
+        auto parse(build_target::resource_constructor& instance) -> void;
 
     private:
         parser& m_parser;

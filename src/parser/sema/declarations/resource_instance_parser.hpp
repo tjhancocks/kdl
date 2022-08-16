@@ -36,7 +36,7 @@ namespace kdl::sema
         auto set_attributes(const std::map<std::string, std::string>& attributes) -> void;
         auto add_attribute(const std::string& name, const std::string& value) -> void;
 
-        auto parse() -> build_target::resource_instance;
+        auto parse() -> build_target::resource_constructor;
 
     private:
         parser& m_parser;

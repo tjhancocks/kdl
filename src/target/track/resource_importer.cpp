@@ -33,7 +33,7 @@ kdl::resource_tracking::importer::importer(const std::string& code, int64_t id)
 
 // MARK: - Importer
 
-auto kdl::resource_tracking::importer::populate(kdl::build_target::resource_instance &instance, graphite::rsrc::file& file) -> bool
+auto kdl::resource_tracking::importer::populate(kdl::build_target::resource_constructor &instance, graphite::rsrc::file& file) -> bool
 {
     // Find and load the resource. Try to load it from the target file first, and then fallback on the imported
     // resource files.
@@ -44,7 +44,7 @@ auto kdl::resource_tracking::importer::populate(kdl::build_target::resource_inst
 
     if (res) {
         // We need the type template of the resource in order to parse out the binary data into the instance.
-        auto tmpl = instance.get_type_template();
+        auto tmpl = instance.type_template();
         graphite::data::reader reader(&res->data());
 
         for (auto i = 0; i < tmpl.binary_field_count(); ++i) {
@@ -54,39 +54,39 @@ auto kdl::resource_tracking::importer::populate(kdl::build_target::resource_inst
             // resource data.
             switch (field.type & ~0xFFFUL) {
                 case kdl::build_target::binary_type::HBYT: {
-                    instance.write(i, reader.read_byte());
+                    instance.write(field.label.text(), reader.read_byte());
                     break;
                 }
                 case kdl::build_target::binary_type::HWRD: {
-                    instance.write(i, reader.read_short());
+                    instance.write(field.label.text(), reader.read_short());
                     break;
                 }
                 case kdl::build_target::binary_type::HLNG: {
-                    instance.write(i, reader.read_long());
+                    instance.write(field.label.text(), reader.read_long());
                     break;
                 }
                 case kdl::build_target::binary_type::HQAD: {
-                    instance.write(i, reader.read_quad());
+                    instance.write(field.label.text(), reader.read_quad());
                     break;
                 }
                 case kdl::build_target::binary_type::DBYT: {
-                    instance.write(i, reader.read_signed_byte());
+                    instance.write(field.label.text(), reader.read_signed_byte());
                     break;
                 }
                 case kdl::build_target::binary_type::DWRD: {
-                    instance.write(i, reader.read_signed_short());
+                    instance.write(field.label.text(), reader.read_signed_short());
                     break;
                 }
                 case kdl::build_target::binary_type::DLNG: {
-                    instance.write(i, reader.read_signed_long());
+                    instance.write(field.label.text(), reader.read_signed_long());
                     break;
                 }
                 case kdl::build_target::binary_type::DQAD: {
-                    instance.write(i, reader.read_signed_quad());
+                    instance.write(field.label.text(), reader.read_signed_quad());
                     break;
                 }
                 case kdl::build_target::binary_type::RECT: {
-                    instance.write(i, std::tuple<int16_t, int16_t, int16_t, int16_t>(
+                    instance.write(field.label.text(), std::tuple<int16_t, int16_t, int16_t, int16_t>(
                             reader.read_signed_short(),
                             reader.read_signed_short(),
                             reader.read_signed_short(),
@@ -95,7 +95,7 @@ auto kdl::resource_tracking::importer::populate(kdl::build_target::resource_inst
                     break;
                 }
                 case kdl::build_target::binary_type::PSTR: {
-                    instance.write(i, std::tuple<std::size_t, std::string>(
+                    instance.write(field.label.text(), std::tuple<std::size_t, std::string>(
                             reader.read_byte(0, graphite::data::reader::mode::peek),
                             reader.read_pstr()
                     ));
@@ -103,13 +103,13 @@ auto kdl::resource_tracking::importer::populate(kdl::build_target::resource_inst
                 }
                 case kdl::build_target::binary_type::Cnnn: {
                     auto length = field.type & 0xFFFUL;
-                    instance.write(i, std::tuple<std::size_t, std::string>(
+                    instance.write(field.label.text(), std::tuple<std::size_t, std::string>(
                         length, reader.read_cstr(length)
                     ));
                     break;
                 }
                 case kdl::build_target::binary_type::CSTR: {
-                    instance.write(i, std::tuple<std::size_t, std::string>(0, reader.read_cstr()));
+                    instance.write(field.label.text(), std::tuple<std::size_t, std::string>(0, reader.read_cstr()));
                     break;
                 }
                 default: {

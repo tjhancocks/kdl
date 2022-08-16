@@ -44,7 +44,7 @@ kdl::sema::named_reference_value_parser::named_reference_value_parser(kdl::sema:
 
 // MARK: - Parser
 
-auto kdl::sema::named_reference_value_parser::parse(kdl::build_target::resource_instance &instance) -> void
+auto kdl::sema::named_reference_value_parser::parse(kdl::build_target::resource_constructor &instance) -> void
 {
     if (m_target.expired()) {
         throw std::logic_error("Expired target found in declaration parser.");

@@ -30,7 +30,7 @@
 
 // MARK: - Constructor
 
-kdl::sema::field_parser::field_parser(kdl::sema::parser &parser, build_target::type_container& type, build_target::resource_instance& instance, std::weak_ptr<target> target)
+kdl::sema::field_parser::field_parser(kdl::sema::parser &parser, build_target::type_container& type, build_target::resource_constructor& instance, std::weak_ptr<target> target)
     : m_parser(parser), m_instance(instance), m_type(type), m_target(std::move(target))
 {
 
@@ -45,6 +45,10 @@ auto kdl::sema::field_parser::parse() -> void
     }
     auto field_name = m_parser.read();
     auto field = m_type.field_named(field_name);
+
+    if (field.has_repeatable_count_field()) {
+        field_name = field.repeatable_count_field();
+    }
 
     // Lock the field and handle repeated instances.
     auto lock = m_instance.acquire_field(field_name, field.lower_repeat_bound());
@@ -61,19 +65,21 @@ auto kdl::sema::field_parser::parse() -> void
         // We're looking at multi value field, and its being provided as an explicit object.
         m_parser.advance();
 
-        while (m_parser.expect({ expectation(lexeme::r_brace).be_false() })) {
-            if (!m_parser.expect({ expectation(lexeme::identifier).be_true() })) {
-                log::fatal_error(m_parser.peek(), 1, "Expected an identifier for the field name.");
+        m_instance.add_list_element(field_name, [&] (build_target::resource_constructor *resource) {
+            while (m_parser.expect({ expectation(lexeme::r_brace).be_false() })) {
+                if (!m_parser.expect({ expectation(lexeme::identifier).be_true() })) {
+                    log::fatal_error(m_parser.peek(), 1, "Expected an identifier for the field name.");
+                }
+                auto sub_field_name = m_parser.read();
+                auto field_value = field.value_named(sub_field_name);
+
+                m_parser.ensure({ expectation(lexeme::equals).be_true() });
+
+                parse_value(field, field_value, lock);
+
+                m_parser.ensure({ expectation(lexeme::semi).be_true() });
             }
-            auto sub_field_name = m_parser.read();
-            auto field_value = field.value_named(sub_field_name);
-
-            m_parser.ensure({ expectation(lexeme::equals).be_true() });
-
-            parse_value(field, field_value, lock);
-
-            m_parser.ensure({ expectation(lexeme::semi).be_true() });
-        }
+        });
 
         m_parser.ensure({ expectation(lexeme::r_brace).be_true() });
     }
@@ -163,9 +169,13 @@ auto kdl::sema::field_parser::parse_implicitly_typed_value(kdl::build_target::ty
         .parse(m_instance);
 }
 
-auto kdl::sema::field_parser::apply_defaults_for_field(const lexeme &field_name) -> void
+auto kdl::sema::field_parser::apply_defaults_for_field(const build_target::type_field& type_field) -> void
 {
-    auto field = m_type.field_named(field_name);
+    auto field_name = type_field.name();
+    if (type_field.has_repeatable_count_field()) {
+        field_name = type_field.repeatable_count_field();
+    }
+    auto field = m_type.field_named(type_field.name());
 
     for (auto field_number = field.lower_repeat_bound(); field_number <= field.upper_repeat_bound(); ++field_number) {
         auto lock = m_instance.acquire_field(field_name, field.lower_repeat_bound());

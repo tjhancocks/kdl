@@ -83,6 +83,36 @@ auto kdl::build_target::type_template::binary_field_index(const kdl::lexeme& lx)
     log::fatal_error(lx, 1, "Could not find binary field '" + lx.text() + "' inside template.");
 }
 
+auto kdl::build_target::type_template::fields() const -> const std::vector<binary_field>&
+{
+    return m_fields;
+}
+
+
+auto kdl::build_target::type_template::has_binary_field_named(const lexeme& lx) const -> bool
+{
+    auto i = 0;
+    for (const auto& f : m_fields) {
+        if (lx.is(f.label.text())) {
+            return true;
+        }
+        else {
+            for (const auto& lf : f.list_fields) {
+                if (lx.is(lf.label.text())) {
+                    return true;
+                }
+            }
+        }
+        ++i;
+    }
+    return false;
+}
+
+auto kdl::build_target::type_template::has_binary_field_named(const std::string& name) const -> bool
+{
+    return has_binary_field_named(lexeme(name, lexeme::identifier));
+}
+
 // MARK: - Binary Field Construction
 
 kdl::build_target::type_template::binary_field::binary_field(const kdl::lexeme& label, const kdl::build_target::binary_type& type)

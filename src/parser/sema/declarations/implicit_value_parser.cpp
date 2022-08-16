@@ -41,7 +41,7 @@ kdl::sema::implicit_value_parser::implicit_value_parser(kdl::sema::parser &parse
 
 // MARK: - Parser
 
-auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_instance &instance) -> void
+auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_constructor &instance) -> void
 {
     // TODO: This function may need evaluating to make expressions work correctly without hundreds of hacks.
     // Validate the type of the next value

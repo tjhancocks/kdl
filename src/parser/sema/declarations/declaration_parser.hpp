@@ -21,7 +21,6 @@
 #pragma once
 
 #include "parser/parser.hpp"
-#include "target/new/resource_instance.hpp"
 #include "target/new/type_container.hpp"
 
 namespace kdl::sema
@@ -32,7 +31,7 @@ namespace kdl::sema
     public:
         declaration_parser(parser& parser, std::weak_ptr<target> target, bool discards = false);
 
-        auto parse() -> std::vector<build_target::resource_instance>;
+        auto parse() -> std::vector<build_target::resource_constructor>;
 
     private:
         parser& m_parser;

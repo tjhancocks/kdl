@@ -21,7 +21,6 @@
 #pragma once
 
 #include "parser/parser.hpp"
-#include "target/new/resource_instance.hpp"
 
 namespace kdl::sema
 {
@@ -29,16 +28,16 @@ namespace kdl::sema
     class field_parser
     {
     public:
-        field_parser(parser& parser, build_target::type_container& type, build_target::resource_instance& instance, std::weak_ptr<target> target);
+        field_parser(parser& parser, build_target::type_container& type, build_target::resource_constructor& instance, std::weak_ptr<target> target);
 
         auto parse() -> void;
 
-        auto apply_defaults_for_field(const lexeme& field_name) -> void;
+        auto apply_defaults_for_field(const build_target::type_field& field_name) -> void;
 
     private:
         parser& m_parser;
         build_target::type_container& m_type;
-        build_target::resource_instance& m_instance;
+        build_target::resource_constructor& m_instance;
         std::weak_ptr<target> m_target;
 
         auto parse_value(kdl::build_target::type_field& field, kdl::build_target::type_field_value& field_value, std::int32_t field_number = -1) -> void;

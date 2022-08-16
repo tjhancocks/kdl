@@ -232,7 +232,7 @@ auto kdl::target::set_required_format(const enum graphite::rsrc::file::format &f
 
 // MARK: - Resource Management
 
-auto kdl::target::add_resource(const build_target::resource_instance& resource) -> void
+auto kdl::target::add_resource(build_target::resource_constructor& resource) -> void
 {
     m_resource_tracking_table->add_instance(m_file.name(), resource.type_code(), resource.id(), resource.name());
     m_file.add_resource(resource.type_code(),

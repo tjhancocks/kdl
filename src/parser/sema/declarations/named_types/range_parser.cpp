@@ -54,7 +54,7 @@ static auto validate_range(const kdl::lexeme& value, const kdl::lexeme& lower, c
     }
 }
 
-auto kdl::sema::range_parser::parse(kdl::build_target::resource_instance &instance) -> void
+auto kdl::sema::range_parser::parse(kdl::build_target::resource_constructor &instance) -> void
 {
     // A range requires two values to be provided.
     if (m_explicit_type.type_hints().size() != 2) {

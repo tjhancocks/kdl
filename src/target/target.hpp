@@ -27,7 +27,7 @@
 #include <map>
 #include "disassembler/task.hpp"
 #include "target/new/type_container.hpp"
-#include "target/new/resource_instance.hpp"
+#include "target/new/resource.hpp"
 #include <libGraphite/rsrc/file.hpp>
 #include "target/track/resource_tracking.hpp"
 #include "parser/file.hpp"
@@ -67,7 +67,7 @@ namespace kdl
         auto type_container_count() const -> std::size_t;
         auto type_container_at(int i) const -> build_target::type_container;
         auto type_container_named(const kdl::lexeme& name) const -> build_target::type_container;
-        auto add_resource(const build_target::resource_instance& resource) -> void;
+        auto add_resource(build_target::resource_constructor& resource) -> void;
 
         auto set_global_variable(const std::string& var_name, const kdl::lexeme& value) -> void;
         [[nodiscard]] auto all_global_variables() const -> std::map<std::string, kdl::lexeme>;

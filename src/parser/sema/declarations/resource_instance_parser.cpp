@@ -66,7 +66,7 @@ auto kdl::sema::resource_instance_parser::add_attribute(const std::string& name,
 
 // MARK: - Parser
 
-auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource_instance
+auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource_constructor
 {
     if (m_target.expired()) {
         throw std::logic_error("Expired target found in declaration parser.");
@@ -171,7 +171,7 @@ auto kdl::sema::resource_instance_parser::parse() -> kdl::build_target::resource
     else {
         // Acquire a new instance of the resource and populate it with default values.
         for (const auto& field : m_type.all_fields()) {
-            field_parser(m_parser, m_type, instance, m_target).apply_defaults_for_field(field.name());
+            field_parser(m_parser, m_type, instance, m_target).apply_defaults_for_field(field);
         }
         m_parser.clear_pushed_lexemes();
     }

@@ -33,7 +33,7 @@ namespace kdl::sema
                        std::vector<build_target::type_template::binary_field> binary_fields,
                        build_target::kdl_type& type);
 
-        auto parse(build_target::resource_instance& instance) -> void;
+        auto parse(build_target::resource_constructor& instance) -> void;
 
     private:
         parser& m_parser;

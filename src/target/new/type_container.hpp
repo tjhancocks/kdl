@@ -27,7 +27,7 @@
 #include "target/new/type_template.hpp"
 #include "target/new/type_field.hpp"
 #include "parser/lexeme.hpp"
-#include "target/new/resource_instance.hpp"
+#include "target/new/resource.hpp"
 #include "target/assertion.hpp"
 
 namespace kdl::build_target
@@ -58,7 +58,7 @@ namespace kdl::build_target
         [[nodiscard]] auto assertions() const -> std::vector<assertion>;
         auto add_assertions(const std::vector<assertion>& assertions) -> void;
 
-        auto new_instance(const int64_t& id, std::optional<std::string> name = {}) -> resource_instance;
+        auto new_instance(const int64_t& id, std::optional<std::string> name = {}) -> resource_constructor;
 
     private:
         std::string m_code { "NULL" };

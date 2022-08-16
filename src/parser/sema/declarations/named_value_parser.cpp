@@ -45,7 +45,7 @@ kdl::sema::named_value_parser::named_value_parser(kdl::sema::parser &parser, kdl
 
 // MARK: - Parser
 
-auto kdl::sema::named_value_parser::parse(kdl::build_target::resource_instance &instance) -> void
+auto kdl::sema::named_value_parser::parse(kdl::build_target::resource_constructor &instance) -> void
 {
     auto type_name = m_explicit_type.name().value();
 

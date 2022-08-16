@@ -33,7 +33,7 @@ kdl::sema::declaration_parser::declaration_parser(kdl::sema::parser &parser, std
 }
 // MARK: - Parser
 
-auto kdl::sema::declaration_parser::parse() -> std::vector<kdl::build_target::resource_instance>
+auto kdl::sema::declaration_parser::parse() -> std::vector<kdl::build_target::resource_constructor>
 {
     if (m_target.expired()) {
         throw std::logic_error("Expired target found in declaration parser.");
@@ -66,7 +66,7 @@ auto kdl::sema::declaration_parser::parse() -> std::vector<kdl::build_target::re
 
     auto type = target->type_container_named(type_name);
 
-    std::vector<kdl::build_target::resource_instance> instances;
+    std::vector<kdl::build_target::resource_constructor> instances;
     m_parser.ensure({ expectation(lexeme::l_brace).be_true() });
     while (m_parser.expect({ expectation(lexeme::r_brace).be_false() })) {
         kdl::sema::resource_instance_parser parser(m_parser, type, m_target, m_discards);

@@ -40,7 +40,7 @@ kdl::sema::bitmask_parser::bitmask_parser(kdl::sema::parser &parser, kdl::build_
 
 // MARK: - Parser
 
-auto kdl::sema::bitmask_parser::parse(kdl::build_target::resource_instance &instance) -> void
+auto kdl::sema::bitmask_parser::parse(kdl::build_target::resource_constructor &instance) -> void
 {
     if (m_field.expected_values() != 1) {
         log::fatal_error(m_parser.peek(-1), 1, "The field '" + m_field.name().text() + "' should have only one value due to it being a 'Bitmask'.");
