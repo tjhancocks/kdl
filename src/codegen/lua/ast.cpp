@@ -653,8 +653,8 @@ auto kdl::codegen::lua::ast::generator::member(ast_node *member, ast_node *objec
 
 // MARK: - Property Definition
 
-kdl::codegen::lua::ast::property_definition::property_definition(class_definition *klass, struct symbol *name)
-    : m_class(klass), m_name(name)
+kdl::codegen::lua::ast::property_definition::property_definition(class_definition *klass, struct symbol *name, struct symbol *symbol)
+    : m_class(klass), m_name(name), m_symbol(symbol ?: name)
 {}
 
 auto kdl::codegen::lua::ast::property_definition::generate_lua(uint8_t indentation) const -> std::vector<std::string>
@@ -667,6 +667,11 @@ auto kdl::codegen::lua::ast::property_definition::name() const -> struct symbol 
     return m_name;
 }
 
+auto kdl::codegen::lua::ast::property_definition::symbol() const -> struct symbol *
+{
+    return m_symbol;
+}
+
 auto kdl::codegen::lua::ast::property_definition::path() const -> std::string
 {
     auto klass = m_class->identifier();
@@ -674,9 +679,9 @@ auto kdl::codegen::lua::ast::property_definition::path() const -> std::string
     return klass + ".properties." + name;
 }
 
-auto kdl::codegen::lua::ast::generator::declare_property(class_definition *klass, struct symbol *name, bool implicit) -> property_definition *
+auto kdl::codegen::lua::ast::generator::declare_property(class_definition *klass, struct symbol *name, struct symbol *symbol, bool implicit) -> property_definition *
 {
-    auto node = new property_definition(klass, name);
+    auto node = new property_definition(klass, name, symbol);
 
     if (!implicit) {
         m_scope->add_node(node);
@@ -710,14 +715,14 @@ auto kdl::codegen::lua::ast::property_accessor::generate_lua(uint8_t indentation
 
     if (m_getter) {
         self_literal self;
-        symbol property_value("_" + m_property->name()->identifier());
+        symbol property_value("_" + m_property->symbol()->identifier());
         member member_value(&property_value, &self);
         return_statement ret(&member_value);
         result.emplace_back(ret.generate_lua(indentation + 1).front());
     }
     else {
         self_literal self;
-        symbol property_value("_" + m_property->name()->identifier());
+        symbol property_value("_" + m_property->symbol()->identifier());
         member member_value(&property_value, &self);
         assign_statement assign(&member_value, &value);
         result.emplace_back(assign.generate_lua(indentation + 1).front());

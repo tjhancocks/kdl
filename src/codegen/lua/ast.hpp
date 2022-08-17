@@ -60,7 +60,7 @@ namespace kdl::codegen::lua::ast
         auto declare_function(bool implicit, struct symbol* name, class_definition *klass, const std::vector<struct symbol *>& parameters = {}) -> function_definition *;
         auto declare_static_function(bool implicit, struct symbol *name, class_definition *klass, const std::vector<struct symbol *>& parameters = {}) -> function_definition *;
 
-        auto declare_property(class_definition *klass, struct symbol *name, bool implicit = false) -> property_definition *;
+        auto declare_property(class_definition *klass, struct symbol *name, struct symbol *symbol = nullptr, bool implicit = false) -> property_definition *;
         auto synthesize_getter(property_definition *property) -> ast_node *;
         auto synthesize_setter(property_definition *property) -> ast_node *;
 
@@ -249,15 +249,17 @@ namespace kdl::codegen::lua::ast
     struct property_definition: public ast_node
     {
     public:
-        property_definition(class_definition *klass, struct symbol *name);
+        property_definition(class_definition *klass, struct symbol *name, struct symbol *symbol);
         [[nodiscard]] auto generate_lua(uint8_t indentation) const -> std::vector<std::string> override;
 
         [[nodiscard]] auto name() const -> struct symbol *;
+        [[nodiscard]] auto symbol() const -> struct symbol *;
         [[nodiscard]] auto path() const -> std::string;
 
     private:
         class_definition *m_class { nullptr };
         struct symbol *m_name { nullptr };
+        struct symbol *m_symbol { nullptr };
     };
 
     // -----

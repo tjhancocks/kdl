@@ -472,6 +472,7 @@ auto kdl::codegen::lua::type_exporter::produce_read_call(const build_target::typ
         case build_target::CSTR: value = m_gen.call(data, m_kestrel_api.read_cstr); break;
         case build_target::PSTR: value = m_gen.call(data, m_kestrel_api.read_pstr); break;
         case build_target::RECT: value = m_gen.call(data, m_kestrel_api.read_rect); break;
+        case build_target::OCNT: value = m_gen.call(data, m_kestrel_api.read_short); break;
         case build_target::Cnnn: {
             value = m_gen.call(data, m_kestrel_api.read_cstr_of_length, { m_gen.number(length) });
             break;
@@ -526,6 +527,70 @@ auto kdl::codegen::lua::type_exporter::produce_type_constants() -> void
 {
     m_gen.add_comment("Constants");
 
+    auto produce_constants_for_value = [&] (const build_target::type_field_value& value, std::int32_t lower_bound) {
+        if (value.symbols().empty()) {
+            return;
+        }
+
+        auto bin_field = m_container.internal_template().binary_field_named(value.extended_name({
+            std::pair("FieldNumber", lexeme(std::to_string(lower_bound), lexeme::integer))
+        }));
+
+        auto constants_userdata = reinterpret_cast<ast::userdata_literal *>(m_gen.userdata_literal());
+        m_gen.assign(m_gen.symbol(value.base_name().text()), m_gen.comma(constants_userdata));
+        m_gen.push(constants_userdata->block());
+        {
+            for (auto& symbol : value.symbols()) {
+                auto symbol_name = std::get<0>(symbol);
+                auto symbol_value = std::get<1>(symbol);
+
+                ast::ast_node *constant = m_gen.nil();
+                if (value.explicit_type().has_value()) {
+                    if (value.explicit_type()->is_reference()) {
+                        auto global = m_gen.call(m_kestrel_api.namespace_global);
+                        constant = m_gen.call(global, m_kestrel_api.identified_resource, {
+                            m_gen.number(symbol_value.value<std::int64_t>())
+                        });
+                    }
+                    else if (value.explicit_type()->name().has_value()) {
+                        if (value.explicit_type()->name()->is("Color")) {
+                            constant = m_gen.call(m_kestrel_api.color_klass_color_value, { m_gen.number(symbol_value.value<std::uint32_t>()) });
+                        }
+                        else if (value.explicit_type()->name()->is("Bitmask") || value.explicit_type()->name()->is("Range")) {
+                            constant = m_gen.number(symbol_value.value<std::int64_t>());
+                        }
+                        else if (value.explicit_type()->name()->is("File")) {
+                            constant = m_gen.string(symbol_value.text());
+                        }
+                    }
+                }
+                else {
+                    switch (bin_field.type) {
+                        case build_target::DBYT:
+                        case build_target::DWRD:
+                        case build_target::DLNG:
+                        case build_target::DQAD:
+                        case build_target::HBYT:
+                        case build_target::HWRD:
+                        case build_target::HLNG:
+                        case build_target::HQAD:
+                            constant = m_gen.number(symbol_value.value<std::int64_t>());
+                            break;
+                        case build_target::PSTR:
+                        case build_target::CSTR:
+                            constant = m_gen.string(symbol_value.text());
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                m_gen.assign(m_gen.symbol(symbol_name.text()), m_gen.comma(constant));
+            }
+        }
+        m_gen.pop();
+    };
+
     auto userdata = reinterpret_cast<ast::userdata_literal *>(m_gen.userdata_literal());
     m_gen.assign(m_gen.member(m_gen.symbol("Constants"), m_type.klass_name), userdata);
     m_gen.push(userdata->block());
@@ -533,69 +598,13 @@ auto kdl::codegen::lua::type_exporter::produce_type_constants() -> void
         for (const auto& container_field : m_container.all_fields()) {
             for (auto i = 0; i < container_field.expected_values(); ++i) {
                 auto value = container_field.value_at(i);
+                produce_constants_for_value(value, container_field.lower_repeat_bound());
 
-                if (value.symbols().empty()) {
-                    continue;
-                }
-
-                auto bin_field = m_container.internal_template().binary_field_named(value.extended_name({
-                    std::pair("FieldNumber", lexeme(std::to_string(container_field.lower_repeat_bound()), lexeme::integer))
-                }));
-
-                auto constants_userdata = reinterpret_cast<ast::userdata_literal *>(m_gen.userdata_literal());
-                m_gen.assign(m_gen.symbol(value.base_name().text()), m_gen.comma(constants_userdata));
-                m_gen.push(constants_userdata->block());
-                {
-                    for (auto& symbol : value.symbols()) {
-                        auto symbol_name = std::get<0>(symbol);
-                        auto symbol_value = std::get<1>(symbol);
-
-                        ast::ast_node *constant = m_gen.nil();
-                        if (value.explicit_type().has_value()) {
-                            if (value.explicit_type()->is_reference()) {
-                                auto global = m_gen.call(m_kestrel_api.namespace_global);
-                                constant = m_gen.call(global, m_kestrel_api.identified_resource, {
-                                    m_gen.number(symbol_value.value<std::int64_t>())
-                                });
-                            }
-                            else if (value.explicit_type()->name().has_value()) {
-                                if (value.explicit_type()->name()->is("Color")) {
-                                    constant = m_gen.call(m_kestrel_api.color_klass_color_value, { m_gen.number(symbol_value.value<std::uint32_t>()) });
-                                }
-                                else if (value.explicit_type()->name()->is("Bitmask") || value.explicit_type()->name()->is("Range")) {
-                                    constant = m_gen.number(symbol_value.value<std::int64_t>());
-                                }
-                                else if (value.explicit_type()->name()->is("File")) {
-                                    constant = m_gen.string(symbol_value.text());
-                                }
-                            }
-                        }
-                        else {
-                           switch (bin_field.type) {
-                               case build_target::DBYT:
-                               case build_target::DWRD:
-                               case build_target::DLNG:
-                               case build_target::DQAD:
-                               case build_target::HBYT:
-                               case build_target::HWRD:
-                               case build_target::HLNG:
-                               case build_target::HQAD:
-                                   constant = m_gen.number(symbol_value.value<std::int64_t>());
-                                   break;
-                               case build_target::PSTR:
-                               case build_target::CSTR:
-                                   constant = m_gen.string(symbol_value.text());
-                                   break;
-                               default:
-                                   break;
-                           }
-                        }
-
-                        m_gen.assign(m_gen.symbol(symbol_name.text()), m_gen.comma(constant));
+                if (value.joined_value_count() > 0) {
+                    for (auto j = 0; j < value.joined_value_count(); ++j) {
+                        produce_constants_for_value(value.joined_value_at(j), container_field.lower_repeat_bound());
                     }
                 }
-                m_gen.pop();
-
             }
         }
     }
@@ -610,7 +619,14 @@ auto kdl::codegen::lua::type_exporter::produce_type_properties() -> void
     m_gen.add_comment("Properties");
 
     for (const auto& field : m_container.all_fields()) {
-        auto property = m_gen.declare_property(m_type.klass, m_gen.camel_case(field.name().text()));
+        auto name = m_gen.camel_case(field.name().text());
+        auto symbol = name;
+
+        if (field.has_repeatable_count_field()) {
+            symbol = m_gen.camel_case(field.repeatable_count_field().text());
+        }
+
+        auto property = m_gen.declare_property(m_type.klass, name, symbol);
 
         produce_property_getter(property);
         if (field.wants_lua_setter()) {
