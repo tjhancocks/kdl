@@ -21,6 +21,7 @@
 #include <limits>
 #include <utility>
 #include "target/new/resource.hpp"
+#include "diagnostic/fatal.hpp"
 
 // MARK: - Construction
 
@@ -393,6 +394,9 @@ auto kdl::build_target::resource_constructor::assemble_list(graphite::data::writ
 
         if (!base_value) {
             writer.write_byte(0, build_target::binary_type_base_size(type));
+        }
+        else if (!base_value->value.has_value()) {
+            log::fatal_error(field_name, 1, "Missing value for field '" + field_name.text() + "'.");
         }
         else if (((type & ~0xFFFUL) == build_target::OCNT) && (base_value->type == value_type::list)) {
             auto list = std::any_cast<std::vector<value_container *>>(base_value->value);

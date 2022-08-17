@@ -239,6 +239,15 @@ auto kdl::codegen::lua::type_exporter::prepare_template_read_calls(ast::symbol *
                binary_field = tmpl.binary_field_named(value.base_name());
                auto value_reader = produce_read_call(binary_field, value, data);
                m_type.bin_fields.emplace(std::pair(binary_field.label.text(), value_reader));
+
+               if (value.joined_value_count() > 0) {
+                   for (auto j = 0; j < value.joined_value_count(); ++j) {
+                       auto joined_value = value.joined_value_at(j);
+                       binary_field = tmpl.binary_field_named(joined_value.base_name());
+                       value_reader = produce_read_call(binary_field, joined_value, data);
+                       m_type.bin_fields.emplace(std::pair(binary_field.label.text(), value_reader));
+                   }
+               }
            }
        }
        else if (field.is_repeatable()) {
@@ -259,6 +268,15 @@ auto kdl::codegen::lua::type_exporter::prepare_template_read_calls(ast::symbol *
                auto binary_field = tmpl.binary_field_named(value.base_name());
                auto value_reader = produce_read_call(binary_field, value, data);
                m_type.bin_fields.emplace(std::pair(binary_field.label.text(), value_reader));
+
+               if (value.joined_value_count() > 0) {
+                   for (auto j = 0; j < value.joined_value_count(); ++j) {
+                       auto joined_value = value.joined_value_at(j);
+                       binary_field = tmpl.binary_field_named(joined_value.base_name());
+                       value_reader = produce_read_call(binary_field, joined_value, data);
+                       m_type.bin_fields.emplace(std::pair(binary_field.label.text(), value_reader));
+                   }
+               }
            }
        }
    }
@@ -272,7 +290,9 @@ auto kdl::codegen::lua::type_exporter::produce_template_read_calls(ast::symbol *
         auto bin_field = tmpl.binary_field_at(i);
         auto it = m_type.bin_fields.find(bin_field.label.text());
         if (it == m_type.bin_fields.end()) {
-            log::fatal_error(bin_field.label, 1, "Failed to find corresponding binary field specified whilst exporting Lua.");
+            auto skip_length = build_target::binary_type_base_size(bin_field.type);
+            m_gen.call(m_gen.symbol("data"), m_kestrel_api.skip, { m_gen.number(skip_length) });
+            continue;
         }
 
         auto resource_member = m_gen.member(m_gen.private_symbol(m_gen.camel_case(bin_field.label.text())), resource);
@@ -621,7 +641,7 @@ auto kdl::codegen::lua::type_exporter::generate_lua() -> std::string
     produce_model_loader();
     produce_type_properties();
 
-    std::cout << m_gen.generate_lua() << std::endl;
+//    std::cout << m_gen.generate_lua() << std::endl;
 
     return m_gen.generate_lua();
 }

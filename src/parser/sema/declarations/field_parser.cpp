@@ -66,6 +66,10 @@ auto kdl::sema::field_parser::parse() -> void
         m_parser.advance();
 
         m_instance.add_list_element(field_name, [&] (build_target::resource_constructor *resource) {
+            // Make sure we apply the defaults for the new list element
+            apply_defaults_for_field(field);
+            m_parser.clear_pushed_lexemes();
+
             while (m_parser.expect({ expectation(lexeme::r_brace).be_false() })) {
                 if (!m_parser.expect({ expectation(lexeme::identifier).be_true() })) {
                     log::fatal_error(m_parser.peek(), 1, "Expected an identifier for the field name.");
@@ -177,8 +181,14 @@ auto kdl::sema::field_parser::apply_defaults_for_field(const build_target::type_
     }
     auto field = m_type.field_named(type_field.name());
 
-    for (auto field_number = field.lower_repeat_bound(); field_number <= field.upper_repeat_bound(); ++field_number) {
-        auto lock = m_instance.acquire_field(field_name, field.lower_repeat_bound());
+    auto lower = field.lower_repeat_bound();
+    auto upper = type_field.has_repeatable_count_field() ? lower : field.upper_repeat_bound();
+
+    for (auto field_number = lower; field_number <= upper; ++field_number) {
+        auto lock = 0;
+        if (!type_field.has_repeatable_count_field()) {
+            lock = m_instance.acquire_field(field_name, lower);
+        }
 
         // Iterate over the expected values for the field.
         for (auto n = 0; n < field.expected_values(); ++n) {
@@ -186,7 +196,7 @@ auto kdl::sema::field_parser::apply_defaults_for_field(const build_target::type_
 
             // Do we have a default value - if not break out of this value and move to the next field.
             if (!field_value.default_value().has_value()) {
-                break;
+                continue;
             }
 
             // Handle joined/merged values

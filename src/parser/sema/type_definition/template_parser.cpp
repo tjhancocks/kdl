@@ -55,7 +55,7 @@ auto kdl::sema::template_parser::parse() -> kdl::build_target::type_template
             m_parser.ensure({ expectation(lexeme::semi).be_true() });
 
             if (list_start_field.type != build_target::LSTC) {
-                log::fatal_error(list_start_field.label, 1, "First template field after an OCNT field should be LSTB");
+                log::fatal_error(list_start_field.label, 1, "First template field after an OCNT field should be LSTC");
             }
 
             do {
