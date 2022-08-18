@@ -15,6 +15,10 @@
 			OptionSet2b = 0x0020,
 		];
 	};
+
+	field("Zero") {
+	    Zero = 0;
+	};
 };
 
 @example declare MergedBitmask {

@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <sstream>
+#include <functional>
 #include "codegen/lua/ast.hpp"
 
 // MARK: - Indentation

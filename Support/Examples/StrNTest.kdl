@@ -1,10 +1,12 @@
 @type StringList : "STR#" {
     template {
-        OCNT stringcount;
-        PSTR string;
+        OCNT Strings;
+        LSTC StringsBegin;
+        PSTR    string;
+        LSTE StringsEnd;
     };
 
-    field("String") repeatable<0, 65535> {
+    field("String") repeatable<0, 65535, Strings> {
         string;
     };
 };

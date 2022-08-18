@@ -5,7 +5,7 @@
 	};
 
 	field("flags"){
-		flags as Bitmask  [
+		flags as Bitmask [
 			first = 0x0001,
 			second = 0x0002,
 			third = 0x0004,
