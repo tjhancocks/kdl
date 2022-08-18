@@ -24,6 +24,7 @@
 #include <string>
 #include <optional>
 #include <string>
+#include <functional>
 #include <unordered_map>
 #include "parser/lexeme.hpp"
 #include "target/new/type_template.hpp"
