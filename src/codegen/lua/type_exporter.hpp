@@ -73,6 +73,7 @@ namespace kdl::codegen::lua
             ast::class_definition *klass { nullptr };
             ast::function_definition *type_code_func { nullptr };
             std::unordered_map<std::string, ast::ast_node *> bin_fields;
+            std::unordered_map<std::string, std::string> export_names;
         } m_type;
 
         auto load_kestrel_api() -> void;
@@ -81,6 +82,7 @@ namespace kdl::codegen::lua
         auto produce_type_constants() -> void;
         auto produce_model_loader() -> void;
         auto produce_type_properties() -> void;
+        auto determine_export_names() -> void;
         auto produce_property_getter(ast::property_definition *property) -> void;
         auto produce_property_setter(ast::property_definition *property) -> void;
 
