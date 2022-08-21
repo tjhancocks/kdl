@@ -87,6 +87,16 @@ auto kdl::sema::field_parser::parse() -> void
 
         m_parser.ensure({ expectation(lexeme::r_brace).be_true() });
     }
+    else if (field.has_repeatable_count_field()) {
+        m_instance.add_list_element(field_name, [&] (build_target::resource_constructor *resource) {
+            // Make sure we apply the defaults for the new list element
+            apply_defaults_for_field(field);
+            m_parser.clear_pushed_lexemes();
+
+            auto value = field.value_at(0);
+            parse_value(field, value, lock);
+        });
+    }
     else {
         for (auto n = 0; n < field.expected_values(); ++n) {
             auto value = field.value_at(n);
