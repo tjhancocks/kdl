@@ -91,8 +91,8 @@ auto kdl::sema::list_parser::parse() -> std::vector<lexeme>
         }
 
         if (m_parser.peek().is(lexeme::l_expr)) {
-            expression_parser expr(m_parser, m_target, {});
-            out.emplace_back(expr.parse());
+            auto expr = expression_parser::extract(m_parser);
+            out.emplace_back(expr->evaluate(m_target));
         }
         else {
             out.emplace_back(m_parser.read());

@@ -70,11 +70,11 @@ auto kdl::sema::unnamed_reference_value_parser::parse(kdl::build_target::resourc
         ref = m_parser.read();
     }
     else if (ref.is(lexeme::l_expr)) {
-        expression_parser expr(m_parser, m_target, {
-            std::make_pair("_id", kdl::lexeme(std::to_string(instance.id()), lexeme::res_id)),
-            std::make_pair("_name", kdl::lexeme(instance.name(), lexeme::string))
+        auto expr = expression_parser::extract(m_parser);
+        ref = expr->evaluate(m_target, {}, {
+            std::pair("id", kdl::lexeme(std::to_string(instance.id()), lexeme::res_id)),
+            std::pair("name", kdl::lexeme(instance.name(), lexeme::string))
         });
-        ref = expr.parse();
     }
     else {
         // Make sure we read the lexeme from the input stream.

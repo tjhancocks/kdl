@@ -20,25 +20,14 @@
 
 #pragma once
 
-#include <vector>
 #include <unordered_map>
-#include "parser/lexeme.hpp"
+#include "parser/parser.hpp"
 
-namespace kdl
+namespace kdl::sema
 {
-    class target;
-}
-
-namespace kdl::build_target
-{
-    struct kdl_expression
+    struct variable_parser
     {
     public:
-        explicit kdl_expression(const std::vector<lexeme>& lexemes);
-
-        [[nodiscard]] auto evaluate(std::weak_ptr<target> target, const std::vector<lexeme>& arguments = {}, const std::unordered_map<std::string, kdl::lexeme>& vars = {}) const -> lexeme;
-
-    private:
-        std::vector<lexeme> m_lexemes;
+        static auto parse(parser& parser, std::shared_ptr<target>, const std::unordered_map<std::string, kdl::lexeme> vars = {}) -> kdl::lexeme;
     };
 }

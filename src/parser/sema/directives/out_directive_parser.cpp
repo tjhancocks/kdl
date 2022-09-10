@@ -23,6 +23,7 @@
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/directives/out_directive_parser.hpp"
 #include "parser/sema/expression/expression_parser.hpp"
+#include "parser/sema/expression/variable_parser.hpp"
 
 auto kdl::sema::out_directive_parser::parse(kdl::sema::parser &parser, std::weak_ptr<target> target) -> void
 {
@@ -30,11 +31,15 @@ auto kdl::sema::out_directive_parser::parse(kdl::sema::parser &parser, std::weak
         throw std::logic_error("Build target has expired. This is a bug!");
     }
     auto t = target.lock();
-    expression_parser expr(parser, target, {});
 
     while (parser.expect({ expectation(lexeme::semi).be_false() })) {
-        if (parser.expect_any({ expectation(lexeme::var).be_true(), expectation(lexeme::l_expr).be_true() })) {
-            const auto& value = expr.parse();
+        if (parser.expect({ expectation(lexeme::l_expr).be_true() })) {
+            auto expr = expression_parser::extract(parser);
+            auto value = expr->evaluate(t);
+            std::cout << value.text();
+        }
+        else if (parser.expect({ expectation(lexeme::var).be_true() })) {
+            auto value = variable_parser::parse(parser, t);
             std::cout << value.text();
         }
         else {

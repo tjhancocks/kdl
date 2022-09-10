@@ -18,27 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "parser/sema/expression/variable_parser.hpp"
+#include "diagnostic/fatal.hpp"
 
-#include <vector>
-#include <unordered_map>
-#include "parser/lexeme.hpp"
-
-namespace kdl
+auto kdl::sema::variable_parser::parse(parser &parser, std::shared_ptr<target> target, const std::unordered_map<std::string, kdl::lexeme> vars) -> kdl::lexeme
 {
-    class target;
-}
+    std::unordered_map<std::string, lexeme> local_vars(target->all_global_variables());
 
-namespace kdl::build_target
-{
-    struct kdl_expression
-    {
-    public:
-        explicit kdl_expression(const std::vector<lexeme>& lexemes);
+    for (const auto& var : vars) {
+        auto it = local_vars.find(var.first);
+        if (it == local_vars.end()) {
+            local_vars.insert(std::pair(var.first, var.second));
+        }
+        else {
+            it->second = var.second;
+        }
+    }
 
-        [[nodiscard]] auto evaluate(std::weak_ptr<target> target, const std::vector<lexeme>& arguments = {}, const std::unordered_map<std::string, kdl::lexeme>& vars = {}) const -> lexeme;
-
-    private:
-        std::vector<lexeme> m_lexemes;
-    };
+    auto var_name = parser.read();
+    auto it = local_vars.find(var_name.text());
+    if (it == local_vars.end()) {
+        log::fatal_error(var_name, 1, "Unrecognised variable referenced.");
+    }
+    return it->second;
 }

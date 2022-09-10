@@ -139,7 +139,7 @@ auto kdl::sema::parser::expect(std::initializer_list<kdl::sema::expectation::fun
 {
     auto ptr = 0;
     for (auto f : expect) {
-        if (f(peek(ptr++)) == false) {
+        if (m_ptr + ptr >= size() || f(peek(ptr++)) == false) {
             return false;
         }
     }

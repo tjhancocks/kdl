@@ -20,25 +20,17 @@
 
 #pragma once
 
+#include <vector>
+#include <unordered_map>
 #include "parser/parser.hpp"
 
 namespace kdl::sema
 {
-
     class expression_parser
     {
     public:
-        expression_parser(parser& parser, std::weak_ptr<target> target, std::map<std::string, kdl::lexeme> vars);
-
-        auto parse() -> kdl::lexeme;
-
-    private:
-        parser& m_parser;
-        std::shared_ptr<target> m_target;
-        std::map<std::string, kdl::lexeme> m_vars;
-
-        [[nodiscard]] auto resolve_variable_named(const kdl::lexeme& var) const -> kdl::lexeme;
-
+        static auto extract(parser& parser) -> std::shared_ptr<build_target::kdl_expression>;
+        static auto evaluate(std::shared_ptr<target> target, const std::vector<kdl::lexeme>& lexemes, const std::unordered_map<std::string, kdl::lexeme>& vars) -> kdl::lexeme;
+        static auto evaluate(parser& parser, std::shared_ptr<target> target, const std::vector<lexeme>& arguments, const std::unordered_map<std::string, kdl::lexeme>& vars) -> kdl::lexeme;
     };
-
 }

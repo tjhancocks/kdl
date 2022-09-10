@@ -18,27 +18,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
-
 #include <vector>
-#include <unordered_map>
-#include "parser/lexeme.hpp"
+#include "parser/sema/expression/argument_parser.hpp"
+#include "parser/sema/expression/function_parser.hpp"
+#include "parser/sema/expression/expression_parser.hpp"
+#include "target/new/kdl_expression.hpp"
 
-namespace kdl
+auto kdl::sema::argument_parser::parse(parser& parser, std::shared_ptr<target> target, const std::unordered_map<std::string, kdl::lexeme> vars) -> kdl::lexeme
 {
-    class target;
-}
-
-namespace kdl::build_target
-{
-    struct kdl_expression
-    {
-    public:
-        explicit kdl_expression(const std::vector<lexeme>& lexemes);
-
-        [[nodiscard]] auto evaluate(std::weak_ptr<target> target, const std::vector<lexeme>& arguments = {}, const std::unordered_map<std::string, kdl::lexeme>& vars = {}) const -> lexeme;
-
-    private:
-        std::vector<lexeme> m_lexemes;
-    };
+    std::vector<lexeme> argument_expression;
+    while (!parser.expect_any({ expectation(lexeme::comma).be_true(), expectation(lexeme::r_paren).be_true() })) {
+        if (parser.expect({ expectation(lexeme::identifier).be_true(), expectation(lexeme::l_paren).be_true() })) {
+            argument_expression.emplace_back(function_parser::parse(parser, target, vars));
+        }
+        else {
+            argument_expression.emplace_back(parser.read());
+        }
+    }
+    return expression_parser::evaluate(target, argument_expression, vars);
 }

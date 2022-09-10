@@ -80,6 +80,20 @@ auto kdl::sema::named_reference_value_parser::parse(kdl::build_target::resource_
 
         ref = symbol_value;
     }
+    else if (ref.is(lexeme::var)) {
+        if (auto target = m_target.lock()) {
+            auto var_value = target->global_variable(ref.text());
+            if (var_value.has_value()) {
+                ref = var_value.value();
+            }
+            else {
+                log::fatal_error(ref, 1, "Unrecognised variable name encountered.");
+            }
+        }
+        else {
+            throw std::runtime_error("Missing build target. This is a serious bug.");
+        }
+    }
     else {
         // It's a resource id, so just advance.
         m_parser.advance();

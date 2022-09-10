@@ -23,6 +23,7 @@
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/implicit_value_parser.hpp"
 #include "parser/sema/expression/expression_parser.hpp"
+#include "target/new/kdl_expression.hpp"
 
 // MARK: - Constructor
 
@@ -50,11 +51,13 @@ auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_constru
     // Check if the value coming up in the lexical stream is an expression. If it is then preemptively parse it
     // and push the result into the parser.
     if (m_parser.expect({ expectation(lexeme::l_expr).be_true() })) {
-        expression_parser expr(m_parser, m_target, {
-            std::make_pair("_id", kdl::lexeme(std::to_string(instance.id()), lexeme::res_id)),
-            std::make_pair("_name", kdl::lexeme(instance.name(), lexeme::string))
+        auto expr = expression_parser::extract(m_parser);
+        m_parser.push({
+            expr->evaluate(m_target, {}, {
+                std::pair("id", kdl::lexeme(std::to_string(instance.id()), lexeme::res_id)),
+                std::pair("name", kdl::lexeme(instance.name(), lexeme::string))
+            })
         });
-        m_parser.push({ expr.parse() });
     }
 
     switch (m_binary_field.type & ~0xFFFUL) {
@@ -115,8 +118,15 @@ auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_constru
                             m_parser.read().value<int16_t>());
     }
     else {
-        auto value = m_parser.read();
+        if (m_parser.expect({
+            sema::expectation(lexeme::identifier).be_true(),
+            sema::expectation(lexeme::l_paren).be_true()
+        })) {
+            // We're trying to call a function here.
 
+        }
+
+        auto value = m_parser.read();
         if (value.is(lexeme::identifier)) {
             auto symbol_value = m_field_value.value_for(value);
 
@@ -126,6 +136,15 @@ auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_constru
             }
 
             value = symbol_value;
+        }
+        else if (value.is(lexeme::var)) {
+            auto var_value = m_target->global_variable(value.text());
+            if (var_value.has_value()) {
+                value = var_value.value();
+            }
+            else {
+                log::fatal_error(value, 1, "Unrecognised variable name encountered.");
+            }
         }
 
         // Read the next value and write it to the resource.
