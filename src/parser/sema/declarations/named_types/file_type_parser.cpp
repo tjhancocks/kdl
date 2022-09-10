@@ -86,6 +86,10 @@ auto kdl::sema::file_type_parser::parse(kdl::build_target::resource_constructor 
             auto paths = file::glob(path);
 
             for (const auto& p : *paths) {
+                if (!kdl::file::exists(p)) {
+                    log::fatal_error(string_lx, 1, "Could not import file contents: " + p);
+                }
+
                 content_value = kdl::file(p).vector();
                 file_lx.emplace_back(lexeme(p, lexeme::string));
                 file_contents.emplace_back(content_value);

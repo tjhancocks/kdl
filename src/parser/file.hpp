@@ -41,6 +41,8 @@ namespace kdl
          */
         explicit file(std::string_view path);
 
+        [[nodiscard]] auto exists() const -> bool;
+
         /**
          * The location of the file on disk. Will be empty if this is a blank file.
          * @return A string representing a file path.

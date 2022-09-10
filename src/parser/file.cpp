@@ -229,6 +229,11 @@ kdl::file::~file()
 
 // MARK: - Accessors
 
+auto kdl::file::exists() const -> bool
+{
+    return (m_raw != nullptr);
+}
+
 auto kdl::file::path() const -> std::string
 {
     return m_path;

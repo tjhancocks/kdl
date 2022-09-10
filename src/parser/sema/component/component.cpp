@@ -22,6 +22,7 @@
 #include <utility>
 #include "parser/sema/component/component.hpp"
 #include "codegen/lua/type_exporter.hpp"
+#include "diagnostic/fatal.hpp"
 
 // MARK: - Construction
 
@@ -116,6 +117,11 @@ auto kdl::sema::component::generate_resources(const std::shared_ptr<target>& tar
     int64_t id = m_base_id;
     for (const auto& file : m_files) {
         const auto& path = target->resolve_src_path(m_path_prefix + file.path);
+
+        if (!kdl::file::exists(path)) {
+            log::fatal_error(lexeme(path, lexeme::string), 1, "Failed to find component file at: " + path);
+        }
+
         const auto& contents = kdl::file(path).contents();
 
         build_target::resource_constructor resource(id++,
