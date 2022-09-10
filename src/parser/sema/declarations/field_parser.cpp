@@ -22,6 +22,7 @@
 #include <utility>
 #include "parser/sema/type_definition/binary_field.hpp"
 #include "diagnostic/fatal.hpp"
+#include "parser/sema/directives/hint_directive_parser.hpp"
 #include "parser/sema/declarations/field_parser.hpp"
 #include "parser/sema/declarations/unnamed_reference_value_parser.hpp"
 #include "parser/sema/declarations/named_reference_value_parser.hpp"
@@ -40,6 +41,10 @@ kdl::sema::field_parser::field_parser(kdl::sema::parser &parser, build_target::t
 
 auto kdl::sema::field_parser::parse() -> void
 {
+    if (m_parser.expect({ expectation(lexeme::directive, "hint").be_true() })) {
+        sema::hint_directive_parser::parse(m_parser, m_target);
+    }
+
     if (!m_parser.expect({ expectation(lexeme::identifier).be_true() })) {
         log::fatal_error(m_parser.peek(), 1, "Expected an identifier for the field name.");
     }
