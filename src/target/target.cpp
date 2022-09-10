@@ -335,3 +335,20 @@ auto kdl::target::all_global_variables() const -> std::map<std::string, kdl::lex
 {
     return m_globals;
 }
+
+// MARK: - Functions
+
+auto kdl::target::set_function_expression(const std::string &name, std::shared_ptr<build_target::kdl_expression> expression) -> void
+{
+    m_functions.insert(std::pair(name, expression));
+}
+
+auto kdl::target::function_expression(const std::string &name) const -> std::shared_ptr<build_target::kdl_expression>
+{
+    for (const auto& expr : m_functions) {
+        if (expr.first == name) {
+            return expr.second;
+        }
+    }
+    return nullptr;
+}

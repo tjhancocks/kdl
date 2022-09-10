@@ -26,6 +26,7 @@
 #include <memory>
 #include <map>
 #include "disassembler/task.hpp"
+#include "target/new/kdl_expression.hpp"
 #include "target/new/type_container.hpp"
 #include "target/new/resource.hpp"
 #include <libGraphite/rsrc/file.hpp>
@@ -73,6 +74,9 @@ namespace kdl
         [[nodiscard]] auto all_global_variables() const -> std::map<std::string, kdl::lexeme>;
         [[nodiscard]] auto global_variable(const std::string& var_name) const -> std::optional<kdl::lexeme>;
 
+        auto set_function_expression(const std::string& name, std::shared_ptr<struct build_target::kdl_expression> expression) -> void;
+        [[nodiscard]] auto function_expression(const std::string& name) const -> std::shared_ptr<struct build_target::kdl_expression>;
+
         auto set_disassembler_image_format(const std::vector<lexeme>& formats) -> void;
         auto set_disassembler_sound_format(const std::vector<lexeme>& formats) -> void;
         auto initialise_disassembler(const std::string& output_dir) -> void;
@@ -99,6 +103,7 @@ namespace kdl
         graphite::rsrc::file m_file;
         std::shared_ptr<kdl::resource_tracking::table> m_resource_tracking_table {};
         std::map<std::string, kdl::lexeme> m_globals {};
+        std::unordered_map<std::string, std::shared_ptr<build_target::kdl_expression>> m_functions;
         std::vector<std::shared_ptr<kdl::file>> m_imported_files;
 
         std::optional<disassembler::task> m_disassembler;

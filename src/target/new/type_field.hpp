@@ -28,11 +28,10 @@
 #include "target/new/type_field_value.hpp"
 #include "parser/lexeme.hpp"
 
-namespace kdl::build_target {
-
+namespace kdl::build_target
+{
     struct type_field
     {
-
     public:
         explicit type_field(lexeme name);
         explicit type_field(const std::string& name);
