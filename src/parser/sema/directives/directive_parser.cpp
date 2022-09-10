@@ -27,6 +27,7 @@
 #include "parser/sema/directives/project_directive_parser.hpp"
 #include "parser/sema/directives/author_directive_parser.hpp"
 #include "parser/sema/directives/version_directive_parser.hpp"
+#include "parser/sema/directives/const_directive_parser.hpp"
 
 // MARK: - Constructor
 
@@ -65,6 +66,13 @@ auto kdl::sema::asm_directive::parse() -> void
     }
     else if (directive.text() == "version") {
         version_directive_parser::parse(m_parser, m_target);
+    }
+    else if (directive.text() == "const") {
+        const_directive_parser::parse(m_parser, m_target);
+    }
+    else if (directive.text() == "var") {
+        // TODO: Make a mutable version of the parser, and make const actually constant.
+        const_directive_parser::parse(m_parser, m_target);
     }
     else {
         log::fatal_error(directive, 1, "Unrecognised directive '" + directive.text() + "'");
