@@ -124,6 +124,8 @@ namespace kdl::sema
          */
         auto insert(std::vector<lexeme> lexemes, int offset = 0) -> void;
 
+        [[nodiscard]] auto size() const -> std::size_t;
+
     private:
         std::weak_ptr<target> m_target;
         std::size_t m_ptr { 0 };

@@ -185,3 +185,10 @@ auto kdl::sema::parser::insert(std::vector<lexeme> lexemes, const int offset) ->
         m_lexemes.insert(insertion_ptr, lexemes.begin(), lexemes.end());
     }
 }
+
+// MARK: - Accessors
+
+auto kdl::sema::parser::size() const -> std::size_t
+{
+    return m_lexemes.size();
+}
