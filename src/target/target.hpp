@@ -71,7 +71,7 @@ namespace kdl
         auto add_resource(build_target::resource_constructor& resource) -> void;
 
         auto set_global_variable(const std::string& var_name, const kdl::lexeme& value) -> void;
-        [[nodiscard]] auto all_global_variables() const -> std::map<std::string, kdl::lexeme>;
+        [[nodiscard]] auto all_global_variables() const -> std::unordered_map<std::string, kdl::lexeme>;
         [[nodiscard]] auto global_variable(const std::string& var_name) const -> std::optional<kdl::lexeme>;
 
         auto set_function_expression(const std::string& name, std::shared_ptr<struct build_target::kdl_expression> expression) -> void;
@@ -102,7 +102,7 @@ namespace kdl
         std::vector<build_target::type_container> m_attributed_type_containers;
         graphite::rsrc::file m_file;
         std::shared_ptr<kdl::resource_tracking::table> m_resource_tracking_table {};
-        std::map<std::string, kdl::lexeme> m_globals {};
+        std::unordered_map<std::string, kdl::lexeme> m_globals;
         std::unordered_map<std::string, std::shared_ptr<build_target::kdl_expression>> m_functions;
         std::vector<std::shared_ptr<kdl::file>> m_imported_files;
 

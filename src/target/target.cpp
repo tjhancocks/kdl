@@ -318,20 +318,24 @@ auto kdl::target::track_imported_file(std::weak_ptr<kdl::file> file) -> void
 
 auto kdl::target::set_global_variable(const std::string& var_name, const kdl::lexeme &value) -> void
 {
-    m_globals.insert(std::make_pair(var_name, value));
+    auto it = m_globals.find(var_name);
+    if (it != m_globals.end()) {
+        it->second = value;
+        return;
+    }
+    m_globals.insert(std::pair(var_name, value));
 }
 
 auto kdl::target::global_variable(const std::string& var_name) const -> std::optional<kdl::lexeme>
 {
-    for (const auto& var : m_globals) {
-        if (var.first == var_name) {
-            return var.second;
-        }
+    auto it = m_globals.find(var_name);
+    if (it != m_globals.end()) {
+        return it->second;
     }
     return {};
 }
 
-auto kdl::target::all_global_variables() const -> std::map<std::string, kdl::lexeme>
+auto kdl::target::all_global_variables() const -> std::unordered_map<std::string, kdl::lexeme>
 {
     return m_globals;
 }
