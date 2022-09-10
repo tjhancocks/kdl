@@ -1,0 +1,11 @@
+@const $foo = 1;
+@const $bar = "Hello, World!";
+@const $baz = $foo + 2;
+
+@function Double = $1 * 2;
+@function Add = $1 + $2;
+@function Subtract = $1 - $2;
+
+@const $gamma = Double(Add(5, Subtract(4, 7)));
+
+@out "Gamma is " $gamma;
