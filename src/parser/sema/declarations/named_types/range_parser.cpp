@@ -22,20 +22,26 @@
 #include <utility>
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/named_types/range_parser.hpp"
+#include "parser/sema/expression/function_parser.hpp"
+#include "parser/sema/expression/variable_parser.hpp"
 
 // MARK: - Constructor
 
 kdl::sema::range_parser::range_parser(kdl::sema::parser &parser, kdl::build_target::type_field &field,
                                       kdl::build_target::type_field_value &field_value,
                                       kdl::build_target::type_template::binary_field binary_field,
-                                      kdl::build_target::kdl_type &type)
+                                      kdl::build_target::kdl_type &type,
+                                      std::weak_ptr<kdl::target> target)
     : m_parser(parser),
       m_field(field),
       m_field_value(field_value),
       m_binary_field(std::move(binary_field)),
       m_explicit_type(type)
 {
-
+    if (target.expired()) {
+        throw std::runtime_error("Build target expired. This is a bug.");
+    }
+    m_target = target.lock();
 }
 
 // MARK: - Parser
@@ -56,6 +62,26 @@ static auto validate_range(const kdl::lexeme& value, const kdl::lexeme& lower, c
 
 auto kdl::sema::range_parser::parse(kdl::build_target::resource_constructor &instance) -> void
 {
+    if (m_parser.expect({
+        expectation(lexeme::identifier).be_true(),
+        expectation(lexeme::l_paren).be_true()
+    })) {
+        m_parser.push({
+            function_parser::parse(m_parser, m_target, {
+                std::pair("id", kdl::lexeme(std::to_string(instance.id()), lexeme::res_id)),
+                std::pair("name", kdl::lexeme(instance.name(), lexeme::string))
+            })
+        });
+    }
+    else if (m_parser.expect({ expectation(lexeme::var).be_true() })) {
+        m_parser.push({
+            variable_parser::parse(m_parser, m_target, {
+                std::pair("id", kdl::lexeme(std::to_string(instance.id()), lexeme::res_id)),
+                std::pair("name", kdl::lexeme(instance.name(), lexeme::string))
+            })
+        });
+    }
+
     // A range requires two values to be provided.
     if (m_explicit_type.type_hints().size() != 2) {
         log::fatal_error(m_field_value.base_name(), 1, "The 'Range' type requires an upper and a lower bound to be provided.");

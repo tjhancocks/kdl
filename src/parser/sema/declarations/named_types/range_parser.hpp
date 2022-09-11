@@ -31,7 +31,8 @@ namespace kdl::sema
         range_parser(parser& parser, build_target::type_field& field,
                      build_target::type_field_value& field_value,
                      build_target::type_template::binary_field binary_field,
-                     build_target::kdl_type& type);
+                     build_target::kdl_type& type,
+                     std::weak_ptr<kdl::target> target);
 
         auto parse(build_target::resource_constructor& instance) -> void;
 
@@ -41,6 +42,7 @@ namespace kdl::sema
         build_target::type_field& m_field;
         build_target::type_field_value& m_field_value;
         build_target::type_template::binary_field m_binary_field;
+        std::shared_ptr<kdl::target> m_target;
     };
 
 }

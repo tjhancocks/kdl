@@ -24,6 +24,7 @@
 #include "parser/sema/declarations/unnamed_reference_value_parser.hpp"
 #include "parser/sema/expression/expression_parser.hpp"
 #include "parser/sema/expression/variable_parser.hpp"
+#include "parser/sema/expression/function_parser.hpp"
 
 // MARK: - Constructor
 
@@ -45,6 +46,18 @@ kdl::sema::unnamed_reference_value_parser::unnamed_reference_value_parser(kdl::s
 
 auto kdl::sema::unnamed_reference_value_parser::parse(kdl::build_target::resource_constructor &instance) -> void
 {
+    if (m_parser.expect({
+        expectation(lexeme::identifier).be_true(),
+        expectation(lexeme::l_paren).be_true()
+    })) {
+        m_parser.push({
+            function_parser::parse(m_parser, m_target, {
+                std::pair("id", kdl::lexeme(std::to_string(instance.id()), lexeme::res_id)),
+                std::pair("name", kdl::lexeme(instance.name(), lexeme::string))
+            })
+        });
+    }
+
     if (!m_parser.expect_any({
         expectation(lexeme::identifier).be_true(),
         expectation(lexeme::res_id).be_true(),

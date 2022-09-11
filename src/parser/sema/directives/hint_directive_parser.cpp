@@ -42,6 +42,7 @@ auto kdl::sema::hint_directive_parser::parse(parser &parser, std::weak_ptr<targe
     })) {
         log::fatal_error(parser.peek(), 1, "Invalid lexeme encountered as value for hint.");
     }
+    parser.advance();
 
     parser.ensure({ expectation(lexeme::r_paren).be_true() });
 }

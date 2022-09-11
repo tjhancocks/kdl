@@ -58,7 +58,7 @@ auto kdl::sema::named_value_parser::parse(kdl::build_target::resource_constructo
                 .parse(instance);
     }
     else if (type_name.is("Range")) {
-        range_parser(m_parser, m_field, m_field_value, m_binary_fields.back(), m_explicit_type)
+        range_parser(m_parser, m_field, m_field_value, m_binary_fields.back(), m_explicit_type, m_target)
                 .parse(instance);
     }
     else if (type_name.is("Color")) {
