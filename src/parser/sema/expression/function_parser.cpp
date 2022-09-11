@@ -36,19 +36,23 @@ auto kdl::sema::function_parser::parse(parser &parser, std::shared_ptr<target> t
         function_name == "__postIncrement" ||
         function_name == "__preIncrement" ||
         function_name == "__postDecrement" ||
-        function_name == "__preDecrement"
+        function_name == "__preDecrement" ||
+        function_name == "__integer" ||
+        function_name == "__string" ||
+        function_name == "__percentage" ||
+        function_name == "__resource_id"
     ) {
         // We now _require_ a variable to be specified.
         if (!parser.expect({ sema::expectation(lexeme::var).be_true() })) {
             log::fatal_error(parser.peek(), 1, "The built-in function '" + function_name + "' requires a variable name argument.");
         }
         auto var_name_lx = parser.read();
-        auto var = target->global_variable(var_name_lx.text());
-        if (!var.has_value()) {
+        auto var = vars.find(var_name_lx.text());
+        if (var == vars.end()) {
             log::fatal_error(var_name_lx, 1, "Unrecognised variable name referenced.");
         }
 
-        auto value = var.value();
+        auto value = var->second;
         if (!value.is(lexeme::integer) && !value.is(lexeme::percentage) && !value.is(lexeme::res_id)) {
             log::fatal_error(value, 1, "The built-in function '" + function_name + "' requires a variable for a numeric value to be specified as an argument.");
         }
@@ -75,6 +79,18 @@ auto kdl::sema::function_parser::parse(parser &parser, std::shared_ptr<target> t
             auto new_value = lexeme(std::to_string(v), value.type());
             target->set_global_variable(var_name_lx.text(), new_value);
             value = new_value;
+        }
+        else if (function_name == "__integer") {
+            value = lexeme(value.text(), lexeme::integer);
+        }
+        else if (function_name == "__string") {
+            value = lexeme(value.text(), lexeme::string);
+        }
+        else if (function_name == "__percentage") {
+            value = lexeme(value.text(), lexeme::percentage);
+        }
+        else if (function_name == "__resource_id") {
+            value = lexeme(value.text(), lexeme::res_id);
         }
 
         parser.ensure({ sema::expectation(lexeme::r_paren).be_true() });

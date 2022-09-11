@@ -24,6 +24,7 @@
 #include <optional>
 #include <vector>
 #include <string>
+#include <unordered_map>
 #include "parser/parser.hpp"
 
 namespace kdl::sema
@@ -41,7 +42,7 @@ namespace kdl::sema
         auto add_valid_list_item(enum lexeme::type lx) -> void;
         auto add_valid_list_item(enum lexeme::type lx, const std::string& text) -> void;
 
-        auto parse() -> std::vector<lexeme>;
+        auto parse(const std::unordered_map<std::string, kdl::lexeme> vars = {}) -> std::vector<lexeme>;
 
     private:
         parser& m_parser;

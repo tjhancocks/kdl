@@ -9,3 +9,19 @@
 @const $gamma = Double(Add(5, Subtract(4, 7)));
 
 @out "Gamma is " $gamma;
+
+@type Foo : "foo " {
+    template {
+        DWRD Foo;
+    };
+
+    field("Value") {
+        Foo;
+    };
+};
+
+declare Foo {
+    new (Add(#128, 2), "Test") {
+        Value = Double(__integer($id));
+    };
+};

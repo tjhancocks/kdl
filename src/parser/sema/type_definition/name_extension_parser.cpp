@@ -30,5 +30,7 @@ auto kdl::sema::name_extension_parser::parse(kdl::sema::parser &parser, std::wea
     list.set_list_end(lexeme::r_angle);
     list.set_delimiter(lexeme::comma);
     list.add_valid_list_item(lexeme::var);
-    return list.parse();
+    return list.parse({
+        std::pair("FieldNumber", lexeme("FieldNumber", lexeme::var)) // TODO: Do this properly... this is a hack
+    });
 }

@@ -22,6 +22,8 @@
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/util/list_parser.hpp"
 #include "parser/sema/expression/expression_parser.hpp"
+#include "parser/sema/expression/variable_parser.hpp"
+#include "parser/sema/expression/function_parser.hpp"
 
 // MARK: - Constructor
 
@@ -63,7 +65,7 @@ auto kdl::sema::list_parser::add_valid_list_item(enum lexeme::type lx, const std
 
 // MARK: - Parser
 
-auto kdl::sema::list_parser::parse() -> std::vector<lexeme>
+auto kdl::sema::list_parser::parse(const std::unordered_map<std::string, kdl::lexeme> vars) -> std::vector<lexeme>
 {
     // Build a list of valid expectations
     std::vector<expectation::function> expectations;
@@ -86,6 +88,13 @@ auto kdl::sema::list_parser::parse() -> std::vector<lexeme>
     std::vector<lexeme> out;
     m_parser.ensure({ expectation(m_list_start).be_true() });
     while (m_parser.expect({ expectation(m_list_end).be_false() })) {
+        if (m_parser.expect({ expectation(lexeme::identifier).be_true(), expectation(lexeme::l_paren).be_true() })) {
+            m_parser.push({ function_parser::parse(m_parser, m_target, vars) });
+        }
+        else if (m_parser.expect({ expectation(lexeme::var).be_true() })) {
+            m_parser.push({ variable_parser::parse(m_parser, m_target, vars) });
+        }
+
         if (!m_parser.expect_any(expectations)) {
             log::fatal_error(m_parser.peek(), 1, "Unexpected type '" + m_parser.peek().text() + "' encountered in list.");
         }

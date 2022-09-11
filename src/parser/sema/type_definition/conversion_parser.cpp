@@ -55,7 +55,9 @@ auto kdl::sema::conversion_parser::parse() -> std::tuple<lexeme, lexeme>
     list.add_valid_list_item(lexeme::identifier, "WAV");
     list.add_valid_list_item(lexeme::identifier, "snd");
     list.add_valid_list_item(lexeme::var, "InputFormat");
-    auto v = list.parse();
+    auto v = list.parse({
+        std::pair("InputFormat", lexeme("InputFormat", lexeme::var)) // TODO: Do this properly... this is a hack
+    });
 
     if (v.size() != 2) {
         log::fatal_error(conversion_lx, 1, "A conversion requires two arguments. An input and output.");

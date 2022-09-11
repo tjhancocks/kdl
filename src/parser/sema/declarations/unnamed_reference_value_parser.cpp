@@ -23,6 +23,7 @@
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/unnamed_reference_value_parser.hpp"
 #include "parser/sema/expression/expression_parser.hpp"
+#include "parser/sema/expression/variable_parser.hpp"
 
 // MARK: - Constructor
 
@@ -74,6 +75,14 @@ auto kdl::sema::unnamed_reference_value_parser::parse(kdl::build_target::resourc
         ref = expr->evaluate(m_target, {}, {
             std::pair("id", kdl::lexeme(std::to_string(instance.id()), lexeme::res_id)),
             std::pair("name", kdl::lexeme(instance.name(), lexeme::string))
+        });
+    }
+    else if (m_parser.expect({ expectation(lexeme::var).be_true() })) {
+        m_parser.push({
+            variable_parser::parse(m_parser, m_target, {
+                std::pair("id", kdl::lexeme(std::to_string(instance.id()), lexeme::res_id)),
+                std::pair("name", kdl::lexeme(instance.name(), lexeme::string))
+            })
         });
     }
     else {

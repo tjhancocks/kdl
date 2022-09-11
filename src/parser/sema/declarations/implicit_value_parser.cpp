@@ -23,6 +23,8 @@
 #include "diagnostic/fatal.hpp"
 #include "parser/sema/declarations/implicit_value_parser.hpp"
 #include "parser/sema/expression/expression_parser.hpp"
+#include "parser/sema/expression/variable_parser.hpp"
+#include "parser/sema/expression/function_parser.hpp"
 #include "target/new/kdl_expression.hpp"
 
 // MARK: - Constructor
@@ -54,6 +56,26 @@ auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_constru
         auto expr = expression_parser::extract(m_parser);
         m_parser.push({
             expr->evaluate(m_target, {}, {
+                std::pair("id", kdl::lexeme(std::to_string(instance.id()), lexeme::res_id)),
+                std::pair("name", kdl::lexeme(instance.name(), lexeme::string))
+            })
+        });
+    }
+    else if (m_parser.expect({ expectation(lexeme::var).be_true() })) {
+        m_parser.push({
+            variable_parser::parse(m_parser, m_target, {
+                std::pair("id", kdl::lexeme(std::to_string(instance.id()), lexeme::res_id)),
+                std::pair("name", kdl::lexeme(instance.name(), lexeme::string))
+            })
+        });
+    }
+    else if (m_parser.expect({
+        sema::expectation(lexeme::identifier).be_true(),
+        sema::expectation(lexeme::l_paren).be_true()
+    })) {
+        // We're trying to call a function here.
+        m_parser.push({
+            function_parser::parse(m_parser, m_target, {
                 std::pair("id", kdl::lexeme(std::to_string(instance.id()), lexeme::res_id)),
                 std::pair("name", kdl::lexeme(instance.name(), lexeme::string))
             })
@@ -118,14 +140,6 @@ auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_constru
                             m_parser.read().value<int16_t>());
     }
     else {
-        if (m_parser.expect({
-            sema::expectation(lexeme::identifier).be_true(),
-            sema::expectation(lexeme::l_paren).be_true()
-        })) {
-            // We're trying to call a function here.
-
-        }
-
         auto value = m_parser.read();
         if (value.is(lexeme::identifier)) {
             auto symbol_value = m_field_value.value_for(value);
