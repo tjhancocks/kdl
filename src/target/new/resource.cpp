@@ -317,7 +317,7 @@ auto kdl::build_target::resource_constructor::synthesize_variables(value_contain
     vars.emplace("id", lexeme(std::to_string(m_id), lexeme::res_id));
     vars.emplace("name", lexeme(m_name, lexeme::string));
 
-    auto list = std::any_cast<std::vector<value_container *>>(container ?: m_values);
+    auto list = std::any_cast<std::vector<value_container *>>((container ?: m_values)->value);
     for (auto sub_container : list) {
         if (sub_container->type == value_type::list) {
             auto result = synthesize_variables(sub_container);

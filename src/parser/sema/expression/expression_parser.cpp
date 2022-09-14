@@ -190,28 +190,28 @@ auto kdl::sema::expression_parser::evaluate(parser &parser, std::shared_ptr<targ
             working_stack.emplace_back(o.value<std::int64_t>());
         }
         else if (o.is(lexeme::plus)) {
-            const auto lhs = working_stack.back(); working_stack.pop_back();
             const auto rhs = working_stack.back(); working_stack.pop_back();
+            const auto lhs = working_stack.back(); working_stack.pop_back();
             working_stack.emplace_back(lhs + rhs);
         }
         else if (o.is(lexeme::minus)) {
-            const auto lhs = working_stack.back(); working_stack.pop_back();
             const auto rhs = working_stack.back(); working_stack.pop_back();
+            const auto lhs = working_stack.back(); working_stack.pop_back();
             working_stack.emplace_back(lhs - rhs);
         }
         else if (o.is(lexeme::star)) {
-            const auto lhs = working_stack.back(); working_stack.pop_back();
             const auto rhs = working_stack.back(); working_stack.pop_back();
+            const auto lhs = working_stack.back(); working_stack.pop_back();
             working_stack.emplace_back(lhs * rhs);
         }
         else if (o.is(lexeme::slash)) {
-            const auto lhs = working_stack.back(); working_stack.pop_back();
             const auto rhs = working_stack.back(); working_stack.pop_back();
+            const auto lhs = working_stack.back(); working_stack.pop_back();
             working_stack.emplace_back(lhs / rhs);
         }
         else if (o.is(lexeme::carat)) {
-            const auto lhs = working_stack.back(); working_stack.pop_back();
             const auto rhs = working_stack.back(); working_stack.pop_back();
+            const auto lhs = working_stack.back(); working_stack.pop_back();
             working_stack.emplace_back(lhs ^ rhs);
         }
     }

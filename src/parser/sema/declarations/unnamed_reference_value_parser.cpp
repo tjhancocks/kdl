@@ -57,6 +57,13 @@ auto kdl::sema::unnamed_reference_value_parser::parse(kdl::build_target::resourc
             })
         });
     }
+    else if (m_parser.expect({
+        expectation(lexeme::var).be_true()
+    })) {
+        m_parser.push({
+           variable_parser::parse(m_parser, m_target, {})
+        });
+    }
 
     if (!m_parser.expect_any({
         expectation(lexeme::identifier).be_true(),
