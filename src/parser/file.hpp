@@ -41,6 +41,11 @@ namespace kdl
          */
         explicit file(std::string_view path);
 
+        /**
+         * Create an in memory file,
+         */
+        file(const std::string& name, const std::string& contents);
+
         [[nodiscard]] auto exists() const -> bool;
 
         /**

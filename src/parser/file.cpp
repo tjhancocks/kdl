@@ -220,6 +220,15 @@ kdl::file::file(std::string_view path)
     }
 }
 
+kdl::file::file(const std::string &name, const std::string &contents)
+    : m_path(name)
+{
+    m_length = contents.size();
+    m_raw = new uint8_t[m_length + 1];
+    memset(m_raw, 0, m_length);
+    memcpy(m_raw, contents.c_str(), m_length);
+}
+
 // MARK: - Destructors
 
 kdl::file::~file()
