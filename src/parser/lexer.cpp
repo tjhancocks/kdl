@@ -206,6 +206,12 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
                 m_expr_paren_balance--;
             }
         }
+        else if (test_if(sequence<'<', '<'>::yes, 0, 2)) {
+            m_lexemes.emplace_back(kdl::lexeme(read(0, 2), lexeme::left_shift, m_pos, m_offset, m_line, m_source));
+        }
+        else if (test_if(sequence<'>', '>'>::yes, 0, 2)) {
+            m_lexemes.emplace_back(kdl::lexeme(read(0, 2), lexeme::right_shift, m_pos, m_offset, m_line, m_source));
+        }
         else if (test_if(match<'<'>::yes)) {
             m_lexemes.emplace_back(kdl::lexeme(read(), lexeme::l_angle, m_pos, m_offset, m_line, m_source));
         }
@@ -214,6 +220,9 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
         }
         else if (test_if(match<'='>::yes)) {
             m_lexemes.emplace_back(kdl::lexeme(read(), lexeme::equals, m_pos, m_offset, m_line, m_source));
+        }
+        else if (test_if(match<'~'>::yes)) {
+            m_lexemes.emplace_back(kdl::lexeme(read(), lexeme::tilde, m_pos, m_offset, m_line, m_source));
         }
         else if (test_if(match<'+'>::yes)) {
             m_lexemes.emplace_back(kdl::lexeme(read(), lexeme::plus, m_pos, m_offset, m_line, m_source));
