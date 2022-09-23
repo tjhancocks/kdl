@@ -69,6 +69,9 @@ namespace kdl
         auto type_container_count() const -> std::size_t;
         auto type_container_at(int i) const -> build_target::type_container;
         auto type_container_named(const kdl::lexeme& name) const -> build_target::type_container;
+        auto type_container_named(const std::string& name) const -> build_target::type_container;
+        [[nodiscard]] auto has_type_named(const kdl::lexeme& name) const -> bool;
+        [[nodiscard]] auto has_type_named(const std::string& name) const -> bool;
         auto add_resource(build_target::resource_constructor& resource) -> void;
 
         auto set_global_variable(const std::string& var_name, const kdl::lexeme& value) -> void;
