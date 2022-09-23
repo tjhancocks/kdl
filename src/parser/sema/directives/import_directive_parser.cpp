@@ -23,6 +23,10 @@
 #include "parser/lexer.hpp"
 #include "parser/sema/directives/import_directive_parser.hpp"
 
+#include "libraries/macintosh/macintosh_library.hpp"
+#include "libraries/spriteworld/spriteworld_library.hpp"
+#include "libraries/kestrel/kestrel_library.hpp"
+
 // MARK: - Parser
 
 auto kdl::sema::import_directive_parser::parse(parser &parser, std::weak_ptr<target> target) -> void
@@ -32,23 +36,41 @@ auto kdl::sema::import_directive_parser::parse(parser &parser, std::weak_ptr<tar
     }
     auto t = target.lock();
 
-    if (!parser.expect({ expectation(lexeme::string).be_true() })) {
+    if (parser.expect({ expectation(lexeme::identifier, "Macintosh").be_true() })) {
+        // TODO: Track duplicate imports and prevent them.
+        parser.advance();
+        kdl::builtin::libraries::macintosh::import(parser);
+    }
+    else if (parser.expect({ expectation(lexeme::identifier, "SpriteWorld").be_true() })) {
+        // TODO: Track duplicate imports and prevent them.
+        parser.advance();
+        kdl::builtin::libraries::spriteworld::import(parser);
+    }
+    else if (parser.expect({ expectation(lexeme::identifier, "Kestrel").be_true() })) {
+        // TODO: Track duplicate imports and prevent them.
+        parser.advance();
+        kdl::builtin::libraries::kestrel::import(parser);
+    }
+    else if (parser.expect({ expectation(lexeme::string).be_true() })) {
+        auto include_path = parser.read();
+
+        // Resolve the path/file to be included.
+        auto resolved_include_path = t->resolve_src_path(include_path);
+
+        // Open the file and prepare to perform lexical analysis.
+        auto file = std::make_shared<kdl::file>(resolved_include_path);
+        if (!file->exists()) {
+            log::fatal_error(include_path, 1, "Could not open file: " + resolved_include_path);
+        }
+        auto lexer = kdl::lexer(file);
+
+        // Perform lexical analysis and insert the lexemes into the parser. As we're still expecting a semi colon to appear,
+        // we need to insert the lexemes _after_ it.
+        t->track_imported_file(file);
+        parser.insert(lexer.analyze(), 1);
+
+    }
+    else {
         log::fatal_error(parser.peek(), 1, "Expected string for include path.");
     }
-    auto include_path = parser.read();
-
-    // Resolve the path/file to be included.
-    auto resolved_include_path = t->resolve_src_path(include_path);
-
-    // Open the file and prepare to perform lexical analysis.
-    auto file = std::make_shared<kdl::file>(resolved_include_path);
-    if (!file->exists()) {
-        log::fatal_error(include_path, 1, "Could not open file: " + resolved_include_path);
-    }
-    auto lexer = kdl::lexer(file);
-
-    // Perform lexical analysis and insert the lexemes into the parser. As we're still expecting a semi colon to appear,
-    // we need to insert the lexemes _after_ it.
-    t->track_imported_file(file);
-    parser.insert(lexer.analyze(), 1);
 }

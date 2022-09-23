@@ -25,6 +25,7 @@
 #include "parser/sema/directives/directive_parser.hpp"
 #include "parser/sema/type_definition/type_definition_parser.hpp"
 #include "parser/sema/component/component_parser.hpp"
+#include "parser/lexer.hpp"
 
 // MARK: - Constructor
 
@@ -173,7 +174,7 @@ auto kdl::sema::parser::ensure(std::initializer_list<kdl::sema::expectation::fun
 
 // MARK: - Lexeme Insertion
 
-auto kdl::sema::parser::insert(std::vector<lexeme> lexemes, const int offset) -> void
+auto kdl::sema::parser::insert(const std::vector<lexeme>& lexemes, const int offset) -> void
 {
     if (finished(offset, 1)) {
         // We trying to insert at the end of the stream.
@@ -184,6 +185,12 @@ auto kdl::sema::parser::insert(std::vector<lexeme> lexemes, const int offset) ->
         auto insertion_ptr = m_lexemes.begin() + m_ptr + offset;
         m_lexemes.insert(insertion_ptr, lexemes.begin(), lexemes.end());
     }
+}
+
+auto kdl::sema::parser::import(const std::string& source_name, const std::string &source) -> void
+{
+    auto lexer = kdl::lexer(std::make_shared<kdl::file>(source_name, source));
+    insert(lexer.analyze(), 1);
 }
 
 // MARK: - Accessors
