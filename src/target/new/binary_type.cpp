@@ -139,6 +139,9 @@ auto kdl::build_target::binary_type_for_name(const std::string& name) -> enum bi
 //    else if (name == "LSTB") {
 //        return binary_type::LSTB;
 //    }
+    else if (name == "RSRC") {
+        return binary_type::RSRC;
+    }
 
     return binary_type::INVALID;
 };
@@ -165,6 +168,9 @@ auto kdl::build_target::binary_type_base_size(enum kdl::build_target::binary_typ
         case binary_type::HQAD:
         case binary_type::DQAD: {
             return 8;
+        }
+        case binary_type::RSRC: {
+            return 9;
         }
         case binary_type::Cnnn: {
             return type & 0xFFF;

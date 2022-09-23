@@ -1,0 +1,22 @@
+
+@type Example : "rsrc" {
+    template {
+        RSRC LinkedResource;
+        DWRD Alpha;
+    };
+
+    field("LinkedResource") {
+        LinkedResource as &;
+    };
+
+    field("Alpha") {
+        Alpha;
+    };
+};
+
+declare Example {
+    new (#128) {
+        LinkedResource = #CoolMods.Example.100000;
+        Alpha = 12;
+    };
+};

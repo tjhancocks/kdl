@@ -86,7 +86,25 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
         }
         else if (test_if(match<'#'>::yes)) {
             // We're looking at a resource id.
+            // Check if there is a namespace and a type present. The general format for a resource id is as follows:
+            //  #[Namespace.][Type.]ID
+            // Each prefix entry will be determined to be either a namespace or a type based on the existence of an
+            // existing type with the same name.
             advance();
+
+            std::vector<std::string> components;
+            if (test_if(identifier_set::limited_contains)) {
+                consume_while(identifier_set::contains);
+                components.emplace_back(m_slice);
+                advance();
+            }
+
+            if (test_if(identifier_set::limited_contains)) {
+                consume_while(identifier_set::contains);
+                components.emplace_back(m_slice);
+                advance();
+            }
+
             auto negative = test_if(match<'-'>::yes);
             if (negative) {
                 advance();
@@ -94,11 +112,13 @@ auto kdl::lexer::analyze() -> std::vector<lexeme>
 
             consume_while(decimal_set::contains);
             if (negative) {
-                m_lexemes.emplace_back(kdl::lexeme("-" + m_slice, lexeme::res_id, m_pos, m_offset, m_line, m_source));
+                components.emplace_back("-" + m_slice);
             }
             else {
-                m_lexemes.emplace_back(kdl::lexeme(m_slice, lexeme::res_id, m_pos, m_offset, m_line, m_source));
+                components.emplace_back(m_slice);
             }
+
+            m_lexemes.emplace_back(kdl::lexeme(components, lexeme::res_id, m_pos, m_offset, m_line, m_source));
         }
         else if (test_if(match<'$'>::yes) && !m_in_expr) {
             // We're looking at a variable or an expression.

@@ -74,6 +74,16 @@ namespace kdl
 
         }
 
+        lexeme(const std::vector<std::string>& components, enum type type, std::size_t pos, std::size_t offset, std::size_t line, std::weak_ptr<file> owner)
+            : m_components(components), m_type(type), m_pos(pos), m_offset(offset), m_line(line), m_owner(owner)
+        {
+            auto is_first = true;
+            for (const auto& component : m_components) {
+                m_text += (is_first ? "" : ".") + component;
+                is_first = false;
+            }
+        }
+
         /**
          * Returns the path to the directory, that contains the file from which the lexeme was extracted.
          */
@@ -181,6 +191,11 @@ namespace kdl
             return m_text;
         }
 
+        [[nodiscard]] auto components() const -> std::vector<std::string>
+        {
+            return m_components;
+        }
+
         /**
          * The numeric value of the lexeme.
          *
@@ -197,6 +212,9 @@ namespace kdl
             }
             else if (m_type == lexeme::carat) {
                 return 4;
+            }
+            else if (m_type == lexeme::res_id && !m_components.empty()) {
+                return static_cast<T>(std::stoll(m_components.back(), nullptr, 10));
             }
             else if (m_text.size() >= 2 && m_text[0] == '-') {
                // Negative decimal
@@ -233,6 +251,7 @@ namespace kdl
         std::size_t m_pos;
         std::size_t m_offset;
         std::size_t m_line;
+        std::vector<std::string> m_components;
         enum type m_type;
     };
 };

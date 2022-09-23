@@ -86,6 +86,32 @@ auto kdl::target::type_container_named(const kdl::lexeme& name) const -> build_t
     log::fatal_error(name, 1, "Missing definition for type '" + name.text() + "'");
 }
 
+auto kdl::target::type_container_named(const std::string& name) const -> build_target::type_container
+{
+    for (const auto& c : m_type_containers) {
+        // We have found a type container with the specified name.
+        if (c.name() == name) {
+            return c;
+        }
+    }
+    log::fatal_error({ name, lexeme::identifier }, 1, "Missing definition for type '" + name + "'");
+}
+
+auto kdl::target::has_type_named(const kdl::lexeme &name) const -> bool
+{
+    return has_type_named(name.text());
+}
+
+auto kdl::target::has_type_named(const std::string &name) const -> bool
+{
+    for (const auto& c : m_type_containers) {
+        if (c.name() == name) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // MARK: - Destination Paths
 
 auto kdl::target::set_dst_path(const std::string& dst_path) -> void
@@ -228,6 +254,11 @@ auto kdl::target::set_required_format(const enum graphite::rsrc::file::format &f
     m_required_format = format;
 
     return true;
+}
+
+auto kdl::target::is_extended_format() const -> bool
+{
+    return m_required_format == graphite::rsrc::file::format::extended;
 }
 
 // MARK: - Resource Management

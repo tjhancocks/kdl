@@ -124,7 +124,8 @@ auto kdl::sema::component::generate_resources(const std::shared_ptr<target>& tar
 
         const auto& contents = kdl::file(path).contents();
 
-        build_target::resource_constructor resource(id++,
+        build_target::resource_constructor resource(target,
+                                                    id++,
                                                     container.code(),
                                                     file.name.has_value() ? file.name.value() : "",
                                                     contents);
@@ -150,7 +151,8 @@ auto kdl::sema::component::synthesize_lua_from_types(const std::shared_ptr<targe
         codegen::lua::type_exporter exporter(type);
         auto lua = exporter.generate_lua();
 
-        build_target::resource_constructor resource(id++,
+        build_target::resource_constructor resource(target,
+                                                    id++,
                                                     container.code(),
                                                     type_name.text(),
                                                     lua);

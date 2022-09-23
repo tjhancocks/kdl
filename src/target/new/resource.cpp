@@ -22,17 +22,18 @@
 #include <utility>
 #include "target/new/resource.hpp"
 #include "diagnostic/fatal.hpp"
+#include "target/target.hpp"
 
 // MARK: - Construction
 
-kdl::build_target::resource_constructor::resource_constructor(graphite::rsrc::resource::identifier id, const std::string &code, const std::string &name, class type_template tmpl)
-    : m_type_code(code), m_id(id), m_name(name), m_tmpl(std::move(tmpl))
+kdl::build_target::resource_constructor::resource_constructor(std::shared_ptr<target> target, graphite::rsrc::resource::identifier id, const std::string &code, const std::string &name, class type_template tmpl)
+    : m_type_code(code), m_id(id), m_name(name), m_tmpl(std::move(tmpl)), m_target(target)
 {
     construct_root_value_container();
 }
 
-kdl::build_target::resource_constructor::resource_constructor(graphite::rsrc::resource::identifier id, const std::string &code, const std::string &name, const std::string &contents)
-    : m_type_code(code), m_id(id), m_name(name)
+kdl::build_target::resource_constructor::resource_constructor(std::shared_ptr<target> target, graphite::rsrc::resource::identifier id, const std::string &code, const std::string &name, const std::string &contents)
+    : m_type_code(code), m_id(id), m_name(name), m_target(target)
 {
     construct_root_value_container();
 
@@ -45,8 +46,8 @@ kdl::build_target::resource_constructor::resource_constructor(graphite::rsrc::re
     write("data", std::make_tuple(contents.size(), contents));
 }
 
-kdl::build_target::resource_constructor::resource_constructor(graphite::rsrc::resource::identifier id, const std::string &code, const std::string &name, const graphite::data::block &data)
-    : m_type_code(code), m_id(id), m_name(name)
+kdl::build_target::resource_constructor::resource_constructor(std::shared_ptr<target> target, graphite::rsrc::resource::identifier id, const std::string &code, const std::string &name, const graphite::data::block &data)
+    : m_type_code(code), m_id(id), m_name(name), m_target(target)
 {
     construct_root_value_container();
 
@@ -292,6 +293,41 @@ auto kdl::build_target::resource_constructor::write_rect(const type_field &field
     write(field_value.extended_name(available_name_extensions(field)).text(), std::tuple(t, l, b, r));
 }
 
+auto kdl::build_target::resource_constructor::write_resource_reference(const type_field &field, const type_field_value &field_value, const lexeme& ref) -> void
+{
+    if (m_target->is_extended_format()) {
+        auto components = ref.components();
+
+        std::uint8_t reference_flags = 0;
+        std::string type_name_value;
+        std::string namespace_value;
+
+        // The last component should be the resource id, so we can ignore it.
+        if (!components.empty()) {
+            for (auto i = 0; i < components.size() - 1; ++i) {
+                auto component_value = components[i];
+
+                // Is this a known type or a namespace?
+                if (m_target->has_type_named(component_value)) {
+                    type_name_value = m_target->type_container_named(component_value).code();
+                    reference_flags |= 0x2; // Has Type
+                }
+                else {
+                    namespace_value = component_value;
+                    reference_flags |= 0x1; // Has Namespace
+                }
+            }
+        }
+
+        write(field_value.extended_name(available_name_extensions(field)).text(), std::tuple(
+            reference_flags, namespace_value, type_name_value, ref.value<std::int64_t>()
+        ));
+    }
+    else {
+        write(field_value.extended_name(available_name_extensions(field)).text(), ref.value<std::int16_t>());
+    }
+}
+
 // MARK: - Supporting
 
 auto kdl::build_target::resource_constructor::available_name_extensions(const type_field &field) const -> std::unordered_map<std::string, lexeme>
@@ -485,6 +521,29 @@ auto kdl::build_target::resource_constructor::assemble_field(graphite::data::wri
         case build_target::CSTR: {
             auto cstr = std::any_cast<std::tuple<std::size_t, std::string>>(value);
             writer.write_cstr(std::get<1>(cstr), std::get<0>(cstr));
+            break;
+        }
+        case build_target::RSRC: {
+            if (m_target->is_extended_format()) {
+                auto ref = std::any_cast<std::tuple<std::uint8_t, std::string, std::string, std::int64_t>>(value);
+                writer.write_byte(std::get<0>(ref));
+
+                if (std::get<0>(ref) & 0x01) {
+                    // Namespace present
+                    writer.write_pstr(std::get<1>(ref));
+                }
+
+                if (std::get<0>(ref) & 0x02) {
+                    // Type present
+                    writer.write_cstr(std::get<2>(ref), 4);
+                }
+
+                writer.write_signed_quad(std::get<3>(ref));
+            }
+            else {
+                writer.write_signed_short(std::any_cast<std::int16_t>(value));
+                break;
+            }
             break;
         }
         default: {

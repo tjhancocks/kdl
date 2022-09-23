@@ -130,6 +130,15 @@ auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_constru
         case build_target::INVALID: {
             log::fatal_error(m_parser.peek(), 1, "Unknown type encountered in field '" + m_field.name().text() + "'.");
         }
+
+        case build_target::RSRC: {
+            field_type = lexeme::res_id;
+            if (!m_parser.expect({
+                expectation(lexeme::res_id).be_true()
+            })) {
+                log::fatal_error(m_parser.peek(), 1, "Expected Resource Reference for field '" + m_field.name().text() + "'.");
+            }
+        }
     }
 
     if ((m_binary_field.type & ~0xFFFUL) == build_target::RECT) {
@@ -138,6 +147,10 @@ auto kdl::sema::implicit_value_parser::parse(kdl::build_target::resource_constru
                             m_parser.read().value<int16_t>(),
                             m_parser.read().value<int16_t>(),
                             m_parser.read().value<int16_t>());
+    }
+    else if (m_binary_field.type == build_target::RSRC) {
+        auto value = m_parser.read();
+        instance.write_resource_reference(m_field, m_field_value, value);
     }
     else {
         auto value = m_parser.read();

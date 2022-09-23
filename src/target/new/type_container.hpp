@@ -30,6 +30,11 @@
 #include "target/new/resource.hpp"
 #include "target/assertion.hpp"
 
+namespace kdl
+{
+    class target;
+}
+
 namespace kdl::build_target
 {
 
@@ -58,7 +63,7 @@ namespace kdl::build_target
         [[nodiscard]] auto assertions() const -> std::vector<assertion>;
         auto add_assertions(const std::vector<assertion>& assertions) -> void;
 
-        auto new_instance(const int64_t& id, std::optional<std::string> name = {}) -> resource_constructor;
+        auto new_instance(std::shared_ptr<target> target, const int64_t& id, std::optional<std::string> name = {}) -> resource_constructor;
 
     private:
         std::string m_code { "NULL" };

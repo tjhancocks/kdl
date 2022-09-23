@@ -85,6 +85,9 @@ namespace kdl::build_target
         LSTC = 0x00250000U,
 //        LSTB = 0x00260000U,
 
+        // Complex Custom Types
+        RSRC = 0x00270000U,
+
     };
 
     auto binary_type_for_name(const std::string& name) -> enum binary_type;

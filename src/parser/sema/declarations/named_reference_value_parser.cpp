@@ -113,6 +113,10 @@ auto kdl::sema::named_reference_value_parser::parse(kdl::build_target::resource_
             instance.write_signed_quad(m_field, m_field_value, ref.value<int64_t>());
             break;
         }
+        case build_target::RSRC: {
+            instance.write_resource_reference(m_field, m_field_value, ref);
+            break;
+        }
         default: {
             log::fatal_error(m_field.name(), 1, "Resource reference value should be backed by either a DWRD, DLNG or DQAD");
         }
