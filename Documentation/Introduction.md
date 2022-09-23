@@ -147,21 +147,131 @@ This will be covered in more detail later.
 
 ---
 ### §2.4: Defining a Resource Type
+Let's move on to something move advanced now, creating and defining our own resource types. In this example we are going to define a resource type for describing linear gradients.
 
+```kdl
+@type LinearGradient : "lgrd" {
+	template {
+		PSTR Name;
+		HLNG StartingColor;
+		HLNG EndingColor;
+	};
+	
+	field("Name") {
+		Name;
+	};
+	
+	field("Colors") {
+		StartingColor as Color;
+		EndingColor as Color;
+	};
+};
+```
+
+There is quite a bit to digest here, so let's step through this in small chunks.
+
+We've already encountered assembler directives, as being instructions to the assembler to perform an action immediately. In the case of the `@type` directive, we are informing the assembler of a new resource type, and that it should accept it as a valid resource type immediately. The directive is followed by a type name and a type code.
+
+Type Names are what is used by KDL and Kestrel to refer to a given resource type, whilst the type code is used to identify a resource type container within a resource file. Type codes are _always_ 4 characters long, regardless of the type of resource file being exported to.
+
+Within the type itself, the first thing we need to do is provide a _template_ to describe the layout of the binary data itself. This is based upon the `TMPL` resource of ResEdit, a tool for editing Resource Forks on the Classic Macintosh. Template fields are specified as pairs of binary data types and field names, i.e: `PSTR Name` and `HLNG StartingColor`.
+
+Following the template, we start defining the fields that the user can/needs to specify in order to populate and instance of a resource for the type. Fields do not need to be a 1:1 mapping to the template, and fields can contain multiple template fields as grouped values.
+
+Let's look at the first field, `Name`. This is about as basic as you can be with a field definition. The definition starts with the `field` keyword, and then is followed by a string representing the field name.
+
+_**Important:** The name is used as an identifier when declaring resources. You must therefore make sure that your name follows the syntactic rules of identifiers. This should be considered a bug, and KDL will check the validity of names in the future._
+
+Inside the field definition we list out the names of each template field that we want to populate when this field is written to. In this case it is the template field `Name`. When the user declares a resource and provides the `Name` it will look something like:
+
+```kdl
+	` ...
+	Name = "Red";
+	` ...
+```
+
+In this the `Name` template field, being the first (and only) specified in the field, would be populated by the first value supplied to the field, in this case `"Red"`.
+
+Template fields _must_ be provided in the order that the user is expected to supply the values to the field.
+
+The next field is slightly more complex and interesting. In this example we group two template fields together and specify specialised types for them. In the case of both template fields, we want them to be treated as colors, thus we provide the `as Color` after the template field name. The `Color` specialisation allows for values to be supplied using a convience function:
+
+```kdl
+	` ...
+	Colors = rgb(255, 0, 0) rgb(0, 0, 255);
+	` ...
+```
+
+The `rgb(red, green, blue)` function takes three integer arguments (each in the range of `0` - `255`) and combines them into a single integer value `HLNG` representing the color.
+
+This also illustrates how values are supplied to each of the template fields provided in a field. The first value, `rgb(255, 0, 0)` is given to the `StartingColor` template field, whilst the `rgb(0, 0, 255)` is given to the `EndingColor`.
 
 ## §3: Managing KDL Projects
+Once your project reaches sufficient complexity, you will want to start managing it and organising the data in more efficient ways than massive collections of files and/or thousands of resources grouped under single types.
+
+KDL provides a mechanism for working with large projects, and that is Namespaces/Components.
+
+Namespaces are attached to resource type containers, allowing multiple occurances of a single resource type container to be added to a single file. The benefits of this may not be immediately obvious, but we will explore some of them in this section.
+
+The first method of specifying a namespace is to do it on the resource declaration directly, like so:
+
+```kdl
+declare MyNamespace.StringList {
+	` ...
+}
+```
+
+Here we have specified that we should be constructing `StringList` resources within the `MyNamespace` namespace.
+
+The second method of managing namespaces is to use the component construct. This example is going to be a little longer, in order to illustrate how this works and is used.
+
+```kdl
+component "Preview" {
+	as_type = Picture;
+	path_prefix = "images/";
+	base_id = #1000;
+	namespace = "preview";
+	
+	files {
+		"apple.png" ("Apple");
+		"banana.png" ("Banana");
+		"grapes.png" ("Grapes");
+		"orange.png" ("Orange");
+	};
+};
+
+component "Thumbnails" {
+	as_type = Picture;
+	path_prefix = "images/";
+	base_id = #1000;
+	namespace = "thumbnails";
+	
+	files {
+		"apple-thumbnail.png" ("Apple");
+		"banana-thumbnail.png" ("Banana");
+		"grapes-thumbnail.png" ("Grapes");
+		"orange-thumbnail.png" ("Orange");
+	};
+};
+```
+
+Here we are specifying two components (namespaces). Component constructs are special in KDL as they are used to directly import binary data into a resource. In this case we are importing PNG image data from files on disk into Picture resources.
+
+_**Warning:** This example is not actually correct if using the Picture type in the Macintosh library, and will result in crashes and possibly data corruption._
+
+The two components here are each importing 4 images into the `Picture` type, with the IDs; `#1000`, `#1001`, `#1002` and `#1003`, but in to seperate namespaces; `preview` and `thumbnail`. This has an interesting consequence when accessing the resources in Kestrel. Rather than needing to have calculations to map between resource ID values, related types/resources can be placed in separate namespaces, but with the same ID.
+
 
 ## §4: Exporting Types to Kestrel
 
-## §5: Namespacing
 
-## §6: Advanced Concepts
+## §5: Advanced Concepts
 
-## §7: Kestrel
+## §6: Kestrel
 
-## §8: API
+## §7: API
 
-### §8.1: Import Libraries
+### §7.1: Import Libraries
 The following libraries are built in to KDL and available for importing.
 
 | Library Name | Purpose |
@@ -169,4 +279,28 @@ The following libraries are built in to KDL and available for importing.
 | Macintosh | Provides definitions and functionality related to the Classic Macintosh |
 | SpriteWorld | Provides definitions and functionality related to Sprite World |
 | Kestrel | Provides definitions and functionality related to the Kestrel Game Engine |
+
+### §7.2 Binary Data Types
+The following binary data types are currently recognised by KDL for use in Type Definition Templates.
+
+| Binary Type Name | Minimum Size | Maximum Size | Description |
+| --- | --- | --- | --- |
+| `DBYT` | 1 | 1 | Signed Byte |
+| `DWRD` | 2 | 2 | Signed Word |
+| `DLNG` | 4 | 4 | Signed Long |
+| `DQAD` | 8 | 8 | Signed Quad |
+| `HBYT` | 1 | 1 | Unsigned Byte |
+| `HWRD` | 2 | 2 | Unsigned Word |
+| `HLNG` | 4 | 4 | Unsigned Long |
+| `HQAD` | 8 | 8 | Unsigned Quad |
+| `RSRC` (Classic/Rez) | 2 | 2 | Resource Reference (ID) |
+| `RSRC` (Extended) | 9 | 269 | Resource Reference (Namespace/TypeCode/ID) |
+| `CSTR` | 1 | - | NULL Terminated C String |
+| `Cxxx` | xxx + 1 | xxx + 1 | NULL Terminated C String of width `xxx` where `xxx` is hex. |
+| `PSTR` | 1 | 256 | Pascal String |
+| `HEXD` | 0 | - | Binary Data Blob. Includes all remaining data in resource. |
+| `RECT` | 8 | 8 | 4 DWRD values representing Top, Left, Bottom and Right |
+| `OCNT` | 2 | 2 | The number of items in the following list minus 1. |
+| `LSTC` | 0 | 0 | Denotes the start of the fields to be included in a given list item. |
+| `LSTE` | 0 | 0 | Denotes the end of a fields to be included in a given list item. |
 
