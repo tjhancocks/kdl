@@ -33,14 +33,19 @@
 #include "libGraphite/data/data.hpp"
 #include "libGraphite/data/writer.hpp"
 
+namespace kdl
+{
+    class target;
+}
+
 namespace kdl::build_target
 {
     class resource_constructor
     {
     public:
-        resource_constructor(graphite::rsrc::resource::identifier id, const std::string& code, const std::string& name, type_template tmpl);
-        resource_constructor(graphite::rsrc::resource::identifier id, const std::string& code, const std::string& name, const std::string& contents);
-        resource_constructor(graphite::rsrc::resource::identifier id, const std::string& code, const std::string& name, const graphite::data::block& data);
+        resource_constructor(std::shared_ptr<target> target, graphite::rsrc::resource::identifier id, const std::string& code, const std::string& name, type_template tmpl);
+        resource_constructor(std::shared_ptr<target> target, graphite::rsrc::resource::identifier id, const std::string& code, const std::string& name, const std::string& contents);
+        resource_constructor(std::shared_ptr<target> target, graphite::rsrc::resource::identifier id, const std::string& code, const std::string& name, const graphite::data::block& data);
 
     private:
         enum class value_type { single, list };
@@ -78,6 +83,8 @@ namespace kdl::build_target
         auto write_data(const type_field& field, const type_field_value& field_value, const graphite::data::block& data) -> void;
         auto write_rect(const type_field& field, const type_field_value& field_value, std::int16_t t, std::int16_t l, std::int16_t b, std::int16_t r) -> void;
 
+        auto write_resource_reference(const type_field& field, const type_field_value& field_value, const lexeme& ref) -> void;
+
         auto write(const std::string& field, std::any value) -> void;
 
         auto assemble() -> graphite::data::block;
@@ -94,6 +101,7 @@ namespace kdl::build_target
         [[nodiscard]] auto type_template() const -> const type_template&;
 
     private:
+        std::shared_ptr<target> m_target { nullptr };
         value_container *m_values { nullptr };
         value_container *m_pushed_container { nullptr };
         std::string m_type_code;

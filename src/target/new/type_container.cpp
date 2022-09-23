@@ -19,7 +19,8 @@
 // SOFTWARE.
 
 #include "diagnostic/fatal.hpp"
-#include "type_container.hpp"
+#include "target/new/type_container.hpp"
+#include "target/target.hpp"
 
 #include <utility>
 
@@ -97,9 +98,9 @@ auto kdl::build_target::type_container::all_fields() const -> std::vector<type_f
 
 // MARK: - Instance
 
-auto kdl::build_target::type_container::new_instance(const int64_t& id, std::optional<std::string> name) -> resource_constructor
+auto kdl::build_target::type_container::new_instance(std::shared_ptr<target> target, const int64_t& id, std::optional<std::string> name) -> resource_constructor
 {
-    return std::move(resource_constructor(id, m_code, name.has_value() ? name.value() : "", m_tmpl));
+    return std::move(resource_constructor(target, id, m_code, name.has_value() ? name.value() : "", m_tmpl));
 }
 
 // MARK: - Assertions
