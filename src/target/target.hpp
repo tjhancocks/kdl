@@ -59,6 +59,7 @@ namespace kdl
 
         auto set_format(const std::string& format) -> void;
         auto set_required_format(const enum graphite::rsrc::file::format& format) -> bool;
+        [[nodiscard]] auto is_extended_format() const -> bool;
 
         auto set_src_root(const std::string& src_root) -> void;
         auto resolve_src_path(const kdl::lexeme& path) const -> std::string;

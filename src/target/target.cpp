@@ -230,6 +230,11 @@ auto kdl::target::set_required_format(const enum graphite::rsrc::file::format &f
     return true;
 }
 
+auto kdl::target::is_extended_format() const -> bool
+{
+    return m_required_format == graphite::rsrc::file::format::extended;
+}
+
 // MARK: - Resource Management
 
 auto kdl::target::add_resource(build_target::resource_constructor& resource) -> void
