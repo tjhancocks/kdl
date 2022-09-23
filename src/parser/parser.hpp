@@ -122,7 +122,12 @@ namespace kdl::sema
          * Insert new lexemes into the parser at the current location.
          * @param lexemes The list of lexemes to be inserted.
          */
-        auto insert(std::vector<lexeme> lexemes, int offset = 0) -> void;
+        auto insert(const std::vector<lexeme>& lexemes, int offset = 0) -> void;
+
+        /**
+         * Parse a KDL source string in the Lexer and immediately import the lexemes.
+         */
+        auto import(const std::string& source_name, const std::string& source) -> void;
 
         [[nodiscard]] auto size() const -> std::size_t;
 
@@ -131,7 +136,6 @@ namespace kdl::sema
         std::size_t m_ptr { 0 };
         std::vector<lexeme> m_lexemes;
         std::vector<lexeme> m_tmp_lexemes;
-
     };
 
 }
