@@ -453,8 +453,8 @@ resource._colors = {
 In order to load the generated types into Kestrel, you will need to add the following code to your `Starter` script. Starter scripts, plugins and mods in general are explained in more details in the _§6: Kestrel_ section of the guide.
 
 ```lua
-` Starter Script
-` Load custom types.
+-- Starter Script
+-- Load custom types.
 Namespace("custom_types"):typedResource("LuaS"):matchingResources():each(function(script)
 	Kestrel.importScript(script)
 end)
