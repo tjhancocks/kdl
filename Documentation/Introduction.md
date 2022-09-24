@@ -112,7 +112,7 @@ Integers are one of the most fundamental types in KDL. They are specified via an
 
 Related to integer literals, are percentage literals. These are simply integer values with a `%` appended to the value. They are provided in order to make the intention of certain resource values clear. For example; `-50%` or `25%`. 
 
-#### $2.3.2: String
+#### §2.3.2: String
 String are another one of the fundamental types in KDL, and also specified via a string literal. String literals are any sequence of characters contained between two double quotes, for example; `"This is a string"`
 
 #### §2.3.3: Resource ID / Reference
@@ -211,6 +211,8 @@ Once your project reaches sufficient complexity, you will want to start managing
 
 KDL provides a mechanism for working with large projects, and that is Namespaces/Components.
 
+### §3.1: Namespaces
+
 Namespaces are attached to resource type containers, allowing multiple occurances of a single resource type container to be added to a single file. The benefits of this may not be immediately obvious, but we will explore some of them in this section.
 
 The first method of specifying a namespace is to do it on the resource declaration directly, like so:
@@ -222,6 +224,8 @@ declare MyNamespace.StringList {
 ```
 
 Here we have specified that we should be constructing `StringList` resources within the `MyNamespace` namespace.
+
+### §3.2: Components
 
 The second method of managing namespaces is to use the component construct. This example is going to be a little longer, in order to illustrate how this works and is used.
 
@@ -261,11 +265,493 @@ _**Warning:** This example is not actually correct if using the Picture type in 
 
 The two components here are each importing 4 images into the `Picture` type, with the IDs; `#1000`, `#1001`, `#1002` and `#1003`, but in to seperate namespaces; `preview` and `thumbnail`. This has an interesting consequence when accessing the resources in Kestrel. Rather than needing to have calculations to map between resource ID values, related types/resources can be placed in separate namespaces, but with the same ID.
 
+### §3.3: Multiple Files
+The final consideration for managing KDL projects, is to not keep all of the KDL itself in a single file, but instead split it across multiple files.
+
+Let's consider a project with the following directory structure.
+
+```
++ MyProject
+  |- project.kdl
+  |- types.kdl
+  |- fruit.kdl
+  |- colors.kdl
+```
+
+When we invoke the assembler command, we pass it a single file... `project.kdl`, but we also need to be able to use the code located in other files. We can utilize the `@import` directive for this.
+
+```kdl
+@import "types.kdl";
+@import "fruit.kdl";
+@import "colors.kdl";
+```
+
+The import directive will load the contents of the specified file, and parse it at the location of the import. Due to the way KDL parses code, if you were to try and utilise a resource type before it is defined inside the imported file, then it will raise an unrecognised resource type error.
+
+By default import directives find the specified file based on the _current working directory_ of the assembler process. KDL provides a few substitution markers for building absolute paths for importing files.
+
+#### §3.3.1: Source Path - `@spath`
+Refers to the directory that contains the file in which the current import directive is located. So if we have:
+
+```kdl
+` /path/to/project/types/manifest.kdl
+@import "@spath/fruit.kdl";
+```
+
+In this case `@spath` will resolve to `/path/to/project/types`
+
+#### §3.3.2: Input Path - `@rpath`
+
+Refers to the directory that contains the original input source file is located. So if we have
+
+```sh
+> kdl /path/to/project/project.kdl
+```
+
+```kdl
+` /path/to/project/types/manifest.kdl
+@import "@rpath/fruit.kdl";
+```
+
+In this case `@rpath` will resolve to `/path/to/project`
+
+#### §3.3.3: Output Path - `@opath`
+Refers to the directory where the output file will be located. So if we have:
+
+```sh
+> kdl -o /path/to/project/build/result.kdat project.kdl
+```
+
+```kdl
+` /path/to/project/types/manifest.kdl
+@import "@opath/fruit.kdl";
+```
+
+In this case `@opath` will resolve to `/path/to/project/build`
 
 ## §4: Exporting Types to Kestrel
+This section starts to cover some of the more advanced aspects KDL, such as integrating with the scripting functionality in Kestrel. If you are defining new resource types, then it is likely that you want to be able to read and/or write those resource types within a Kestrel based game. KDL provides a method of exporting the type definition and appropriate functionality as a Lua script for use in a Kestrel based game.
 
+### §4.1: Example
+
+Let's consider the `LinearGradient` type definition from earlier:
+
+```kdl
+@type LinearGradient : "lgrd" {
+	template {
+		PSTR Name;
+		HLNG StartingColor;
+		HLNG EndingColor;
+	};
+	
+	field("Name") {
+		Name;
+	};
+	
+	field("Colors") {
+		StartingColor as Color;
+		EndingColor as Color;
+	};
+};
+```
+
+In order to export this resource type to Lua, we need to make use of the `component` construct. However, we need to need to make a few tweaks to it:
+
+```kdl
+` We need to make sure we import Kestrel to get access to the _LuaScript_ type.
+@import Kestrel;
+
+@lua_export component "Resource Types" {
+	path_prefix = "";
+	namespace = "custom_types";
+	base_id = #1000;
+	as_type = LuaScript;
+	
+	types {
+		LinearGradient;
+	};
+};
+```
+
+This creates a new namespaced component within the `LuaScript` resource type for each of the type definition scripts. In this circumstance we only have a single definition script being produced. The component construct is characterised by the leading `@lua_export` assembler directive, which instructs the assembler to treat the following component differently. Primarily it will no longer take a list of files, but a list of resource types.
+
+Let's take a look at the resulting definition script for `LinearGradient`.
+
+```lua
+-- LinearGradient Class Definition
+LinearGradient = Class:new()
+
+function LinearGradient.resourceTypeCode()
+	return "lgrd"
+end
+
+-- Constants
+LinearGradient.Constants = {}
+
+-- Construction
+function LinearGradient.load(resourceReference)
+	if not resourceReference then
+		return nil
+	end
+	
+	local resource = LinearGradient:new()
+	local data = kdl_resourceLoader(resource, resourceReference, LinearGradient.resourceTypeCode())
+	
+	if not data then
+		return nil
+	end
+	
+	resource._name = data:readPStr()
+	resource._startingColor = data:readColor()
+	resource._endingColor = data:readColor()
+	
+	resource._colors = {
+		startingColor = self._startingColor
+		endingColor = self._endingColor
+	}
+	
+	return resource
+end
+
+-- Properties
+LinearGradient.properties.name = {}
+function LinearGradient.properties.name:get()
+	return self._name
+end
+
+LinearGradient.properties.colors = {}
+function LinearGradient.properties.colors:get()
+	return self._colors
+end
+```
+
+KDL is fully aware of how to generate Lua for Kestrel in order to represent the resource types that you define. However, the Lua that it generates is not always the most clean or logical (primarily due to naming). You could change the names of fields in KDL, but this could introduce the same problem, just within the KDL itself. Instead KDL provides some additional assembler directives that you can add in to your type definitions to inform the Lua code generator what it should do.
+
+Let's take a look at the `Colors` field, after we make some of these alterations.
+
+```kdl
+field("Colors") {
+	@name(start) StartingColor as Color;
+	@name(stop) EndingColor as Color;
+};
+```
+
+Here we introduce a new assembler directive, the `@name` directive. This is used to instruct the Lua code generator what name should be used for fields/properties when exporting to Lua. It is otherwise ignored by KDL. The consequence of this is that the exported Lua will now look like:
+
+```lua
+` ...
+
+resource._colors = {
+	start = self._startingColor
+	stop = self._endingColor
+}
+
+` ...
+```
+
+### §4.2: Loading Types in Kestrel
+In order to load the generated types into Kestrel, you will need to add the following code to your `Starter` script. Starter scripts, plugins and mods in general are explained in more details in the _§6: Kestrel_ section of the guide.
+
+```lua
+` Starter Script
+` Load custom types.
+Namespace("custom_types"):typedResource("LuaS"):matchingResources():each(function(script)
+	Kestrel.importScript(script)
+end)
+```
 
 ## §5: Advanced Concepts
+We're going start exploring the more advanced concepts of KDL.
+
+### §5.1: Scripting
+Since KDL version 0.8, there has been a concerted effort to introduce a degree of scriptability into KDL in order to support the growing requirements and needs of Cosmic Frontier. The two primary aspects of the current scripting capabilities in KDL are _variables_ and _functions_.
+
+#### §5.1.1: Variables
+Variables in KDL are defined through either the `@const` or `@var` assembler directives. When defining a variable an expression is evaluated with the result of the expression being assigned to the variable.
+
+```kdl
+@const $foo = 5 + 1;
+```
+
+Variables can then be used to substitute values in to fields, resource ids, etc.
+
+```kdl
+@const $AppleResourceRef = #Fruit.128;
+@const $AppleName = "Apple";
+
+declare Fruit {
+	new ($AppleResourceRef, $AppleName) {
+		Name = $AppleName;
+	};
+};
+```
+
+You can also use those variables in future expressions as well, allowing you to break up complex expressions in to managable parts.
+
+```kdl
+@const $foo = 4 * 3;
+@const $bar = $foo * 2;
+```
+
+_**Important:** All variables are declared into a global scope._
+
+#### §5.1.2: Functions
+Functions are defined in a similar way to variable, using the `@function` directive.
+
+```kdl
+@function Sum = $1 + $2;
+@const $foo = Sum(5, 4);
+```
+
+Arguments are not explicity defined on functions, and you should clearly document how many arguments are expected to be passed to a function. You can access the arguments through the indexed variables `$1`, `$2`, `$3`, etc... The result of the function expression becomes the return type. 
+
+Functions can be used in a similar way to variables.
+
+```kdl
+@function FruitReference = #Fruit.1000 + $1;
+@function FruitPreviewImage = #StaticImage.1000 + $1;
+
+@const $AppleReference = 0;
+
+declare Fruit {
+	new (FruitReference($AppleReference), "Apple") {
+		Name = "Apple";
+		Preview = FruitPreviewImage($AppleReference);
+	};
+};
+```
+
+### §5.2: Default Values
+It is possible that some of the values and/or fields you define in your resource type should be optional. In situations like this you need to specify a default value to be used when no value is provided by the user. Default values are simple to implement.
+
+```kdl
+field("Name") {
+	Name = "Untitled";
+};
+```
+
+
+### §5.3: Specialised Data Types
+KDL uses specialised data types in order to provide more useful/semantically correct behaviour and functionality to basic binary data types. We explored these briefly in a previous section, but here we'll go into more depth.
+
+#### §5.3.1: File
+The `File` type is used to indicate a `String` that is _intended_ to be imported from an external file, such as an image or text.
+
+```kdl
+` ...
+field("Data") {
+	Data as File;
+};
+
+`...
+Data = import "@spath/description.txt";
+```
+
+This is a simple use case of the `File` type, and simply takes the entire contents of the specified file and places them into the specified binary template field.
+
+Getting slightly more advanced, we may want to perform a data conversion on the input data. For instance, we allow the user to import PNG files and then they get encoded into SpriteWorld Sprites. We can use the `__conversion` hint in the field definition to instruct the assembler to convert the format of the data.
+
+```kdl
+@import SpriteWorld;
+
+` ...
+field("PNG") {
+	Data as File<PNG> __conversion($InputFormat, rleD);
+};
+
+` ...
+Data = import "@spath/sprite.png";
+```
+
+A full list of recognised encoding data types are listed in the _§7: API_ section.
+
+In the case of some imports/encodings multiple images might need to be supplied for multiple frames. Sprite image types are one such example. We can supply multiple images like so:
+
+```kdl
+Data = import "@spath/frame1.png"
+              "@spath/frame2.png"
+              "@spath/frame3.png";
+```
+
+#### §5.3.2: Resource Referneces
+Resource references are a complex subject by themselves as the specialised type can take a few different forms. The most basic of which is:
+
+```kdl
+field("Preview") {
+	Preview as &;
+};
+```
+
+Reference types are always represented by having an ampersand `&` suffix, and will only accept resource references as valid values. We can specialise the reference type by doing something such as `Preview as StaticImage&`. Generally it isn't necessarily desirable to provide an explicit reference type like this however, unless you want to enable inline resource declarations.
+
+In order to use a reference type on a binary template field, the binary type needs to be either a signed integer type (`DBYT`, `DWRD`, `DLNG` or `DQAD`) or a resource type (`RSRC`). It should be considered best practice to default to using the `RSRC` binary type to back resource references, as KDL will alter the format appropriately between _Extended_ and _Classic/Rez_ formats.
+
+##### §5.3.2.1: Inline Resource Declaration
+If the field value is an explicit reference type, then you can use a inline resource declaration like so:
+
+```kdl
+declare Fruit {
+	new (#128, "Apple") {
+		
+		Preview = new (#128, "Apple") {
+			PNG = import "@spath/apple.png";
+		};
+		
+	};
+};
+```
+
+##### §5.3.2.2: Binary Type: RSRC (Classic/Rez)
+When the output format of the assembler is either `classic` or `rez`, then the `RSRC` binary type will be treated as a simple `DWRD` type, which allows it to cover all possible resource IDs under those formats.
+
+##### §5.3.2.3: Binary Type: RSRC (Extended)
+When the output format of the assembler is `extended` then the `RSRC` binary type will be treated as a complex type. The following definition is for illustrative purposes only.
+
+```
+Format:     <FLAGS> <NAMESPACE> <TYPE> <ID>
+FLAGS:      8-bits
+    0x01    Has Namespace
+    0x02    Has Type
+	
+NAMESPACE:  
+    Format: <LENGTH> <BYTES>
+    LENGTH: 8-bits
+    BYTES:  0-255 MacRoman Characters representing the Namespace
+    
+TYPE:
+    Format: <CODE>
+    CODE:   4 MacRoman Characters
+	
+ID:         64-bits Signed Integer
+```
+
+##### §5.3.2.4: Automatic Allocation
+It certain situations it is entirely possible that you will not care about what ID a resource is assigned, or that it is consistantly given the same ID. For situations like this, you may wish the special reference `#auto`, which instructs the assembler to automatically allocate an ID to the resource.
+
+The method by which IDs are allocated is not defined, and thus should not be depended upon.
+
+#### §5.3.3: Bitmasks
+Bitmasks are a commonly used type of data, typically found in _flags_.
+
+```kdl
+field("Flags") {
+	Flags as Bitmask [
+		Option1 = 0x0001,
+		Option2 = 0x0002,
+		Option3 = 0x0004,
+		Option4 = 0x0008
+	];
+};
+
+Flags = Option1 | Option4;
+```
+
+Whilst it is not mandatory, bitmasks really need a set of constants to be defined alongside them for the user to utilise. Additionally, due to the common pattern of splitting flags between multiple binary template fields, it is possible to "merge" multiple sets of flags together.
+
+```kdl
+field("Flags") {
+	Flags as Bitmask [
+		Option1 = 0x0001,
+		Option2 = 0x0002,
+		Option3 = 0x0004,
+		Option4 = 0x0008
+	];
+	Flags2 as Bitmask [
+		Option5 = 0x0010,
+		Option6 = 0x0020,
+		Option7 = 0x0040,
+		Option8 = 0x0080
+	];
+};
+
+Flags = Option1 | Option7 | Option3;
+```
+
+This allows the user to see all related values such as these as a single field.
+
+The binary template fields backing bitmasks must be an integer type, and it is encouraged that they are also unsigned.
+
+### §5.4: Repeated Fields / Arrays
+A common thing to need to represent are repetitions of items, or an Array. There are two common ways of doing this within a resource.
+
+#### §5.4.1: Numbered Template Fields
+The first method of providing an array of items is to duplicate the field a number of times and add the field number. Here is an example of such a thing in a binary template:
+
+```kdl
+template {
+	PSTR Name;
+	HLNG Color1;
+	DWRD Stop1;
+	HLNG Color2;
+	DWRD Stop2;
+	HLNG Color3;
+	DWRD Stop3;
+	HLNG Color4;
+	DWRD Stop4;
+};
+```
+
+This first example could be something that we utilise in the `LinearGradient` type from our earlier examples. In this situation with have 4 color fields, representing the colors of the gradient along with their corresponding stop positions.
+
+When defining a field, we can specify the field should be able to be provided multiple times. The first time it is provided would correspond to the first occurance of the field, the second time would then be the second occurance, so on and so forth. Let's take a look at an example field definition for the above template.
+
+```kdl
+field("ColorStop") repeatable<1, 4> {
+	Color<$FieldNumber> as Color = rgb(0, 0, 0);
+	Stop<$FieldNumber> as Range<-1%, 100%> = Unused [ Unused = -1% ];
+};
+```
+
+There is a little bit to unpack here. Let's start with the first new addition to the field definition; `repeatable<1, 4>`. The repeatable attribute on the field tells the assembler that this field can be repeated between 1 and 4 times. Technically its providing the lower bound and the upper bound on the field numbers, but you can read it as the number of repetitions in this case.
+
+Next is the `<$FieldNumber>` after the binary field name. This entire sequence is substituted by the assembler for the current repetition number. So in the first occurance it would result in `Color1` and `Stop1`, and then in the second it would be `Color2` and `Stop2`.
+
+In order to prevent the assembler from requiring _every_ single repetition to be provided, you must provide default values for each value.
+
+When the user comes to provide the `ColorStop` field, it would look something like:
+
+```kdl
+ColorStop = rgb(255, 0, 0) 0%;
+ColorStop = rgb(0, 0, 255) 100%;
+```
+
+#### §5.4.2: Lists
+The other method of providing an array of items is to use a resource list. This is an example of such a binary template (specifically for the `StringList` type)
+
+```kdl
+template {
+	OCNT Strings;
+	LSTC StringsBegin;
+	PSTR	String;
+	LSTE StringsEnd;
+};
+```
+
+Unlike the previous method of defining an array, in which each element was explicity declared in the template, lists such as the one in the above example do not provide many fields to be used in the same way. The list is first indicated by the `OCNT` binary type, and each element of the list is wrapped between the `LSTC` and `LSTE` binary types. In this case only a single value exists for each element.
+
+```kdl
+field("String") repeatable<0, 32767, Strings> {
+	String;
+};
+```
+
+In this example we find that a 3rd element has been added to the repeatable attribute. This is the name of the list in the binary template that this field is acting upon. The lower and upper bounds can be directly read as how many elements are allowed.
+
+The usage looks identical to the previous example:
+
+```kdl
+String = "Foo";
+String = "Bar";
+String = "Baz";
+```
+
+### §5.5: Constants
+
+
+### §5.6: Lua Code Generation
+#### §5.6.1: Writable Properties
+
+### §5.7: Assembler Directives
 
 ## §6: Kestrel
 
