@@ -18,6 +18,7 @@ KDL is available on macOS, Windows and Linux.
 ---
 
 ## §1: Setting Up your Environment
+TBC
 
 ## §2: KDL Basics
 In this section we will start exploring the _Kestrel Definition Language_. By the end of the section, you should be able to define simple resource types and declare instances of them.
@@ -746,14 +747,19 @@ String = "Baz";
 ```
 
 ### §5.5: Constants
+TBC
 
 
 ### §5.6: Lua Code Generation
+TBC
 #### §5.6.1: Writable Properties
+TBC
 
 ### §5.7: Assembler Directives
+TBC
 
 ## §6: Kestrel
+TBC
 
 ## §7: API
 
