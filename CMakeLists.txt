@@ -77,7 +77,7 @@ add_custom_target(generate-kdl-version
 						 -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
 						 -P ${PROJECT_SOURCE_DIR}/Support/CMake/GenerateVersionHeader.cmake
 )
-add_dependencies(kdl generate-kdl-version)
+add_dependencies(kdl-bin generate-kdl-version)
 
 ########################################################################################################################
 ## KDL - Test Suite
