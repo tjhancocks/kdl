@@ -31,6 +31,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_BINARY_DIR ${CMAKE_BUILD_DIR})
+set(CMAKE_OUTPUT_PATH ${CMAKE_BUILD_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(PROJECT_SUBMODULE_DIR ${PROJECT_SOURCE_DIR}/Submodules)
 
@@ -41,18 +42,31 @@ if (NOT TARGET Graphite)
 endif()
 
 ########################################################################################################################
+## libKDL - Main Executable
+file(GLOB_RECURSE libKDL_sources
+	libKDL/*.cpp
+)
+add_library(kdl ${libKDL_sources})
+target_include_directories(kdl PUBLIC
+	"${PROJECT_SOURCE_DIR}"
+	"${PROJECT_SUBMODULE_DIR}/Graphite"
+)
+target_link_libraries(kdl Graphite)
+
+########################################################################################################################
 ## KDL - Main Executable
 file(GLOB_RECURSE kdl_sources
 	src/*.cpp
 ) 
-add_executable(kdl ${kdl_sources})
-target_include_directories(kdl PUBLIC
+add_executable(kdl-bin ${kdl_sources})
+target_include_directories(kdl-bin PUBLIC
 	"${PROJECT_SOURCE_DIR}/src"
 	"${PROJECT_SUBMODULE_DIR}/Graphite"
 	"${CMAKE_BUILD_DIR}"
 )
-target_link_libraries(kdl Graphite)
-set_property(TARGET kdl PROPERTY XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME YES)
+target_link_libraries(kdl-bin Graphite)
+set_property(TARGET kdl-bin PROPERTY XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME YES)
+set_target_properties(kdl-bin PROPERTIES OUTPUT_NAME kdl)
 
 ########################################################################################################################
 ## KDL - Version
@@ -67,21 +81,9 @@ add_dependencies(kdl generate-kdl-version)
 
 ########################################################################################################################
 ## KDL - Test Suite
-enable_testing()
-file(GLOB_RECURSE kdl_examples
-	Support/Examples/*.kdl
-)
-foreach(example ${kdl_examples})
-    string(REGEX REPLACE ".*/" "" test_name "${example}")
-    string(REGEX REPLACE ".kdl$" "" test_name "${test_name}")
-    add_test(
-    	NAME ${test_name}
-    	COMMAND "${CMAKE_BINARY_DIR}/kdl" "${example}"
-    	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    )
-endforeach(example)
-add_custom_command(
-	TARGET kdl
-    POST_BUILD
-    COMMAND ctest --output-on-failure
-)
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/KDLTests.cmake)
+	include(submodules/Graphite/libTesting/testing.cmake)
+	build_testing_library()
+	add_testing_target(kdl ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+	include(${CMAKE_CURRENT_SOURCE_DIR}/KDLTests.cmake)
+endif()
