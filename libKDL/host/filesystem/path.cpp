@@ -127,12 +127,12 @@ auto kdl::host::filesystem::path::string() const -> std::string
             result.insert(result.end(), '/');
             result.insert(result.end(), component.begin(), component.end());
         }
-        
+
         if (m_relative && result[0] == '/') {
             result.erase(0, 1);
         }
 #if TARGET_WINDOWS
-        else if (!m_relative && result[0] == '/') {
+        else if (result[0] == '/' && m_components.front().back() == ':') {
             result.erase(0, 1);
         }
 #endif
