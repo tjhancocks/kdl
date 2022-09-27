@@ -61,9 +61,10 @@ namespace kdl::host::filesystem
          * Takes a host system path using slash '/' delimited path components, and breaks them apart
          * into a vector of path components.
          * @param path      Host system path using slash '/' delimited path components.
+         * @param separator An alternate path separator to use. Defaults to '/'.
          * @return          Vector of path components
          */
-        static auto path_components(const std::string& path) -> std::vector<std::string>;
+        static auto path_components(const std::string& path, char separator = '/') -> std::vector<std::string>;
 
         /**
          * Access the string representation of the path.
@@ -167,6 +168,9 @@ namespace kdl::host::filesystem
          * @return      Is the file path absolute?
          */
         static auto is_absolute_path(const std::string& path) -> bool;
+
+    private:
+        auto convert_to_absolute() -> void;
 
     private:
         bool m_relative { false };

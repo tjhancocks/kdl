@@ -32,14 +32,14 @@
 
 // MARK: - Helpers
 
-auto kdl::host::filesystem::path::path_components(const std::string& path) -> std::vector<std::string>
+auto kdl::host::filesystem::path::path_components(const std::string& path, char separator) -> std::vector<std::string>
 {
     std::vector<std::string> components;
     std::string component;
     std::string p(path);
 
     while (!p.empty()) {
-        if (p.back() == '/') {
+        if (p.back() == separator) {
             components.insert(components.begin(), component);
             component.clear();
         }
@@ -62,16 +62,57 @@ auto kdl::host::filesystem::path::path_components(const std::string& path) -> st
 kdl::host::filesystem::path::path(const std::string& str)
     : m_components(path_components(str)), m_relative(!is_absolute_path(str))
 {
+    convert_to_absolute();
 }
 
 kdl::host::filesystem::path::path(const std::initializer_list<std::string>& components, bool is_relative)
     : m_components(components), m_relative(is_relative)
 {
+    convert_to_absolute();
 }
 
 kdl::host::filesystem::path::path(const std::vector<std::string>& components, bool is_relative)
     : m_components(components), m_relative(is_relative)
 {
+    convert_to_absolute();
+}
+
+// MARK: - Absolute Path Conversion
+
+auto kdl::host::filesystem::path::convert_to_absolute() -> void
+{
+    if (!m_relative) {
+        return;
+    }
+
+    char cwd[PATH_MAX];
+    if (getcwd(cwd, PATH_MAX) == nullptr) {
+        switch (errno) {
+            case EACCES: {
+                throw std::runtime_error("Access Denied");
+            }
+            case ENOMEM: {
+                throw std::runtime_error("Insufficient Storage");
+            }
+            default : {
+                throw std::runtime_error("Unrecognised Error: " + std::to_string(errno));
+            }
+        }
+    }
+
+    std::string working_directory(cwd);
+
+#if TARGET_WINDOWS
+    char separator = '\\';
+#else
+    char separator = '/';
+#endif
+
+    // Common functionality. Split the working directory into its components and add them to the beginning
+    // of the path.
+    auto components = path_components(working_directory, separator);
+    m_components.insert(m_components.begin(), components.begin(), components.end());
+    m_relative = false;
 }
 
 // MARK: - Accessors
@@ -165,8 +206,8 @@ auto kdl::host::filesystem::path::exists(const path &path) -> bool
 auto kdl::host::filesystem::path::is_directory(const path &path) -> bool
 {
 #if TARGET_WINDOWS
-    auto result = GetFileAttributes(path.c_str());
-    return (result & FILE_ATTRIBUTE_DIRECTORY);
+    auto result = GetFileAttributesA(path.c_str());
+    return ((result & FILE_ATTRIBUTE_DIRECTORY) != 0);
 #else
     struct stat buffer {};
     return (stat(resolve_tilde(path).c_str(), &buffer) == 0 && S_ISDIR(buffer.st_mode));
