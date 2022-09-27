@@ -29,6 +29,7 @@
 #endif
 
 #include <sys/stat.h>
+#include <stdexcept>
 
 // MARK: - Helpers
 
