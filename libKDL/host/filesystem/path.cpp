@@ -165,7 +165,7 @@ auto kdl::host::filesystem::path::exists(const path &path) -> bool
 auto kdl::host::filesystem::path::is_directory(const path &path) -> bool
 {
 #if TARGET_WINDOWS
-    auto result = GetFileAttributesA(path.c_str());
+    auto result = GetFileAttributes(path.c_str());
     return (result & FILE_ATTRIBUTE_DIRECTORY);
 #else
     struct stat buffer {};
