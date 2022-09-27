@@ -30,6 +30,7 @@
 
 #include <sys/stat.h>
 #include <stdexcept>
+#include <climits>
 
 // MARK: - Helpers
 
@@ -126,9 +127,15 @@ auto kdl::host::filesystem::path::string() const -> std::string
             result.insert(result.end(), '/');
             result.insert(result.end(), component.begin(), component.end());
         }
+        
         if (m_relative && result[0] == '/') {
             result.erase(0, 1);
         }
+#if TARGET_WINDOWS
+        else if (!m_relative && result[0] == '/') {
+            result.erase(0, 1);
+        }
+#endif
         const_cast<path *>(this)->m_path_buffer = std::move(result);
     }
     return m_path_buffer;
