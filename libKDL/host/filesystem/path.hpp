@@ -116,6 +116,12 @@ namespace kdl::host::filesystem
         [[nodiscard]] auto component_count() const -> std::size_t;
 
         /**
+         * Does the path contain any components, and thus represent anything on disk.
+         * @return       The result of the query.
+         */
+        [[nodiscard]] auto empty() const -> bool;
+
+        /**
          * Touch the file item in the host filesystem.
          */
         auto touch() -> void;
@@ -133,6 +139,19 @@ namespace kdl::host::filesystem
          * @return      A file system item for a child item.
          */
         [[nodiscard]] auto child(const std::string& name) const -> path;
+
+        /**
+         * The path of the parent directory.
+         * @return      The parent directory path.
+         */
+        [[nodiscard]] auto parent() const -> path;
+
+        /**
+         * Copy the file at the represented path, to the specified destination path.
+         * @param path   The destination path to copy the file to.
+         * @return       Was the copy operation successful?
+         */
+        [[nodiscard]] auto copy_to(const path& path) const -> bool;
 
     public:
         /**

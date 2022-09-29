@@ -25,7 +25,10 @@
 #include <memory>
 #include <optional>
 
-namespace kdl
+#include <libKDL/host/filesystem/file_mode.hpp>
+#include <libKDL/host/filesystem/path.hpp>
+
+namespace kdl::host::filesystem
 {
 
     /**
@@ -35,67 +38,93 @@ namespace kdl
     struct file
     {
     public:
-        static auto exists(std::string_view path) -> bool;
-        static auto is_directory(std::string_view path) -> bool;
-        static auto create_directory(std::string_view path) -> void;
-        static auto create_intermediate(std::string_view path, bool omit_last = true) -> bool;
-        static auto resolve_tilde(std::string_view path) -> std::string;
-        static auto copy_file(std::string_view src, std::string_view dst) -> void;
-        static auto glob(const std::string& path) -> std::shared_ptr<std::vector<std::string>>;
-
-    public:
         /**
          * Create a blank file for writing to.
          */
-        file();
+        file() = default;
 
+        /**
+         * Clean up the file and ensure it is safely discarded.
+         */
         ~file();
 
         /**
          * Read the specified file from disk.
-         * @param path The path from with the load the file.
+         * @param path      The path from with the load the file.
+         * @param mode      The mode in which to read the file, so that content is
+         *                  interpreted correctly.
          */
-        explicit file(std::string_view path);
+        explicit file(const filesystem::path& path, file_mode mode = file_mode::text);
 
         /**
-         * Create an in memory file,
+         * Create an in memory file, with the specified name and contents. This will create a
+         * text mode file.
          */
         file(const std::string& name, const std::string& contents);
 
-        [[nodiscard]] auto exists() const -> bool;
+        /**
+         * Does the file exist in a populated manner (i.e. it has none zero contents)
+         * @return  True if the file exists.
+         */
+         [[nodiscard]] auto exists() const -> bool;
 
         /**
          * The location of the file on disk. Will be empty if this is a blank file.
-         * @return A string representing a file path.
+         * @return  A path representing the location of the file on disk.
          */
-        [[nodiscard]] auto path() const -> std::string;
+        [[nodiscard]] auto path() const -> filesystem::path;
 
         /**
-         * The contents of the file as a string
+         * The contents of the file as a string.
+         * @return  Returns the contents of the file as a string.
          */
-        auto contents() -> std::string;
+        [[nodiscard]] auto string_contents() const -> const std::string&;
 
         /**
-         * Set the contents of the file without saving the changes to disk.
-         * @param contents The new contents of the file.
+         * The contents of the file as a vector of characters.
+         * @return  Returns the contents of the file as a vector of characters.
          */
-        auto set_contents(const std::string& contents) -> void;
+        [[nodiscard]] auto characters() const -> std::vector<char>;
 
         /**
-         * The contents of the file as a vector.
+         * The contents of the file as a vector of bytes.
+         * @return  Returns the contents of the file as a vector of bytes.
          */
-        auto vector() -> std::vector<char>;
+        [[nodiscard]] auto bytes() const -> std::vector<std::uint8_t>;
 
         /**
-         * Save the contents of the file to disk.
-         * @param path     The location of the file in which the file contents should be saved to.
+         * Set the contents of the file from a string.
+         * @param contents  The string to set the contents of the file to.
          */
-        auto save(const std::string& path = "") -> void;
+        auto set_string_contents(const std::string& contents) -> void;
+
+        /**
+         * Set the contents of the file from a vector of characters.
+         * @param contents  The vector of characters to set the contents of the file to.
+         */
+        auto set_characters(const std::vector<char>& contents) -> void;
+
+        /**
+         * Set the contents of the file from a vector of bytes.
+         * @param contents  The vector of bytes to set the contents of the file to.
+         */
+        auto set_bytes(const std::vector<std::uint8_t>& contents) -> void;
+
+        /**
+         * Save the contents of the file to disk, using a text mode.
+         * @warning         This is not compatible with binary data.
+         * @param path      The location of the file in which the file contents should be saved to.
+         */
+        auto save(const filesystem::path& path = {}) -> void;
 
     private:
-        std::string m_path;
+        filesystem::path m_path;
         std::uint8_t *m_raw { nullptr };
         std::uint64_t m_length { 0 };
+
+        struct {
+            std::string string_contents;
+        } m_cache;
     };
 
 };

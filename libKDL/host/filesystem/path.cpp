@@ -31,6 +31,10 @@
 #include <sys/stat.h>
 #include <stdexcept>
 #include <climits>
+#include <fstream>
+#include <streambuf>
+#include <iostream>
+#include <sstream>
 
 // MARK: - Helpers
 
@@ -189,13 +193,28 @@ auto kdl::host::filesystem::path::component_count() const -> std::size_t
     return m_components.size();
 }
 
-// MARK: - Children
+auto kdl::host::filesystem::path::empty() const -> bool
+{
+    return m_components.empty();
+}
+
+// MARK: - Children / Parents
 
 auto kdl::host::filesystem::path::child(const std::string &name) const -> path
 {
     auto components = m_components;
     components.insert(components.end(), name);
-    return filesystem::path(components, m_relative);
+    return { components, m_relative };
+}
+
+auto kdl::host::filesystem::path::parent() const -> path
+{
+    if (m_components.size() < 2) {
+        return {};
+    }
+    auto components = m_components;
+    components.pop_back();
+    return { components, m_relative };
 }
 
 // MARK: - Static Helpers
@@ -215,7 +234,7 @@ auto kdl::host::filesystem::path::is_directory(const path &path) -> bool
 {
 #if TARGET_WINDOWS
     auto result = GetFileAttributesA(path.c_str());
-    return ((result & FILE_ATTRIBUTE_DIRECTORY) != 0);
+    return (result & FILE_ATTRIBUTE_DIRECTORY);
 #else
     struct stat buffer {};
     return (stat(resolve_tilde(path).c_str(), &buffer) == 0 && S_ISDIR(buffer.st_mode));
@@ -314,5 +333,17 @@ auto kdl::host::filesystem::path::create_directory(bool ignore_last) -> bool
         return false;
     }
 
+    return true;
+}
+
+// MARK: - Operations
+
+auto kdl::host::filesystem::path::copy_to(const path &path) const -> bool
+{
+    std::ifstream source_file(string(), std::ios::binary);
+    std::ofstream destination_file(path.string(), std::ios::binary);
+    destination_file << source_file.rdbuf();
+
+    // TODO: Make sure we check if the operation can be completed...
     return true;
 }

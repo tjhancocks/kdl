@@ -24,12 +24,11 @@
 #include <string>
 #include <type_traits>
 #include <utility>
-#include "parser/file.hpp"
 
-namespace kdl
+#include <libKDL/host/filesystem/file.hpp>
+
+namespace kdl::lexer
 {
-    struct file;
-
     /**
      * The kdl::lexeme structure represents a single token/lexeme within a KDL source file. It has
      * the source text value, the position of it within the file, and the owning file from which it
@@ -54,9 +53,8 @@ namespace kdl
          * @param type The lexical type that the token is
          */
         lexeme(const std::string& text, enum type type)
-            : m_text(std::move(text)), m_type(type), m_owner({}), m_pos(0), m_offset(0), m_line(0)
+            : m_text(text), m_type(type), m_owner({}), m_pos(0), m_offset(0), m_line(0)
         {
-
         }
 
         /**
@@ -68,13 +66,12 @@ namespace kdl
          * @param line The line that the token was found.
          * @param owner The file from which the token originated.
          */
-        lexeme(const std::string& text, enum type type, std::size_t pos, std::size_t offset, std::size_t line, std::weak_ptr<file> owner)
+        lexeme(const std::string& text, enum type type, std::size_t pos, std::size_t offset, std::size_t line, std::weak_ptr<host::filesystem::file> owner)
             : m_text(std::move(text)), m_type(type), m_pos(pos), m_offset(offset), m_line(line), m_owner(owner)
         {
-
         }
 
-        lexeme(const std::vector<std::string>& components, enum type type, std::size_t pos, std::size_t offset, std::size_t line, std::weak_ptr<file> owner)
+        lexeme(const std::vector<std::string>& components, enum type type, std::size_t pos, std::size_t offset, std::size_t line, std::weak_ptr<host::filesystem::file> owner)
             : m_components(components), m_type(type), m_pos(pos), m_offset(offset), m_line(line), m_owner(owner)
         {
             auto is_first = true;
@@ -87,14 +84,12 @@ namespace kdl
         /**
          * Returns the path to the directory, that contains the file from which the lexeme was extracted.
          */
-        [[nodiscard]] auto source_directory() const -> std::string
+        [[nodiscard]] auto source_directory() const -> host::filesystem::path
         {
             if (auto file = m_owner.lock()) {
-                auto file_path = file->path();
-                auto parent_directory_path = file_path.substr(0, file_path.find_last_of('/'));
-                return parent_directory_path;
+                return file->path().parent();
             }
-            return "";
+            return {};
         }
 
         /**
@@ -111,7 +106,7 @@ namespace kdl
             // Only attach the file if we still have a valid reference to it. If the file has been
             // released then omit it.
             if (auto file = m_owner.lock()) {
-                result += file->path() + ":";
+                result += file->path().string() + ":";
             }
 
             // Encode the line and offset, and return the result.
@@ -188,11 +183,28 @@ namespace kdl
          */
         [[nodiscard]] auto text() const -> std::string
         {
+            if (m_text.empty() && !m_components.empty()) {
+                std::string result;
+                for (const auto& component : m_components) {
+                    if (!result.empty()) {
+                        result.insert(result.end(), '.');
+                    }
+                    result.insert(result.end(), component.begin(), component.end());
+                }
+                return result;
+            }
             return m_text;
         }
 
+        /**
+         * Returns a vector of the components that make up the lexeme text.
+         * @return  A vector of lexeme components
+         */
         [[nodiscard]] auto components() const -> std::vector<std::string>
         {
+            if (m_components.empty()) {
+                return std::vector<std::string>(1, m_text);
+            }
             return m_components;
         }
 
@@ -246,7 +258,7 @@ namespace kdl
         }
 
     private:
-        std::weak_ptr<file> m_owner;
+        std::weak_ptr<host::filesystem::file> m_owner;
         std::string m_text;
         std::size_t m_pos;
         std::size_t m_offset;
