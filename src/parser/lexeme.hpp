@@ -44,6 +44,7 @@ namespace kdl
             integer, string, res_id, identifier,
             l_paren, r_paren, l_angle, r_angle, l_brace, r_brace, l_bracket, r_bracket,
             comma, dot, pipe, slash, amp, colon, semi, plus, minus, star, equals, carat,
+            left_shift, right_shift, tilde,
             directive, var, l_expr, r_expr, percentage, exclaim
         };
 
@@ -212,6 +213,15 @@ namespace kdl
             }
             else if (m_type == lexeme::carat) {
                 return 4;
+            }
+            else if (m_type == lexeme::left_shift || m_type == lexeme::right_shift) {
+                return 5;
+            }
+            else if (m_type == lexeme::pipe) {
+                return 6;
+            }
+            else if (m_type == lexeme::amp) {
+                return 7;
             }
             else if (m_type == lexeme::res_id && !m_components.empty()) {
                 return static_cast<T>(std::stoll(m_components.back(), nullptr, 10));

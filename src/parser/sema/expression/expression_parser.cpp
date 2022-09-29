@@ -148,7 +148,10 @@ auto kdl::sema::expression_parser::evaluate(parser &parser, std::shared_ptr<targ
             output_queue.emplace_back(token);
             result_type = lexeme::percentage;
         }
-        else if (token.is(lexeme::plus) || token.is(lexeme::minus) || token.is(lexeme::star) || token.is(lexeme::slash) || token.is(lexeme::carat)) {
+        else if (
+            token.is(lexeme::plus) || token.is(lexeme::minus) || token.is(lexeme::star) || token.is(lexeme::slash) || token.is(lexeme::carat) ||
+            token.is(lexeme::amp) || token.is(lexeme::pipe) || token.is(lexeme::tilde) || token.is(lexeme::left_shift) || token.is(lexeme::right_shift)
+        ) {
             while (!operator_stack.empty()) {
                 const auto& o2 = operator_stack.back();
                 if ((!o2.is(lexeme::l_paren)) && (o2.value<std::int64_t>() >= token.value<std::int64_t>() && token.left_associative())) {
@@ -213,6 +216,30 @@ auto kdl::sema::expression_parser::evaluate(parser &parser, std::shared_ptr<targ
             const auto rhs = working_stack.back(); working_stack.pop_back();
             const auto lhs = working_stack.back(); working_stack.pop_back();
             working_stack.emplace_back(lhs ^ rhs);
+        }
+        else if (o.is(lexeme::amp)) {
+            const auto rhs = working_stack.back(); working_stack.pop_back();
+            const auto lhs = working_stack.back(); working_stack.pop_back();
+            working_stack.emplace_back(lhs & rhs);
+        }
+        else if (o.is(lexeme::tilde)) {
+            const auto lhs = working_stack.back(); working_stack.pop_back();
+            working_stack.emplace_back(~lhs);
+        }
+        else if (o.is(lexeme::pipe)) {
+            const auto rhs = working_stack.back(); working_stack.pop_back();
+            const auto lhs = working_stack.back(); working_stack.pop_back();
+            working_stack.emplace_back(lhs | rhs);
+        }
+        else if (o.is(lexeme::left_shift)) {
+            const auto rhs = working_stack.back(); working_stack.pop_back();
+            const auto lhs = working_stack.back(); working_stack.pop_back();
+            working_stack.emplace_back(lhs << rhs);
+        }
+        else if (o.is(lexeme::right_shift)) {
+            const auto rhs = working_stack.back(); working_stack.pop_back();
+            const auto lhs = working_stack.back(); working_stack.pop_back();
+            working_stack.emplace_back(lhs >> rhs);
         }
     }
 
