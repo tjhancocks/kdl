@@ -211,6 +211,12 @@ auto kdl::lexer::lexer::analyze() -> std::vector<lexeme>
                 m_expr_paren_balance--;
             }
         }
+        else if (test_if(condition::sequence<'<', '<'>::yes, 0, 2)) {
+            m_lexemes.emplace_back(lexeme(read(0, 2), lexeme::left_shift, m_pos, m_offset, m_line, m_source));
+        }
+        else if (test_if(condition::sequence<'>', '>'>::yes, 0, 2)) {
+            m_lexemes.emplace_back(lexeme(read(0, 2), lexeme::right_shift, m_pos, m_offset, m_line, m_source));
+        }
         else if (test_if(condition::match<'<'>::yes)) {
             m_lexemes.emplace_back(lexeme(read(), lexeme::l_angle, m_pos, m_offset, m_line, m_source));
         }

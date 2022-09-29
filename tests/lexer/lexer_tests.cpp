@@ -97,7 +97,9 @@ TEST(lexer_analyze_producesExpectedLexemesForInputs)
         { "|", lexeme::pipe, "|" },
         { "^", lexeme::carat, "^" },
         { ":", lexeme::colon, ":" },
-        { "!", lexeme::exclaim, "!" }
+        { "!", lexeme::exclaim, "!" },
+        { "<<", lexeme::left_shift, "<<" },
+        { ">>", lexeme::right_shift, ">>" }
     });
 
     for (const auto& expectation : lexeme_expectations) {
