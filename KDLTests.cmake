@@ -29,6 +29,7 @@ test_suite(kdl
             lexer_analyze_returnsExpectedSequenceOfLexemes_noErrors
             lexer_analzye_commentsAreIgnored
             lexer_analyze_unrecognisedCharacterExceptionRaised_whenExpected
+            lexer_analyze_producesExpectedLexemesForInputs
 
         # Lexeme
             lexeme_construct_usingTextAndType

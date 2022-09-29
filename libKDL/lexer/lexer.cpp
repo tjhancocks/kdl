@@ -255,7 +255,7 @@ auto kdl::lexer::lexer::analyze() -> std::vector<lexeme>
         }
 
         // Unrecognised character encountered
-        else {
+        else if (available()) {
             throw unrecognised_character_exception(dummy());
         }
     }
@@ -267,7 +267,7 @@ auto kdl::lexer::lexer::analyze() -> std::vector<lexeme>
 
 auto kdl::lexer::lexer::dummy(long offset) const -> lexeme
 {
-    return { peek(), lexeme::any, m_pos + offset, m_offset + offset, m_line, m_source };
+    return { "<no text available>", lexeme::any, m_pos + offset, m_offset + offset, m_line, m_source };
 }
 
 auto kdl::lexer::lexer::length() const -> std::size_t
@@ -305,13 +305,13 @@ auto kdl::lexer::lexer::read(long offset, std::size_t length) -> std::string
 
 auto kdl::lexer::lexer::test_if(const std::function<auto(const std::string&) -> bool>& fn, long offset, std::size_t length) const -> bool
 {
-    return fn(peek(offset, length));
+    return available(offset, length) && fn(peek(offset, length));
 }
 
 auto kdl::lexer::lexer::consume_while(const std::function<auto(const std::string&) -> bool>& fn, std::size_t size) -> bool
 {
     m_slice.clear();
-    while (fn(peek(0, size))) {
+    while (available(0, size) && fn(peek(0, size))) {
         m_slice += read(0, size);
     }
     return !m_slice.empty();
