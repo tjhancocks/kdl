@@ -81,9 +81,9 @@ add_dependencies(kdl-bin generate-kdl-version)
 
 ########################################################################################################################
 ## KDL - Test Suite
-if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/KDLTests.cmake)
+if (EXISTS ${CMAKE_SOURCE_DIR}/KDLTests.cmake)
 	include(${PROJECT_SUBMODULE_DIR}/Graphite/libTesting/testing.cmake)
 	build_testing_library()
-	add_testing_target(kdl ${CMAKE_CURRENT_SOURCE_DIR}/tests)
-	include(${CMAKE_CURRENT_SOURCE_DIR}/KDLTests.cmake)
+	add_testing_target(kdl ${CMAKE_SOURCE_DIR}/tests)
+	include(${CMAKE_SOURCE_DIR}/KDLTests.cmake)
 endif()
